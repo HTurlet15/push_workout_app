@@ -16,6 +16,12 @@ import colors from './src/theme/colors';
 import spacing from './src/theme/spacing';
 import typography from './src/theme/typography';
 
+import { formatWorkoutDate, getRelativeTime } from './src/utils/dateUtils';
+
+console.log('Test formatWorkoutDate:', formatWorkoutDate('2025-01-28')); // Jan 28
+console.log('Test null:', formatWorkoutDate(null)); // Never
+console.log('Test relative:', getRelativeTime('2025-01-30')); // 2 days ago
+
 export default function App() {
   return (
     <SafeAreaProvider>
@@ -24,13 +30,13 @@ export default function App() {
         
         {/* Header Section */}
         <View style={styles.header}>
-          <Text style={styles.title}>SÉANCE PECTORAUX</Text>
-          <Text style={styles.subtitle}>Dernière: 28 janvier</Text>
+          <Text style={styles.title}>PUSH WORKOUT</Text>
+          <Text style={styles.subtitle}>Last: Jan 28</Text>
         </View>
         
         {/* Exercise Card */}
         <View style={styles.card}>
-          <Text style={styles.exerciseName}>Développé Couché</Text>
+          <Text style={styles.exerciseName}>Bench Press</Text>
           <Text style={styles.exerciseDetail}>4 × 12 reps</Text>
         </View>
         
