@@ -8,7 +8,8 @@
  */
 
 import React from 'react';
-import { StyleSheet, Text, View, SafeAreaView, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, StatusBar } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 // Import design system
 import colors from './src/theme/colors';
@@ -17,22 +18,24 @@ import typography from './src/theme/typography';
 
 export default function App() {
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      
-      {/* Header Section */}
-      <View style={styles.header}>
-        <Text style={styles.title}>SÉANCE PECTORAUX</Text>
-        <Text style={styles.subtitle}>Dernière: 28 janvier</Text>
-      </View>
-      
-      {/* Exercise Card */}
-      <View style={styles.card}>
-        <Text style={styles.exerciseName}>Développé Couché</Text>
-        <Text style={styles.exerciseDetail}>4 × 12 reps</Text>
-      </View>
-      
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" />
+        
+        {/* Header Section */}
+        <View style={styles.header}>
+          <Text style={styles.title}>SÉANCE PECTORAUX</Text>
+          <Text style={styles.subtitle}>Dernière: 28 janvier</Text>
+        </View>
+        
+        {/* Exercise Card */}
+        <View style={styles.card}>
+          <Text style={styles.exerciseName}>Développé Couché</Text>
+          <Text style={styles.exerciseDetail}>4 × 12 reps</Text>
+        </View>
+        
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
