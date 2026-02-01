@@ -1,26 +1,25 @@
 /**
  * Push — Minimalist Workout Tracker
  * 
- * @description Main application entry point.
- * Showcases the design system with a sample workout screen.
+ * @description Main application entry point with horizontal workout carousel.
+ * Users can swipe between workout sessions (Push, Pull, Legs, Arms/Shoulders).
  * 
  * @version 1.0.0
  */
 
 import React from 'react';
-import { StyleSheet, Text, View, StatusBar } from 'react-native';
+import { StyleSheet, StatusBar, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import PagerView from 'react-native-pager-view';
+
+// Import data
+import { workouts } from './src/data/workouts';
+
+// Import components
+import WorkoutScreen from './src/components/WorkoutScreen';
 
 // Import design system
 import colors from './src/theme/colors';
-import spacing from './src/theme/spacing';
-import typography from './src/theme/typography';
-
-import { formatWorkoutDate, getRelativeTime } from './src/utils/dateUtils';
-
-console.log('Test formatWorkoutDate:', formatWorkoutDate('2025-01-28')); // Jan 28
-console.log('Test null:', formatWorkoutDate(null)); // Never
-console.log('Test relative:', getRelativeTime('2025-01-30')); // 2 days ago
 
 export default function App() {
   return (
@@ -28,17 +27,17 @@ export default function App() {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" />
         
-        {/* Header Section */}
-        <View style={styles.header}>
-          <Text style={styles.title}>PUSH WORKOUT</Text>
-          <Text style={styles.subtitle}>Last: Jan 28</Text>
-        </View>
-        
-        {/* Exercise Card */}
-        <View style={styles.card}>
-          <Text style={styles.exerciseName}>Bench Press</Text>
-          <Text style={styles.exerciseDetail}>4 × 12 reps</Text>
-        </View>
+        {/* Horizontal Workout Carousel */}
+        <PagerView 
+          style={styles.pagerView} 
+          initialPage={0}
+        >
+          {workouts.map((workout) => (
+            <View key={workout.id} collapsable={false} style={styles.page}>
+              <WorkoutScreen workout={workout} />
+            </View>
+          ))}
+        </PagerView>
         
       </SafeAreaView>
     </SafeAreaProvider>
@@ -46,47 +45,19 @@ export default function App() {
 }
 
 /**
- * Stylesheet using design system tokens
+ * Stylesheet
  */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,
-    paddingHorizontal: spacing.lg,
   },
   
-  header: {
-    marginTop: spacing.xl,
-    marginBottom: spacing.lg,
+  pagerView: {
+    flex: 1,
   },
   
-  title: {
-    ...typography.h1,
-    color: colors.gray900,
-    marginBottom: spacing.xs,
-  },
-  
-  subtitle: {
-    ...typography.caption,
-    color: colors.gray600,
-  },
-  
-  card: {
-    backgroundColor: colors.gray100,
-    padding: spacing.md,
-    borderRadius: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.gray200,
-  },
-  
-  exerciseName: {
-    ...typography.bodyBold,
-    color: colors.black,
-    marginBottom: spacing.micro,
-  },
-  
-  exerciseDetail: {
-    ...typography.caption,
-    color: colors.gray700,
+  page: {
+    flex: 1,
   },
 });
