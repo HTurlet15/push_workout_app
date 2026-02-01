@@ -1,20 +1,83 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+/**
+ * Push — Minimalist Workout Tracker
+ * 
+ * @description Main application entry point.
+ * Showcases the design system with a sample workout screen.
+ * 
+ * @version 1.0.0
+ */
+
+import React from 'react';
+import { StyleSheet, Text, View, SafeAreaView, StatusBar } from 'react-native';
+
+// Import design system
+import colors from './src/theme/colors';
+import spacing from './src/theme/spacing';
+import typography from './src/theme/typography';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      
+      {/* Header Section */}
+      <View style={styles.header}>
+        <Text style={styles.title}>SÉANCE PECTORAUX</Text>
+        <Text style={styles.subtitle}>Dernière: 28 janvier</Text>
+      </View>
+      
+      {/* Exercise Card */}
+      <View style={styles.card}>
+        <Text style={styles.exerciseName}>Développé Couché</Text>
+        <Text style={styles.exerciseDetail}>4 × 12 reps</Text>
+      </View>
+      
+    </SafeAreaView>
   );
 }
 
+/**
+ * Stylesheet using design system tokens
+ */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: colors.white,
+    paddingHorizontal: spacing.lg,
+  },
+  
+  header: {
+    marginTop: spacing.xl,
+    marginBottom: spacing.lg,
+  },
+  
+  title: {
+    ...typography.h1,
+    color: colors.gray900,
+    marginBottom: spacing.xs,
+  },
+  
+  subtitle: {
+    ...typography.caption,
+    color: colors.gray600,
+  },
+  
+  card: {
+    backgroundColor: colors.gray100,
+    padding: spacing.md,
+    borderRadius: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.gray200,
+  },
+  
+  exerciseName: {
+    ...typography.bodyBold,
+    color: colors.black,
+    marginBottom: spacing.micro,
+  },
+  
+  exerciseDetail: {
+    ...typography.caption,
+    color: colors.gray700,
   },
 });
