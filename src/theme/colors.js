@@ -32,9 +32,12 @@ const colors = {
   // Accent color (sparingly used for CTAs)
   accent: '#0A84FF', // iOS blue
   
-  // Semantic colors (rare usage)
-  success: '#34C759',
-  error: '#FF3B30',
+  // Success/Progress colors (NEW)
+  green: '#10B981',
+  green100: '#D1FAE5',
+  green500: '#10B981',
+  green700: '#047857',
+
 };
 
 export default colors;

@@ -1,19 +1,17 @@
 /**
- * ExerciseRow Component (Strong-inspired design)
+ * ExerciseRow Component with Right-Side Swipeable Planning
  * 
  * @module components/ExerciseRow
- * @description Table-based exercise tracking with Previous, Weight, Reps columns.
- * Inspired by Strong app's clean, efficient UX.
+ * @description Table-based exercise tracking with slide-right planning reveal.
  * 
  * Features:
- *   - Tap on Previous to auto-fill weight and reps
- *   - Tap on kg/reps to edit with keyboard
- *   - Long press on kg for +2.5kg increment
- *   - Long press on reps for +1 increment
- *   - Tap checkbox to mark set as completed
- *   - Add/Remove set buttons in edit mode
+ *   - Tap → to reveal "Planned Next" (slides from right)
+ *   - Previous slides out left, kg/Reps/RIR shift left
+ *   - Edit planned kg/reps for next session
+ *   - Tap ← to save and return
+ *   - Header changes dynamically
  * 
- * @version 3.0.0
+ * @version 5.0.0
  */
 
 import React, { useState } from 'react';
@@ -23,6 +21,7 @@ import {
   View, 
   TouchableOpacity, 
   TextInput,
+  Animated,
 } from 'react-native';
 
 // Import design system
@@ -31,23 +30,46 @@ import spacing from '../theme/spacing';
 import typography from '../theme/typography';
 
 /**
- * SetRow Component - Single set row in the table
+ * SetRow Component with Right-Reveal Planning
  */
 function SetRow({ 
   setNumber, 
   set, 
+  isPlanning,
   onUpdateWeight, 
   onUpdateReps, 
-  onToggleComplete,
-  onCopyPrevious 
+  onUpdateRir,
+  onValidate,
+  onOpenPlanning,
+  onClosePlanning,
 }) {
-  const [weightText, setWeightText] = useState(set.weight.toString());
-  const [repsText, setRepsText] = useState(set.reps.toString());
+  const [slideAnim] = useState(new Animated.Value(0));
+  
+  // Local state for inputs
+  const [weightText, setWeightText] = useState((set.weight || 0).toString());
+  const [repsText, setRepsText] = useState((set.reps || 0).toString());
+  const [rirText, setRirText] = useState((set.rir || '').toString());
+  
+  // Local state for planned values
+  const [plannedWeight, setPlannedWeight] = useState(
+    (set.plannedWeight || set.weight || 0).toString()
+  );
+  const [plannedReps, setPlannedReps] = useState(
+    (set.plannedReps || set.reps || 0).toString()
+  );
+  
+  React.useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: isPlanning ? 1 : 0,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  }, [isPlanning]);
   
   const handleWeightChange = (text) => {
     setWeightText(text);
     const parsed = parseFloat(text);
-    if (!isNaN(parsed) && parsed > 0) {
+    if (!isNaN(parsed) && parsed >= 0) {
       onUpdateWeight(parsed);
     }
   };
@@ -55,85 +77,181 @@ function SetRow({
   const handleRepsChange = (text) => {
     setRepsText(text);
     const parsed = parseInt(text, 10);
-    if (!isNaN(parsed) && parsed > 0) {
+    if (!isNaN(parsed) && parsed >= 0) {
       onUpdateReps(parsed);
     }
   };
   
-  const handleWeightLongPress = () => {
-    const newWeight = set.weight + 2.5;
-    setWeightText(newWeight.toString());
-    onUpdateWeight(newWeight);
-  };
-  
-  const handleRepsLongPress = () => {
-    const newReps = set.reps + 1;
-    setRepsText(newReps.toString());
-    onUpdateReps(newReps);
-  };
-  
-  const handleCopyPrevious = () => {
-    if (set.previous) {
-      setWeightText(set.previous.weight.toString());
-      setRepsText(set.previous.reps.toString());
-      onCopyPrevious(set.previous.weight, set.previous.reps);
+  const handleRirChange = (text) => {
+    setRirText(text);
+    const parsed = parseInt(text, 10);
+    if (!isNaN(parsed) && parsed >= 0) {
+      onUpdateRir(parsed);
     }
   };
   
+  const handleSavePlanning = () => {
+    const parsedWeight = parseFloat(plannedWeight);
+    const parsedReps = parseInt(plannedReps, 10);
+    
+    if (!isNaN(parsedWeight) && !isNaN(parsedReps)) {
+      onClosePlanning(parsedWeight, parsedReps);
+    }
+  };
+  
+  // Interpolations
+  const previousOpacity = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 0],
+  });
+  
+  const previousTranslateX = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -100], // Slide out left
+  });
+  
+  const mainInputsTranslateX = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -80], // Shift left to fill Previous space
+  });
+  
+  const plannedWidth = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 180], // Width of Planned section
+  });
+  
+  const plannedOpacity = slideAnim.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 0, 1],
+  });
+  
+  // Get status icon
+  const getStatusIcon = () => {
+    if (set.planned) return '✓';
+    if (set.completed) return '→';
+    return '○';
+  };
+  
+  const getStatusColor = () => {
+    if (set.planned) return colors.green;
+    if (set.completed) return colors.gray700;
+    return colors.gray400;
+  };
+  
   return (
-    <View style={styles.setRow}>
-      {/* Set Number */}
-      <Text style={styles.setNumber}>{setNumber}</Text>
+    <View style={styles.setRowContainer}>
+      {/* Set Number (Static) */}
+      <View style={styles.setNumberContainer}>
+        <Text style={styles.setNumber}>{setNumber}</Text>
+      </View>
       
-      {/* Previous */}
-      <TouchableOpacity 
-        style={styles.previousContainer}
-        onPress={handleCopyPrevious}
-        activeOpacity={0.7}
-      >
-        {set.previous ? (
-          <Text style={styles.previousText}>
-            {set.previous.weight}kg × {set.previous.reps}
-          </Text>
-        ) : (
-          <Text style={styles.previousTextEmpty}>—</Text>
-        )}
-      </TouchableOpacity>
-      
-      {/* Weight Input */}
-      <TextInput
-        style={styles.input}
-        value={weightText}
-        onChangeText={handleWeightChange}
-        keyboardType="decimal-pad"
-        selectTextOnFocus={true}
-        onLongPress={handleWeightLongPress}
-      />
-      
-      {/* Reps Input */}
-      <TextInput
-        style={styles.input}
-        value={repsText}
-        onChangeText={handleRepsChange}
-        keyboardType="number-pad"
-        selectTextOnFocus={true}
-        onLongPress={handleRepsLongPress}
-      />
-      
-      {/* Checkbox */}
-      <TouchableOpacity 
-        style={styles.checkboxContainer}
-        onPress={onToggleComplete}
-        activeOpacity={0.7}
-      >
-        <View style={[
-          styles.checkbox,
-          set.completed && styles.checkboxChecked
-        ]}>
-          {set.completed && (
-            <Text style={styles.checkmark}>✓</Text>
+      {/* Previous (Slides out left) */}
+      {!isPlanning && (
+        <Animated.View 
+          style={[
+            styles.previousContainer,
+            {
+              opacity: previousOpacity,
+              transform: [{ translateX: previousTranslateX }],
+            }
+          ]}
+        >
+          {set.previousWeight && set.previousReps ? (
+            <>
+              <Text style={styles.previousText}>
+                {set.previousWeight}kg × {set.previousReps}
+              </Text>
+              {set.previousRir !== null && set.previousRir !== undefined && (
+                <Text style={styles.previousRir}>RIR {set.previousRir}</Text>
+              )}
+            </>
+          ) : (
+            <Text style={styles.previousTextEmpty}>—</Text>
           )}
-        </View>
+        </Animated.View>
+      )}
+      
+      {/* Main Inputs (Shift left) */}
+      <Animated.View 
+        style={[
+          styles.mainInputsContainer,
+          { transform: [{ translateX: mainInputsTranslateX }] }
+        ]}
+      >
+        <TextInput
+          style={[styles.input, set.isPlanned && styles.inputPlanned]}
+          value={weightText}
+          onChangeText={handleWeightChange}
+          keyboardType="decimal-pad"
+          selectTextOnFocus={true}
+          editable={!set.completed}
+        />
+        
+        <TextInput
+          style={[styles.input, set.isPlanned && styles.inputPlanned]}
+          value={repsText}
+          onChangeText={handleRepsChange}
+          keyboardType="number-pad"
+          selectTextOnFocus={true}
+          editable={!set.completed}
+        />
+        
+        <TextInput
+          style={styles.inputSmall}
+          value={rirText}
+          onChangeText={handleRirChange}
+          keyboardType="number-pad"
+          selectTextOnFocus={true}
+          placeholder="—"
+          placeholderTextColor={colors.gray300}
+          editable={!set.completed}
+        />
+      </Animated.View>
+      
+      {/* Planned Next (Slides in from right) */}
+      <Animated.View 
+        style={[
+          styles.plannedContainer,
+          {
+            width: plannedWidth,
+            opacity: plannedOpacity,
+          }
+        ]}
+      >
+        <TextInput
+          style={styles.inputPlanning}
+          value={plannedWeight}
+          onChangeText={setPlannedWeight}
+          keyboardType="decimal-pad"
+          selectTextOnFocus={true}
+          placeholder="kg"
+          placeholderTextColor={colors.gray500}
+        />
+        
+        <TextInput
+          style={styles.inputPlanning}
+          value={plannedReps}
+          onChangeText={setPlannedReps}
+          keyboardType="number-pad"
+          selectTextOnFocus={true}
+          placeholder="reps"
+          placeholderTextColor={colors.gray500}
+        />
+      </Animated.View>
+      
+      {/* Status Button */}
+      <TouchableOpacity 
+        style={styles.statusButton}
+        onPress={
+          isPlanning 
+            ? handleSavePlanning 
+            : (set.completed ? onOpenPlanning : onValidate)
+        }
+        activeOpacity={0.7}
+      >
+        <Text style={[styles.statusIcon, { color: getStatusColor() }]}>
+          {isPlanning ? '←' : getStatusIcon()}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -143,6 +261,7 @@ function SetRow({
  * ExerciseRow Component
  */
 function ExerciseRow({ exercise, isEditing, onUpdateSet, onAddSet, onRemoveSet }) {
+  const [planningSetIndex, setPlanningSetIndex] = useState(null);
   
   const handleUpdateWeight = (setIndex, weight) => {
     onUpdateSet(setIndex, { ...exercise.sets[setIndex], weight });
@@ -152,17 +271,29 @@ function ExerciseRow({ exercise, isEditing, onUpdateSet, onAddSet, onRemoveSet }
     onUpdateSet(setIndex, { ...exercise.sets[setIndex], reps });
   };
   
-  const handleToggleComplete = (setIndex) => {
-    const set = exercise.sets[setIndex];
-    onUpdateSet(setIndex, { ...set, completed: !set.completed });
+  const handleUpdateRir = (setIndex, rir) => {
+    onUpdateSet(setIndex, { ...exercise.sets[setIndex], rir });
   };
   
-  const handleCopyPrevious = (setIndex, weight, reps) => {
+  const handleValidate = (setIndex) => {
     onUpdateSet(setIndex, { 
       ...exercise.sets[setIndex], 
-      weight, 
-      reps 
+      completed: true 
     });
+  };
+  
+  const handleOpenPlanning = (setIndex) => {
+    setPlanningSetIndex(setIndex);
+  };
+  
+  const handleClosePlanning = (setIndex, weight, reps) => {
+    onUpdateSet(setIndex, { 
+      ...exercise.sets[setIndex], 
+      plannedWeight: weight,
+      plannedReps: reps,
+      planned: true,
+    });
+    setPlanningSetIndex(null);
   };
   
   const handleAddSet = () => {
@@ -170,24 +301,38 @@ function ExerciseRow({ exercise, isEditing, onUpdateSet, onAddSet, onRemoveSet }
     const newSet = {
       reps: lastSet?.reps || 10,
       weight: lastSet?.weight || 20,
+      rir: null,
       completed: false,
-      previous: lastSet?.previous || null,
+      planned: false,
+      previousWeight: lastSet?.previousWeight || null,
+      previousReps: lastSet?.previousReps || null,
+      previousRir: lastSet?.previousRir || null,
+      isPlanned: false,
     };
     onAddSet(newSet);
   };
+  
+  // Check if any set is in planning mode
+  const isAnyPlanning = planningSetIndex !== null;
   
   return (
     <View style={styles.container}>
       {/* Exercise Name */}
       <Text style={styles.exerciseName}>{exercise.name}</Text>
       
-      {/* Table Header */}
+      {/* Table Header (Dynamic) */}
       <View style={styles.headerRow}>
-        <Text style={styles.headerCell}>Set</Text>
-        <Text style={[styles.headerCell, styles.headerPrevious]}>Previous</Text>
+        <Text style={styles.headerSet}>Set</Text>
+        {!isAnyPlanning && (
+          <Text style={styles.headerPrevious}>Previous</Text>
+        )}
         <Text style={styles.headerCell}>kg</Text>
         <Text style={styles.headerCell}>Reps</Text>
-        <Text style={styles.headerCell}>✓</Text>
+        <Text style={styles.headerCellSmall}>RIR</Text>
+        {isAnyPlanning && (
+          <Text style={styles.headerPlanned}>Planned Next</Text>
+        )}
+        <Text style={styles.headerCellSmall}>{isAnyPlanning ? '←' : '✓'}</Text>
       </View>
       
       {/* Separator */}
@@ -199,10 +344,13 @@ function ExerciseRow({ exercise, isEditing, onUpdateSet, onAddSet, onRemoveSet }
           key={index}
           setNumber={index + 1}
           set={set}
+          isPlanning={planningSetIndex === index}
           onUpdateWeight={(weight) => handleUpdateWeight(index, weight)}
           onUpdateReps={(reps) => handleUpdateReps(index, reps)}
-          onToggleComplete={() => handleToggleComplete(index)}
-          onCopyPrevious={(weight, reps) => handleCopyPrevious(index, weight, reps)}
+          onUpdateRir={(rir) => handleUpdateRir(index, rir)}
+          onValidate={() => handleValidate(index)}
+          onOpenPlanning={() => handleOpenPlanning(index)}
+          onClosePlanning={(weight, reps) => handleClosePlanning(index, weight, reps)}
         />
       ))}
       
@@ -261,17 +409,43 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   
+  headerSet: {
+    ...typography.small,
+    color: colors.gray600,
+    fontWeight: '600',
+    width: 40,
+    textAlign: 'center',
+  },
+  
+  headerPrevious: {
+    ...typography.small,
+    color: colors.gray600,
+    fontWeight: '600',
+    flex: 2,
+  },
+  
   headerCell: {
     ...typography.small,
     color: colors.gray600,
     fontWeight: '600',
-    textAlign: 'center',
     flex: 1,
+    textAlign: 'center',
   },
   
-  headerPrevious: {
-    flex: 2,
-    textAlign: 'left',
+  headerCellSmall: {
+    ...typography.small,
+    color: colors.gray600,
+    fontWeight: '600',
+    width: 50,
+    textAlign: 'center',
+  },
+  
+  headerPlanned: {
+    ...typography.small,
+    color: colors.gray600,
+    fontWeight: '600',
+    width: 180,
+    textAlign: 'center',
   },
   
   separator: {
@@ -280,29 +454,40 @@ const styles = StyleSheet.create({
     marginVertical: spacing.xs,
   },
   
-  setRow: {
+  setRowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: spacing.sm,
+    minHeight: 60,
+    overflow: 'hidden',
+  },
+  
+  setNumberContainer: {
+    width: 40,
+    alignItems: 'center',
   },
   
   setNumber: {
     ...typography.body,
     color: colors.gray700,
     fontWeight: '600',
-    flex: 1,
-    textAlign: 'center',
   },
   
   previousContainer: {
     flex: 2,
-    paddingHorizontal: spacing.xs,
+    paddingRight: spacing.xs,
   },
   
   previousText: {
     ...typography.caption,
-    color: colors.gray500,
+    color: colors.gray600,
     fontWeight: '500',
+  },
+  
+  previousRir: {
+    ...typography.small,
+    color: colors.gray400,
+    marginTop: 2,
   },
   
   previousTextEmpty: {
@@ -310,46 +495,78 @@ const styles = StyleSheet.create({
     color: colors.gray300,
   },
   
+  mainInputsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  
   input: {
     ...typography.body,
     color: colors.gray900,
     fontWeight: '600',
-    flex: 1,
+    width: 60,
     textAlign: 'center',
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.xs,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray300,
+    backgroundColor: 'transparent',
+  },
+  
+  inputPlanned: {
+    backgroundColor: colors.gray100,
+    color: colors.gray600,
+  },
+  
+  inputSmall: {
+    ...typography.body,
+    color: colors.gray900,
+    fontWeight: '600',
+    width: 50,
+    textAlign: 'center',
+    paddingVertical: spacing.xs,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray300,
+  },
+  
+  plannedContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.gray300,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: spacing.xs,
+    overflow: 'hidden',
+  },
+  
+  inputPlanning: {
+    ...typography.body,
+    color: colors.gray900,
+    fontWeight: '600',
+    width: 60,
+    textAlign: 'center',
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.xs,
+    backgroundColor: colors.white,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: colors.gray200,
-    backgroundColor: colors.gray50,
+    borderColor: colors.gray400,
   },
   
-  checkboxContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.gray300,
+  statusButton: {
+    width: 50,
     alignItems: 'center',
     justifyContent: 'center',
   },
   
-  checkboxChecked: {
-    backgroundColor: colors.gray900,
-    borderColor: colors.gray900,
-  },
-  
-  checkmark: {
-    color: colors.white,
-    fontSize: 14,
+  statusIcon: {
+    fontSize: 20,
     fontWeight: '700',
   },
   
+  // Edit buttons
   editButtons: {
     flexDirection: 'row',
     gap: spacing.sm,
