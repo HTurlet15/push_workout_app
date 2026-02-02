@@ -1,22 +1,19 @@
 /**
- * ExerciseRow Component
+ * ExerciseRow Component (Strong-inspired design)
  * 
  * @module components/ExerciseRow
- * @description Displays a single exercise with interactive set controls.
+ * @description Table-based exercise tracking with Previous, Weight, Reps columns.
+ * Inspired by Strong app's clean, efficient UX.
+ * 
  * Features:
- *   - Tap ▲ to increment reps
- *   - Tap ▼ to decrement reps
- *   - Long press badge to manually edit value
- *   - Tap + to add new set
- *   - Tap - to remove last set
+ *   - Tap on Previous to auto-fill weight and reps
+ *   - Tap on kg/reps to edit with keyboard
+ *   - Long press on kg for +2.5kg increment
+ *   - Long press on reps for +1 increment
+ *   - Tap checkbox to mark set as completed
+ *   - Add/Remove set buttons in edit mode
  * 
- * Props:
- *   - exercise: Object with { id, name, sets, notes }
- *   - onUpdateSet: Function(setIndex, newValue) - Update specific set
- *   - onAddSet: Function(value) - Add new set
- *   - onRemoveSet: Function() - Remove last set
- * 
- * @version 2.2.0
+ * @version 3.0.0
  */
 
 import React, { useState } from 'react';
@@ -25,9 +22,7 @@ import {
   Text, 
   View, 
   TouchableOpacity, 
-  Modal,
   TextInput,
-  Keyboard,
 } from 'react-native';
 
 // Import design system
@@ -36,135 +31,109 @@ import spacing from '../theme/spacing';
 import typography from '../theme/typography';
 
 /**
- * EditSetModal Component - Cross-platform modal for editing set value
+ * SetRow Component - Single set row in the table
  */
-function EditSetModal({ visible, currentValue, onSave, onCancel }) {
-  const [value, setValue] = useState(currentValue.toString());
+function SetRow({ 
+  setNumber, 
+  set, 
+  onUpdateWeight, 
+  onUpdateReps, 
+  onToggleComplete,
+  onCopyPrevious 
+}) {
+  const [weightText, setWeightText] = useState(set.weight.toString());
+  const [repsText, setRepsText] = useState(set.reps.toString());
   
-  const handleSave = () => {
-    const parsed = parseInt(value, 10);
+  const handleWeightChange = (text) => {
+    setWeightText(text);
+    const parsed = parseFloat(text);
     if (!isNaN(parsed) && parsed > 0) {
-      onSave(parsed);
-      Keyboard.dismiss();
+      onUpdateWeight(parsed);
+    }
+  };
+  
+  const handleRepsChange = (text) => {
+    setRepsText(text);
+    const parsed = parseInt(text, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      onUpdateReps(parsed);
+    }
+  };
+  
+  const handleWeightLongPress = () => {
+    const newWeight = set.weight + 2.5;
+    setWeightText(newWeight.toString());
+    onUpdateWeight(newWeight);
+  };
+  
+  const handleRepsLongPress = () => {
+    const newReps = set.reps + 1;
+    setRepsText(newReps.toString());
+    onUpdateReps(newReps);
+  };
+  
+  const handleCopyPrevious = () => {
+    if (set.previous) {
+      setWeightText(set.previous.weight.toString());
+      setRepsText(set.previous.reps.toString());
+      onCopyPrevious(set.previous.weight, set.previous.reps);
     }
   };
   
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={onCancel}
-    >
-      <TouchableOpacity 
-        style={styles.modalOverlay}
-        activeOpacity={1}
-        onPress={onCancel}
-      >
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Edit Reps</Text>
-          
-          <TextInput
-            style={styles.modalInput}
-            value={value}
-            onChangeText={setValue}
-            keyboardType="number-pad"
-            autoFocus={true}
-            selectTextOnFocus={true}
-            onSubmitEditing={handleSave}
-          />
-          
-          <View style={styles.modalButtons}>
-            <TouchableOpacity 
-              style={[styles.modalButton, styles.modalButtonCancel]}
-              onPress={onCancel}
-            >
-              <Text style={styles.modalButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.modalButton, styles.modalButtonSave]}
-              onPress={handleSave}
-            >
-              <Text style={[styles.modalButtonText, styles.modalButtonTextSave]}>
-                Save
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </TouchableOpacity>
-    </Modal>
-  );
-}
-
-/**
- * SetControl Component - Individual set with increment/decrement arrows
- */
-function SetControl({ value, onIncrement, onDecrement, onLongPress }) {
-  return (
-    <View style={styles.setControl}>
-      {/* Increment Arrow */}
-      <TouchableOpacity 
-        style={styles.arrowButton}
-        onPress={onIncrement}
-        activeOpacity={0.6}
-      >
-        <Text style={styles.arrowText}>▲</Text>
-      </TouchableOpacity>
+    <View style={styles.setRow}>
+      {/* Set Number */}
+      <Text style={styles.setNumber}>{setNumber}</Text>
       
-      {/* Set Badge */}
+      {/* Previous */}
       <TouchableOpacity 
-        style={styles.badge}
-        onLongPress={onLongPress}
-        activeOpacity={0.8}
-        delayLongPress={500}
-      >
-        <Text style={styles.badgeText}>{value}</Text>
-      </TouchableOpacity>
-      
-      {/* Decrement Arrow */}
-      <TouchableOpacity 
-        style={styles.arrowButton}
-        onPress={onDecrement}
-        activeOpacity={0.6}
-      >
-        <Text style={styles.arrowText}>▼</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
-/**
- * AddRemoveButtons Component - Vertical add/remove set buttons
- */
-function AddRemoveButtons({ onAdd, onRemove, canRemove }) {
-  return (
-    <View style={styles.addRemoveContainer}>
-      {/* Add Set Button */}
-      <TouchableOpacity 
-        style={styles.addRemoveButton}
-        onPress={onAdd}
+        style={styles.previousContainer}
+        onPress={handleCopyPrevious}
         activeOpacity={0.7}
       >
-        <Text style={styles.addRemoveButtonText}>+</Text>
+        {set.previous ? (
+          <Text style={styles.previousText}>
+            {set.previous.weight}kg × {set.previous.reps}
+          </Text>
+        ) : (
+          <Text style={styles.previousTextEmpty}>—</Text>
+        )}
       </TouchableOpacity>
       
-      {/* Remove Set Button */}
+      {/* Weight Input */}
+      <TextInput
+        style={styles.input}
+        value={weightText}
+        onChangeText={handleWeightChange}
+        keyboardType="decimal-pad"
+        selectTextOnFocus={true}
+        onLongPress={handleWeightLongPress}
+      />
+      
+      {/* Reps Input */}
+      <TextInput
+        style={styles.input}
+        value={repsText}
+        onChangeText={handleRepsChange}
+        keyboardType="number-pad"
+        selectTextOnFocus={true}
+        onLongPress={handleRepsLongPress}
+      />
+      
+      {/* Checkbox */}
       <TouchableOpacity 
-        style={[
-          styles.addRemoveButton,
-          !canRemove && styles.addRemoveButtonDisabled
-        ]}
-        onPress={onRemove}
+        style={styles.checkboxContainer}
+        onPress={onToggleComplete}
         activeOpacity={0.7}
-        disabled={!canRemove}
       >
-        <Text style={[
-          styles.addRemoveButtonText,
-          !canRemove && styles.addRemoveButtonTextDisabled
+        <View style={[
+          styles.checkbox,
+          set.completed && styles.checkboxChecked
         ]}>
-          −
-        </Text>
+          {set.completed && (
+            <Text style={styles.checkmark}>✓</Text>
+          )}
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -173,48 +142,38 @@ function AddRemoveButtons({ onAdd, onRemove, canRemove }) {
 /**
  * ExerciseRow Component
  */
-function ExerciseRow({ exercise, onUpdateSet, onAddSet, onRemoveSet }) {
-  const [editingSetIndex, setEditingSetIndex] = useState(null);
-
-  const handleIncrement = (setIndex) => {
-    const currentValue = exercise.sets[setIndex];
-    onUpdateSet(setIndex, currentValue + 1);
+function ExerciseRow({ exercise, isEditing, onUpdateSet, onAddSet, onRemoveSet }) {
+  
+  const handleUpdateWeight = (setIndex, weight) => {
+    onUpdateSet(setIndex, { ...exercise.sets[setIndex], weight });
   };
   
-  const handleDecrement = (setIndex) => {
-    const currentValue = exercise.sets[setIndex];
-    if (currentValue > 1) {
-      onUpdateSet(setIndex, currentValue - 1);
-    }
+  const handleUpdateReps = (setIndex, reps) => {
+    onUpdateSet(setIndex, { ...exercise.sets[setIndex], reps });
   };
   
-  const handleLongPress = (setIndex) => {
-    setEditingSetIndex(setIndex);
+  const handleToggleComplete = (setIndex) => {
+    const set = exercise.sets[setIndex];
+    onUpdateSet(setIndex, { ...set, completed: !set.completed });
   };
   
-  const handleSaveEdit = (newValue) => {
-    if (editingSetIndex !== null) {
-      onUpdateSet(editingSetIndex, newValue);
-      setEditingSetIndex(null);
-    }
-  };
-  
-  const handleCancelEdit = () => {
-    setEditingSetIndex(null);
+  const handleCopyPrevious = (setIndex, weight, reps) => {
+    onUpdateSet(setIndex, { 
+      ...exercise.sets[setIndex], 
+      weight, 
+      reps 
+    });
   };
   
   const handleAddSet = () => {
-    const lastSetValue = exercise.sets.length > 0 
-      ? exercise.sets[exercise.sets.length - 1] 
-      : 10;
-    
-    onAddSet(lastSetValue);
-  };
-  
-  const handleRemoveSet = () => {
-    if (exercise.sets.length > 0) {
-      onRemoveSet();
-    }
+    const lastSet = exercise.sets[exercise.sets.length - 1];
+    const newSet = {
+      reps: lastSet?.reps || 10,
+      weight: lastSet?.weight || 20,
+      completed: false,
+      previous: lastSet?.previous || null,
+    };
+    onAddSet(newSet);
   };
   
   return (
@@ -222,35 +181,56 @@ function ExerciseRow({ exercise, onUpdateSet, onAddSet, onRemoveSet }) {
       {/* Exercise Name */}
       <Text style={styles.exerciseName}>{exercise.name}</Text>
       
-      {/* Sets Row */}
-    <View style={styles.setsContainer}>
-    {/* Existing Sets with Controls */}
-    {exercise.sets.map((reps, index) => (
-        <SetControl
-        key={index}
-        value={reps}
-        onIncrement={() => handleIncrement(index)}
-        onDecrement={() => handleDecrement(index)}
-        onLongPress={() => handleLongPress(index)}
-        />
-    ))}
-    
-    {/* Add/Remove Buttons */}
-    <AddRemoveButtons 
-        onAdd={handleAddSet}
-        onRemove={handleRemoveSet}
-        canRemove={exercise.sets.length > 0}
-    />
-    </View>
+      {/* Table Header */}
+      <View style={styles.headerRow}>
+        <Text style={styles.headerCell}>Set</Text>
+        <Text style={[styles.headerCell, styles.headerPrevious]}>Previous</Text>
+        <Text style={styles.headerCell}>kg</Text>
+        <Text style={styles.headerCell}>Reps</Text>
+        <Text style={styles.headerCell}>✓</Text>
+      </View>
       
-      {/* Edit Modal */}
-      {editingSetIndex !== null && (
-        <EditSetModal
-          visible={true}
-          currentValue={exercise.sets[editingSetIndex]}
-          onSave={handleSaveEdit}
-          onCancel={handleCancelEdit}
+      {/* Separator */}
+      <View style={styles.separator} />
+      
+      {/* Set Rows */}
+      {exercise.sets.map((set, index) => (
+        <SetRow
+          key={index}
+          setNumber={index + 1}
+          set={set}
+          onUpdateWeight={(weight) => handleUpdateWeight(index, weight)}
+          onUpdateReps={(reps) => handleUpdateReps(index, reps)}
+          onToggleComplete={() => handleToggleComplete(index)}
+          onCopyPrevious={(weight, reps) => handleCopyPrevious(index, weight, reps)}
         />
+      ))}
+      
+      {/* Edit Mode Buttons */}
+      {isEditing && (
+        <View style={styles.editButtons}>
+          <TouchableOpacity 
+            style={styles.editButton}
+            onPress={handleAddSet}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.editButtonText}>+ Add Set</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.editButton, styles.editButtonRemove]}
+            onPress={onRemoveSet}
+            activeOpacity={0.7}
+            disabled={exercise.sets.length === 0}
+          >
+            <Text style={[
+              styles.editButtonText,
+              exercise.sets.length === 0 && styles.editButtonTextDisabled
+            ]}>
+              − Remove Last
+            </Text>
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );
@@ -261,161 +241,143 @@ function ExerciseRow({ exercise, onUpdateSet, onAddSet, onRemoveSet }) {
  */
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.gray100,
-    padding: spacing.sm,
-    borderRadius: spacing.xs,
+    backgroundColor: colors.white,
+    padding: spacing.md,
+    borderRadius: spacing.sm,
     borderWidth: 1,
     borderColor: colors.gray200,
   },
   
   exerciseName: {
-    ...typography.bodyBold,
-    color: colors.black,
-    marginBottom: spacing.sm,
-  },
-  
-  setsContainer: {
-    flex: 1, //ICI
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs, //ICI
-  },
-  
-  setControl: {
-    alignItems: 'center',
-    gap: spacing.micro,
-    flexGrow: 1,              // Peut grandir pour remplir l'espace
-    flexShrink: 0,            // NE PEUT PAS rétrécir (clé du wrap)
-    flexBasis: 52,            // Largeur de base : 52px
-    minWidth: 52,             // Minimum absolu (jamais en dessous)
-    maxWidth: 70,             // Maximum (limite la croissance)
-    },
-  
-  arrowButton: {
-    width: 40,
-    height: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.gray200,
-    borderRadius: 4,
-  },
-  
-  arrowText: {
-    fontSize: 10,
-    color: colors.gray700,
-    fontWeight: '700',
-  },
-  
-  badge: {
-    backgroundColor: colors.white,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.xs,  // Padding symétrique
-    borderRadius: spacing.xs,
-    borderWidth: 2,
-    borderColor: colors.gray900,
-    width: '100%',                  // Remplit setControl
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    },
-  
-badgeText: {
-  ...typography.badgeNumber,
-  color: colors.gray900,
-  textAlign: 'center',
-},
-  
-// Add/Remove buttons container
-addRemoveContainer: {
-  gap: spacing.xs,
-  alignItems: 'center',
-  width: 50,                     
-  alignSelf: 'flex-end',
-},
-  addRemoveButton: {
-    backgroundColor: colors.gray300,
-    width: 40,
-    height: 40,
-    borderRadius: spacing.xs,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  
-  addRemoveButtonDisabled: {
-    backgroundColor: colors.gray200,
-  },
-  
-  addRemoveButtonText: {
-    fontSize: 24,
-    color: colors.gray700,
-    fontWeight: '700',
-  },
-  
-  addRemoveButtonTextDisabled: {
-    color: colors.gray500,
-  },
-  
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  
-  modalContent: {
-    backgroundColor: colors.white,
-    borderRadius: spacing.sm,
-    padding: spacing.lg,
-    width: '80%',
-    maxWidth: 300,
-  },
-  
-  modalTitle: {
     ...typography.h3,
     color: colors.gray900,
-    marginBottom: spacing.md,
-    textAlign: 'center',
+    marginBottom: spacing.sm,
+    fontWeight: '600',
   },
   
-  modalInput: {
-    ...typography.h2,
-    color: colors.gray900,
-    borderWidth: 2,
-    borderColor: colors.gray900,
-    borderRadius: spacing.xs,
-    padding: spacing.md,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-  },
-  
-  modalButtons: {
+  headerRow: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    alignItems: 'center',
+    marginTop: spacing.xs,
   },
   
-  modalButton: {
+  headerCell: {
+    ...typography.small,
+    color: colors.gray600,
+    fontWeight: '600',
+    textAlign: 'center',
     flex: 1,
-    padding: spacing.md,
-    borderRadius: spacing.xs,
+  },
+  
+  headerPrevious: {
+    flex: 2,
+    textAlign: 'left',
+  },
+  
+  separator: {
+    height: 1,
+    backgroundColor: colors.gray200,
+    marginVertical: spacing.xs,
+  },
+  
+  setRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+  },
+  
+  setNumber: {
+    ...typography.body,
+    color: colors.gray700,
+    fontWeight: '600',
+    flex: 1,
+    textAlign: 'center',
+  },
+  
+  previousContainer: {
+    flex: 2,
+    paddingHorizontal: spacing.xs,
+  },
+  
+  previousText: {
+    ...typography.caption,
+    color: colors.gray500,
+    fontWeight: '500',
+  },
+  
+  previousTextEmpty: {
+    ...typography.caption,
+    color: colors.gray300,
+  },
+  
+  input: {
+    ...typography.body,
+    color: colors.gray900,
+    fontWeight: '600',
+    flex: 1,
+    textAlign: 'center',
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.xs,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.gray200,
+    backgroundColor: colors.gray50,
+  },
+  
+  checkboxContainer: {
+    flex: 1,
     alignItems: 'center',
   },
   
-  modalButtonCancel: {
-    backgroundColor: colors.gray200,
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.gray300,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   
-  modalButtonSave: {
+  checkboxChecked: {
     backgroundColor: colors.gray900,
+    borderColor: colors.gray900,
   },
   
-  modalButtonText: {
+  checkmark: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  
+  editButtons: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  
+  editButton: {
+    flex: 1,
+    backgroundColor: colors.gray100,
+    paddingVertical: spacing.sm,
+    borderRadius: spacing.xs,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.gray300,
+  },
+  
+  editButtonRemove: {
+    backgroundColor: colors.gray50,
+  },
+  
+  editButtonText: {
     ...typography.bodyBold,
     color: colors.gray900,
+    fontSize: 14,
   },
   
-  modalButtonTextSave: {
-    color: colors.white,
+  editButtonTextDisabled: {
+    color: colors.gray400,
   },
 });
 

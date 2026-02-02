@@ -22,42 +22,43 @@ import { formatWorkoutDate } from '../utils/dateUtils';
 // Import components
 import ExerciseRow from './ExerciseRow';
 
-function WorkoutScreen({ workout }) {
+function WorkoutScreen({ workout, isEditing }) {
   const [exercises, setExercises] = useState(workout.exercises);
   
-  const handleUpdateSet = (exerciseIndex, setIndex, newValue) => {
-    setExercises(prevExercises => {
-      const updatedExercises = prevExercises.map((exercise, idx) => {
-        if (idx === exerciseIndex) {
-          return {
-            ...exercise,
-            sets: exercise.sets.map((reps, sIdx) => 
-              sIdx === setIndex ? newValue : reps
-            )
-          };
-        }
-        return exercise;
-      });
-      
-      return updatedExercises;
+  const handleUpdateSet = (exerciseIndex, setIndex, newSetData) => {
+  setExercises(prevExercises => {
+    const updatedExercises = prevExercises.map((exercise, idx) => {
+      if (idx === exerciseIndex) {
+        return {
+          ...exercise,
+          sets: exercise.sets.map((set, sIdx) => 
+            sIdx === setIndex ? newSetData : set
+          )
+        };
+      }
+      return exercise;
     });
-  };
-  
-  const handleAddSet = (exerciseIndex, value) => {
-    setExercises(prevExercises => {
-      const updatedExercises = prevExercises.map((exercise, idx) => {
-        if (idx === exerciseIndex) {
-          return {
-            ...exercise,
-            sets: [...exercise.sets, value]
-          };
-        }
-        return exercise;
-      });
-      
-      return updatedExercises;
+    
+    return updatedExercises;
+  });
+};
+
+const handleAddSet = (exerciseIndex, newSet) => {
+  setExercises(prevExercises => {
+    const updatedExercises = prevExercises.map((exercise, idx) => {
+      if (idx === exerciseIndex) {
+        return {
+          ...exercise,
+          sets: [...exercise.sets, newSet]
+        };
+      }
+      return exercise;
     });
-  };
+    
+    return updatedExercises;
+  });
+};
+
   
   const handleRemoveSet = (exerciseIndex) => {
     setExercises(prevExercises => {
@@ -80,6 +81,7 @@ function WorkoutScreen({ workout }) {
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
     >
+      {/* Header Section */}
       <View style={styles.header}>
         <Text style={styles.title}>{workout.name}</Text>
         <Text style={styles.subtitle}>
@@ -92,6 +94,7 @@ function WorkoutScreen({ workout }) {
           <ExerciseRow
             key={exercise.id}
             exercise={exercise}
+            isEditing={isEditing}
             onUpdateSet={(setIndex, newValue) => 
               handleUpdateSet(index, setIndex, newValue)
             }

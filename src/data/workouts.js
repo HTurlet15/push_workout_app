@@ -2,177 +2,194 @@
  * Workout Data
  * 
  * @module data/workouts
- * @description Hardcoded workout sessions for V1.
- * Each workout represents a training day with associated exercises.
- * 
- * Structure:
- *   - id: Unique identifier
- *   - name: Workout display name (uppercase for visual impact)
- *   - lastCompleted: ISO date string of last session (null if never done)
- *   - exercises: Array of exercise objects
- * 
- * Usage:
- *   import { workouts } from '../data/workouts';
- *   workouts.map(workout => <WorkoutScreen key={workout.id} data={workout} />)
- * 
- * @version 1.0.0
+ * @version 2.0.0
  */
 
-/**
- * Master workout collection
- * 
- * @constant {Array<Object>} workouts
- */
 export const workouts = [
   {
     id: 1,
     name: 'PUSH',
-    lastCompleted: '2025-01-28', // ISO 8601 format
+    lastCompleted: '2025-01-28',
     exercises: [
-      {
-        id: 101,
-        name: 'Bench Press',
-        sets: [12, 10, 8], // Previous session reps
-        notes: '',
+      { 
+        id: 101, 
+        name: 'Bench Press', 
+        sets: [
+          { reps: 5, weight: 60, completed: false, previous: { reps: 5, weight: 60 } },
+          { reps: 5, weight: 65, completed: false, previous: { reps: 5, weight: 65 } },
+          { reps: 3, weight: 70, completed: false, previous: { reps: 3, weight: 70 } },
+        ],
+        notes: '' 
       },
-      {
-        id: 102,
-        name: 'Incline Dumbbell Press',
-        sets: [12, 10, 8],
-        notes: '',
+      { 
+        id: 102, 
+        name: 'Incline Dumbbell Press', 
+        sets: [
+          { reps: 8, weight: 20, completed: false, previous: { reps: 8, weight: 20 } },
+          { reps: 8, weight: 22.5, completed: false, previous: { reps: 8, weight: 22.5 } },
+        ],
+        notes: '' 
       },
-      {
-        id: 103,
-        name: 'Dumbbell Flyes',
-        sets: [15, 12, 12],
-        notes: '',
+      { 
+        id: 103, 
+        name: 'Dumbbell Flyes', 
+        sets: [
+          { reps: 12, weight: 12.5, completed: false, previous: { reps: 12, weight: 12.5 } },
+          { reps: 12, weight: 12.5, completed: false, previous: { reps: 12, weight: 12.5 } },
+        ],
+        notes: '' 
       },
-      {
-        id: 104,
-        name: 'Tricep Dips',
-        sets: [12, 10, 8],
-        notes: '',
+      { 
+        id: 104, 
+        name: 'Overhead Press', 
+        sets: [
+          { reps: 5, weight: 40, completed: false, previous: { reps: 5, weight: 40 } },
+          { reps: 5, weight: 42.5, completed: false, previous: { reps: 5, weight: 42.5 } },
+          { reps: 3, weight: 45, completed: false, previous: { reps: 3, weight: 45 } },
+        ],
+        notes: '' 
       },
-    ],
+    ]
   },
-  
   {
     id: 2,
     name: 'PULL',
-    lastCompleted: '2025-01-25',
+    lastCompleted: '2025-01-27',
     exercises: [
-      {
-        id: 201,
-        name: 'Pull-Ups',
-        sets: [10, 8, 6],
-        notes: '',
+      { 
+        id: 201, 
+        name: 'Pull-Ups', 
+        sets: [
+          { reps: 8, weight: 0, completed: false, previous: { reps: 8, weight: 0 } },
+          { reps: 6, weight: 0, completed: false, previous: { reps: 6, weight: 0 } },
+          { reps: 5, weight: 0, completed: false, previous: { reps: 5, weight: 0 } },
+        ],
+        notes: '' 
       },
-      {
-        id: 202,
-        name: 'Barbell Row',
-        sets: [12, 10, 8],
-        notes: '',
+      { 
+        id: 202, 
+        name: 'Barbell Rows', 
+        sets: [
+          { reps: 8, weight: 60, completed: false, previous: { reps: 8, weight: 60 } },
+          { reps: 8, weight: 65, completed: false, previous: { reps: 8, weight: 65 } },
+        ],
+        notes: '' 
       },
-      {
-        id: 203,
-        name: 'Lat Pulldown',
-        sets: [12, 10, 10],
-        notes: '',
+      { 
+        id: 203, 
+        name: 'Face Pulls', 
+        sets: [
+          { reps: 15, weight: 20, completed: false, previous: { reps: 15, weight: 20 } },
+          { reps: 15, weight: 20, completed: false, previous: { reps: 15, weight: 20 } },
+        ],
+        notes: '' 
       },
-      {
-        id: 204,
-        name: 'Barbell Curl',
-        sets: [12, 10, 8],
-        notes: '',
+      { 
+        id: 204, 
+        name: 'Bicep Curls', 
+        sets: [
+          { reps: 10, weight: 12.5, completed: false, previous: { reps: 10, weight: 12.5 } },
+          { reps: 10, weight: 12.5, completed: false, previous: { reps: 10, weight: 12.5 } },
+        ],
+        notes: '' 
       },
-    ],
+    ]
   },
-  
   {
     id: 3,
     name: 'LEGS',
-    lastCompleted: '2025-01-22',
+    lastCompleted: '2025-01-26',
     exercises: [
-      {
-        id: 301,
-        name: 'Squat',
-        sets: [10, 8, 6],
-        notes: '',
+      { 
+        id: 301, 
+        name: 'Squats', 
+        sets: [
+          { reps: 5, weight: 80, completed: false, previous: { reps: 5, weight: 80 } },
+          { reps: 5, weight: 85, completed: false, previous: { reps: 5, weight: 85 } },
+          { reps: 3, weight: 90, completed: false, previous: { reps: 3, weight: 90 } },
+        ],
+        notes: '' 
       },
-      {
-        id: 302,
-        name: 'Leg Press',
-        sets: [15, 12, 10],
-        notes: '',
+      { 
+        id: 302, 
+        name: 'Romanian Deadlifts', 
+        sets: [
+          { reps: 8, weight: 60, completed: false, previous: { reps: 8, weight: 60 } },
+          { reps: 8, weight: 65, completed: false, previous: { reps: 8, weight: 65 } },
+        ],
+        notes: '' 
       },
-      {
-        id: 303,
-        name: 'Leg Curl',
-        sets: [12, 12, 10],
-        notes: '',
+      { 
+        id: 303, 
+        name: 'Leg Press', 
+        sets: [
+          { reps: 10, weight: 100, completed: false, previous: { reps: 10, weight: 100 } },
+          { reps: 10, weight: 110, completed: false, previous: { reps: 10, weight: 110 } },
+        ],
+        notes: '' 
       },
-      {
-        id: 304,
-        name: 'Standing Calf Raise',
-        sets: [20, 15, 15],
-        notes: '',
+      { 
+        id: 304, 
+        name: 'Calf Raises', 
+        sets: [
+          { reps: 15, weight: 40, completed: false, previous: { reps: 15, weight: 40 } },
+          { reps: 15, weight: 40, completed: false, previous: { reps: 15, weight: 40 } },
+        ],
+        notes: '' 
       },
-    ],
+    ]
   },
-  
   {
     id: 4,
-    name: 'ARMS / SHOULDERS',
-    lastCompleted: null, // Never completed
+    name: 'ARMS/SHOULDERS',
+    lastCompleted: '2025-01-25',
     exercises: [
-      {
-        id: 401,
-        name: 'Military Press',
-        sets: [10, 8, 6],
-        notes: '',
+      { 
+        id: 401, 
+        name: 'Lateral Raises', 
+        sets: [
+          { reps: 12, weight: 7.5, completed: false, previous: { reps: 12, weight: 7.5 } },
+          { reps: 12, weight: 7.5, completed: false, previous: { reps: 12, weight: 7.5 } },
+        ],
+        notes: '' 
       },
-      {
-        id: 402,
-        name: 'Lateral Raises',
-        sets: [15, 12, 12],
-        notes: '',
+      { 
+        id: 402, 
+        name: 'Tricep Extensions', 
+        sets: [
+          { reps: 10, weight: 15, completed: false, previous: { reps: 10, weight: 15 } },
+          { reps: 10, weight: 15, completed: false, previous: { reps: 10, weight: 15 } },
+        ],
+        notes: '' 
       },
-      {
-        id: 403,
-        name: 'Dumbbell Curl',
-        sets: [12, 10, 8],
-        notes: '',
+      { 
+        id: 403, 
+        name: 'Hammer Curls', 
+        sets: [
+          { reps: 10, weight: 12.5, completed: false, previous: { reps: 10, weight: 12.5 } },
+          { reps: 10, weight: 12.5, completed: false, previous: { reps: 10, weight: 12.5 } },
+        ],
+        notes: '' 
       },
-      {
-        id: 404,
-        name: 'Tricep Extension',
-        sets: [12, 10, 10],
-        notes: '',
+      { 
+        id: 404, 
+        name: 'Cable Flyes', 
+        sets: [
+          { reps: 15, weight: 10, completed: false, previous: { reps: 15, weight: 10 } },
+          { reps: 15, weight: 10, completed: false, previous: { reps: 15, weight: 10 } },
+        ],
+        notes: '' 
       },
-    ],
+    ]
   },
 ];
 
-/**
- * Helper function to get next workout after a given workout ID
- * 
- * @param {number} currentWorkoutId - ID of current workout
- * @returns {Object|null} Next workout or null if at end
- */
-export const getNextWorkout = (currentWorkoutId) => {
-  const currentIndex = workouts.findIndex(w => w.id === currentWorkoutId);
-  if (currentIndex === -1 || currentIndex === workouts.length - 1) {
-    return null;
-  }
-  return workouts[currentIndex + 1];
-};
+export function getNextWorkout(currentId) {
+  const currentIndex = workouts.findIndex(w => w.id === currentId);
+  if (currentIndex === -1) return workouts[0];
+  return workouts[(currentIndex + 1) % workouts.length];
+}
 
-/**
- * Helper function to get workout by ID
- * 
- * @param {number} workoutId - Workout identifier
- * @returns {Object|undefined} Workout object or undefined
- */
-export const getWorkoutById = (workoutId) => {
-  return workouts.find(w => w.id === workoutId);
-};
+export function getWorkoutById(id) {
+  return workouts.find(w => w.id === id);
+}
