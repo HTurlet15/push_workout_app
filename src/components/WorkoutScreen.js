@@ -1,110 +1,29 @@
 /**
- * WorkoutScreen Component
- * 
- * @module components/WorkoutScreen
- * @description Displays a single workout session with interactive exercises.
- * Manages local state for exercise sets.
- * 
- * @version 2.1.0
+ * WorkoutScreen Component - Version 0.1.0 (Minimal)
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
-
-// Import design system
+import ExerciseRow from './ExerciseRow';
 import colors from '../theme/colors';
 import spacing from '../theme/spacing';
 import typography from '../theme/typography';
 
-// Import utilities
-import { formatWorkoutDate } from '../utils/dateUtils';
-
-// Import components
-import ExerciseRow from './ExerciseRow';
-
-function WorkoutScreen({ workout, isEditing }) {
-  const [exercises, setExercises] = useState(workout.exercises);
-  
-  const handleUpdateSet = (exerciseIndex, setIndex, newSetData) => {
-  setExercises(prevExercises => {
-    const updatedExercises = prevExercises.map((exercise, idx) => {
-      if (idx === exerciseIndex) {
-        return {
-          ...exercise,
-          sets: exercise.sets.map((set, sIdx) => 
-            sIdx === setIndex ? newSetData : set
-          )
-        };
-      }
-      return exercise;
-    });
-    
-    return updatedExercises;
-  });
-};
-
-const handleAddSet = (exerciseIndex, newSet) => {
-  setExercises(prevExercises => {
-    const updatedExercises = prevExercises.map((exercise, idx) => {
-      if (idx === exerciseIndex) {
-        return {
-          ...exercise,
-          sets: [...exercise.sets, newSet]
-        };
-      }
-      return exercise;
-    });
-    
-    return updatedExercises;
-  });
-};
-
-  
-  const handleRemoveSet = (exerciseIndex) => {
-    setExercises(prevExercises => {
-      const updatedExercises = prevExercises.map((exercise, idx) => {
-        if (idx === exerciseIndex) {
-          return {
-            ...exercise,
-            sets: exercise.sets.slice(0, -1)
-          };
-        }
-        return exercise;
-      });
-      
-      return updatedExercises;
-    });
-  };
-  
+function WorkoutScreen({ workout }) {
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-    >
-      {/* Header Section */}
+    <ScrollView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>{workout.name}</Text>
-        <Text style={styles.subtitle}>
-          Last: {formatWorkoutDate(workout.lastCompleted)}
-        </Text>
+        <Text style={styles.date}>{workout.date}</Text>
       </View>
       
-      <View style={styles.exercisesList}>
-        {exercises.map((exercise, index) => (
-          <ExerciseRow
-            key={exercise.id}
-            exercise={exercise}
-            isEditing={isEditing}
-            onUpdateSet={(setIndex, newValue) => 
-              handleUpdateSet(index, setIndex, newValue)
-            }
-            onAddSet={(value) => 
-              handleAddSet(index, value)
-            }
-            onRemoveSet={() => 
-              handleRemoveSet(index)
-            }
-          />
+      <View style={styles.separator} />
+      
+      {/* Exercises */}
+      <View style={styles.exercises}>
+        {workout.exercises.map((exercise) => (
+          <ExerciseRow key={exercise.id} exercise={exercise} />
         ))}
       </View>
     </ScrollView>
@@ -117,32 +36,35 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   
-  contentContainer: {
-    paddingHorizontal: spacing.sm,
-    paddingBottom: spacing.xxl,
-  },
-  
   header: {
-    marginTop: spacing.lg,
-    marginBottom: spacing.xl,
     alignItems: 'center',
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.md,
   },
   
   title: {
     ...typography.display,
     color: colors.gray900,
+    fontWeight: '700',
     marginBottom: spacing.xs,
-    textAlign: 'center',
   },
   
-  subtitle: {
-    ...typography.caption,
-    color: colors.gray600,
-    textAlign: 'center',
+  date: {
+    ...typography.body,
+    color: colors.gray900,
+    fontStyle: 'italic',
   },
   
-  exercisesList: {
-    gap: spacing.md,
+  separator: {
+    height: 1,
+    backgroundColor: colors.gray900,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  
+  exercises: {
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.xxl,
   },
 });
 
