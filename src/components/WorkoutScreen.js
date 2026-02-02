@@ -18,8 +18,6 @@ function WorkoutScreen({ workout }) {
         <Text style={styles.date}>{workout.date}</Text>
       </View>
       
-      <View style={styles.separator} />
-      
       {/* Exercises */}
       <View style={styles.exercises}>
         {workout.exercises.map((exercise) => (
@@ -53,13 +51,6 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.gray900,
     fontStyle: 'italic',
-  },
-  
-  separator: {
-    height: 1,
-    backgroundColor: colors.gray900,
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.lg,
   },
   
   exercises: {
