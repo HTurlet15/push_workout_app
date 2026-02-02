@@ -6,15 +6,17 @@
  * Features:
  *   - Tap ▲ to increment reps
  *   - Tap ▼ to decrement reps
- *   - Long press badge to manually edit value (cross-platform modal)
+ *   - Long press badge to manually edit value
  *   - Tap + to add new set
+ *   - Tap - to remove last set
  * 
  * Props:
  *   - exercise: Object with { id, name, sets, notes }
  *   - onUpdateSet: Function(setIndex, newValue) - Update specific set
  *   - onAddSet: Function(value) - Add new set
+ *   - onRemoveSet: Function() - Remove last set
  * 
- * @version 2.1.0
+ * @version 2.2.0
  */
 
 import React, { useState } from 'react';
@@ -133,26 +135,47 @@ function SetControl({ value, onIncrement, onDecrement, onLongPress }) {
 }
 
 /**
- * AddSetButton Component
+ * AddRemoveButtons Component - Vertical add/remove set buttons
  */
-function AddSetButton({ onPress }) {
+function AddRemoveButtons({ onAdd, onRemove, canRemove }) {
   return (
-    <TouchableOpacity 
-      style={styles.addButton}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <Text style={styles.addButtonText}>+</Text>
-    </TouchableOpacity>
+    <View style={styles.addRemoveContainer}>
+      {/* Add Set Button */}
+      <TouchableOpacity 
+        style={styles.addRemoveButton}
+        onPress={onAdd}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.addRemoveButtonText}>+</Text>
+      </TouchableOpacity>
+      
+      {/* Remove Set Button */}
+      <TouchableOpacity 
+        style={[
+          styles.addRemoveButton,
+          !canRemove && styles.addRemoveButtonDisabled
+        ]}
+        onPress={onRemove}
+        activeOpacity={0.7}
+        disabled={!canRemove}
+      >
+        <Text style={[
+          styles.addRemoveButtonText,
+          !canRemove && styles.addRemoveButtonTextDisabled
+        ]}>
+          −
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 /**
  * ExerciseRow Component
  */
-function ExerciseRow({ exercise, onUpdateSet, onAddSet }) {
+function ExerciseRow({ exercise, onUpdateSet, onAddSet, onRemoveSet }) {
   const [editingSetIndex, setEditingSetIndex] = useState(null);
-  
+
   const handleIncrement = (setIndex) => {
     const currentValue = exercise.sets[setIndex];
     onUpdateSet(setIndex, currentValue + 1);
@@ -188,25 +211,37 @@ function ExerciseRow({ exercise, onUpdateSet, onAddSet }) {
     onAddSet(lastSetValue);
   };
   
+  const handleRemoveSet = () => {
+    if (exercise.sets.length > 0) {
+      onRemoveSet();
+    }
+  };
+  
   return (
     <View style={styles.container}>
       {/* Exercise Name */}
       <Text style={styles.exerciseName}>{exercise.name}</Text>
       
       {/* Sets Row */}
-      <View style={styles.setsRow}>
-        {exercise.sets.map((reps, index) => (
-          <SetControl
-            key={index}
-            value={reps}
-            onIncrement={() => handleIncrement(index)}
-            onDecrement={() => handleDecrement(index)}
-            onLongPress={() => handleLongPress(index)}
-          />
-        ))}
-        
-        <AddSetButton onPress={handleAddSet} />
-      </View>
+    <View style={styles.setsContainer}>
+    {/* Existing Sets with Controls */}
+    {exercise.sets.map((reps, index) => (
+        <SetControl
+        key={index}
+        value={reps}
+        onIncrement={() => handleIncrement(index)}
+        onDecrement={() => handleDecrement(index)}
+        onLongPress={() => handleLongPress(index)}
+        />
+    ))}
+    
+    {/* Add/Remove Buttons */}
+    <AddRemoveButtons 
+        onAdd={handleAddSet}
+        onRemove={handleRemoveSet}
+        canRemove={exercise.sets.length > 0}
+    />
+    </View>
       
       {/* Edit Modal */}
       {editingSetIndex !== null && (
@@ -239,11 +274,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   
-  setsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
+setsContainer: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  gap: spacing.sm,
+},
   
   setControl: {
     alignItems: 'center',
@@ -284,22 +319,34 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   
-  addButton: {
+// Add/Remove buttons container
+addRemoveContainer: {
+  gap: spacing.xs,
+  alignItems: 'center',
+  alignSelf: 'flex-end', 
+},
+  
+  addRemoveButton: {
     backgroundColor: colors.gray900,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+    width: 48,
+    height: 48,
     borderRadius: spacing.xs,
-    minWidth: 56,
-    minHeight: 56,
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'flex-end',
   },
   
-  addButtonText: {
-    ...typography.h3,
+  addRemoveButtonDisabled: {
+    backgroundColor: colors.gray300,
+  },
+  
+  addRemoveButtonText: {
+    ...typography.h2,
     color: colors.white,
     fontWeight: '700',
+  },
+  
+  addRemoveButtonTextDisabled: {
+    color: colors.gray500,
   },
   
   // Modal styles

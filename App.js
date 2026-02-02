@@ -17,11 +17,9 @@ import { workouts } from './src/data/workouts';
 
 // Import components
 import WorkoutScreen from './src/components/WorkoutScreen';
-import ExerciseRow from './src/components/ExerciseRow';
 
 // Import design system
 import colors from './src/theme/colors';
-import spacing from './src/theme/spacing';
 
 export default function App() {
   return (
@@ -29,22 +27,16 @@ export default function App() {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" />
         
-        {/* Test ExerciseRow */}
-        <View style={{ padding: spacing.lg }}>
-          <ExerciseRow 
-            exercise={{
-              id: 101,
-              name: 'Bench Press',
-              sets: [12, 10, 8],
-            }}
-            onUpdateSet={(index, value) => {
-              console.log(`Update set ${index} to ${value}`);
-            }}
-            onAddSet={(value) => {
-              console.log(`Add new set with value ${value}`);
-            }}
-          />
-        </View>
+        <PagerView 
+          style={styles.pagerView} 
+          initialPage={0}
+        >
+          {workouts.map((workout) => (
+            <View key={workout.id} collapsable={false} style={styles.page}>
+              <WorkoutScreen workout={workout} />
+            </View>
+          ))}
+        </PagerView>
         
       </SafeAreaView>
     </SafeAreaProvider>

@@ -2,19 +2,13 @@
  * WorkoutScreen Component
  * 
  * @module components/WorkoutScreen
- * @description Displays a single workout session with exercises.
- * This component represents one "page" in the workout carousel.
+ * @description Displays a single workout session with interactive exercises.
+ * Manages local state for exercise sets.
  * 
- * Props:
- *   - workout: Object with { id, name, lastCompleted, exercises }
- * 
- * Usage:
- *   <WorkoutScreen workout={workouts[0]} />
- * 
- * @version 1.0.0
+ * @version 2.1.0
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 
 // Import design system
@@ -25,16 +19,67 @@ import typography from '../theme/typography';
 // Import utilities
 import { formatWorkoutDate } from '../utils/dateUtils';
 
-/**
- * WorkoutScreen Component
- */
+// Import components
+import ExerciseRow from './ExerciseRow';
+
 function WorkoutScreen({ workout }) {
+  const [exercises, setExercises] = useState(workout.exercises);
+  
+  const handleUpdateSet = (exerciseIndex, setIndex, newValue) => {
+    setExercises(prevExercises => {
+      const updatedExercises = prevExercises.map((exercise, idx) => {
+        if (idx === exerciseIndex) {
+          return {
+            ...exercise,
+            sets: exercise.sets.map((reps, sIdx) => 
+              sIdx === setIndex ? newValue : reps
+            )
+          };
+        }
+        return exercise;
+      });
+      
+      return updatedExercises;
+    });
+  };
+  
+  const handleAddSet = (exerciseIndex, value) => {
+    setExercises(prevExercises => {
+      const updatedExercises = prevExercises.map((exercise, idx) => {
+        if (idx === exerciseIndex) {
+          return {
+            ...exercise,
+            sets: [...exercise.sets, value]
+          };
+        }
+        return exercise;
+      });
+      
+      return updatedExercises;
+    });
+  };
+  
+  const handleRemoveSet = (exerciseIndex) => {
+    setExercises(prevExercises => {
+      const updatedExercises = prevExercises.map((exercise, idx) => {
+        if (idx === exerciseIndex) {
+          return {
+            ...exercise,
+            sets: exercise.sets.slice(0, -1)
+          };
+        }
+        return exercise;
+      });
+      
+      return updatedExercises;
+    });
+  };
+  
   return (
     <ScrollView 
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
     >
-      {/* Header Section */}
       <View style={styles.header}>
         <Text style={styles.title}>{workout.name}</Text>
         <Text style={styles.subtitle}>
@@ -42,24 +87,27 @@ function WorkoutScreen({ workout }) {
         </Text>
       </View>
       
-      {/* Exercises List */}
       <View style={styles.exercisesList}>
-        {workout.exercises.map((exercise) => (
-          <View key={exercise.id} style={styles.exerciseCard}>
-            <Text style={styles.exerciseName}>{exercise.name}</Text>
-            <Text style={styles.exerciseSets}>
-              {exercise.sets.join(' × ')} reps
-            </Text>
-          </View>
+        {exercises.map((exercise, index) => (
+          <ExerciseRow
+            key={exercise.id}
+            exercise={exercise}
+            onUpdateSet={(setIndex, newValue) => 
+              handleUpdateSet(index, setIndex, newValue)
+            }
+            onAddSet={(value) => 
+              handleAddSet(index, value)
+            }
+            onRemoveSet={() => 
+              handleRemoveSet(index)
+            }
+          />
         ))}
       </View>
     </ScrollView>
   );
 }
 
-/**
- * Stylesheet
- */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -89,25 +137,6 @@ const styles = StyleSheet.create({
   
   exercisesList: {
     gap: spacing.md,
-  },
-  
-  exerciseCard: {
-    backgroundColor: colors.gray100,
-    padding: spacing.md,
-    borderRadius: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.gray200,
-  },
-  
-  exerciseName: {
-    ...typography.bodyBold,
-    color: colors.black,
-    marginBottom: spacing.micro,
-  },
-  
-  exerciseSets: {
-    ...typography.caption,
-    color: colors.gray700,
   },
 });
 
