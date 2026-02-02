@@ -302,22 +302,23 @@ setsContainer: {
   
   badge: {
     backgroundColor: colors.white,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,      
+    paddingHorizontal: spacing.sm,    
     borderRadius: spacing.xs,
     borderWidth: 2,
     borderColor: colors.gray900,
-    minWidth: 56,
-    minHeight: 56,
+    minWidth: 48,                      
+    minHeight: 48,                     
     alignItems: 'center',
     justifyContent: 'center',
   },
   
-  badgeText: {
-    ...typography.h3,
-    color: colors.gray900,
-    fontWeight: '700',
-  },
+badgeText: {
+  ...typography.body,         
+  color: colors.gray900,
+  fontWeight: '700',
+  fontSize: 18,              
+},
   
 // Add/Remove buttons container
 addRemoveContainer: {
@@ -327,21 +328,21 @@ addRemoveContainer: {
 },
   
   addRemoveButton: {
-    backgroundColor: colors.gray900,
-    width: 48,
-    height: 48,
+    backgroundColor: colors.gray300,
+    width: 40,
+    height: 40,
     borderRadius: spacing.xs,
     alignItems: 'center',
     justifyContent: 'center',
   },
   
   addRemoveButtonDisabled: {
-    backgroundColor: colors.gray300,
+    backgroundColor: colors.gray200,
   },
   
   addRemoveButtonText: {
-    ...typography.h2,
-    color: colors.white,
+    fontSize: 24,
+    color: colors.gray700,
     fontWeight: '700',
   },
   
