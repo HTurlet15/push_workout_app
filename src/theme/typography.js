@@ -19,7 +19,7 @@
  *   caption = 14px / Regular (Secondary info)
  *   small = 12px / Regular (Footnotes, timestamps)
  * 
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 import { Platform } from 'react-native';
@@ -57,6 +57,15 @@ const fontWeight = {
  * Typography styles ready to use in <Text> components
  */
 const typography = {
+  // Display (hero titles, largest text)
+  display: {
+    fontFamily: fontFamily.bold,
+    fontSize: 48,
+    fontWeight: fontWeight.bold,
+    lineHeight: 56,
+    letterSpacing: -1,
+  },
+
   // Headings
   h1: {
     fontFamily: fontFamily.bold,
@@ -114,6 +123,15 @@ const typography = {
     fontWeight: fontWeight.regular,
     lineHeight: 16,
     letterSpacing: 0.2, // Slightly wider for legibility
+  },
+
+  // Badge numbers (compact display for set reps)
+  badgeNumber: {
+    fontFamily: fontFamily.bold,
+    fontSize: 18,
+    fontWeight: fontWeight.bold,
+    lineHeight: 24,
+    letterSpacing: 0,
   },
 };
 

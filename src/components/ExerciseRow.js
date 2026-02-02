@@ -262,7 +262,7 @@ function ExerciseRow({ exercise, onUpdateSet, onAddSet, onRemoveSet }) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.gray100,
-    padding: spacing.md,
+    padding: spacing.sm,
     borderRadius: spacing.xs,
     borderWidth: 1,
     borderColor: colors.gray200,
@@ -274,16 +274,22 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   
-setsContainer: {
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  gap: spacing.sm,
-},
+  setsContainer: {
+    flex: 1, //ICI
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs, //ICI
+  },
   
   setControl: {
     alignItems: 'center',
     gap: spacing.micro,
-  },
+    flexGrow: 1,              // Peut grandir pour remplir l'espace
+    flexShrink: 0,            // NE PEUT PAS rétrécir (clé du wrap)
+    flexBasis: 52,            // Largeur de base : 52px
+    minWidth: 52,             // Minimum absolu (jamais en dessous)
+    maxWidth: 70,             // Maximum (limite la croissance)
+    },
   
   arrowButton: {
     width: 40,
@@ -302,31 +308,30 @@ setsContainer: {
   
   badge: {
     backgroundColor: colors.white,
-    paddingVertical: spacing.xs,      
-    paddingHorizontal: spacing.sm,    
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.xs,  // Padding symétrique
     borderRadius: spacing.xs,
     borderWidth: 2,
     borderColor: colors.gray900,
-    minWidth: 48,                      
-    minHeight: 48,                     
+    width: '100%',                  // Remplit setControl
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
-  },
+    },
   
 badgeText: {
-  ...typography.body,         
+  ...typography.badgeNumber,
   color: colors.gray900,
-  fontWeight: '700',
-  fontSize: 18,              
+  textAlign: 'center',
 },
   
 // Add/Remove buttons container
 addRemoveContainer: {
   gap: spacing.xs,
   alignItems: 'center',
-  alignSelf: 'flex-end', 
+  width: 50,                     
+  alignSelf: 'flex-end',
 },
-  
   addRemoveButton: {
     backgroundColor: colors.gray300,
     width: 40,

@@ -115,24 +115,27 @@ const styles = StyleSheet.create({
   },
   
   contentContainer: {
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.sm,
     paddingBottom: spacing.xxl,
   },
   
   header: {
-    marginTop: spacing.xl,
-    marginBottom: spacing.lg,
+    marginTop: spacing.lg,
+    marginBottom: spacing.xl,
+    alignItems: 'center',
   },
   
   title: {
-    ...typography.h1,
+    ...typography.display,
     color: colors.gray900,
     marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   
   subtitle: {
     ...typography.caption,
     color: colors.gray600,
+    textAlign: 'center',
   },
   
   exercisesList: {
