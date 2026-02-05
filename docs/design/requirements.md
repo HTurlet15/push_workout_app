@@ -1,6 +1,7 @@
 # Requirements
 
 **Project:** Push Workout Tracker  
+**Version:** 0.1 (MVP)  
 **Date:** February 3, 2025  
 **Author:** Hugo Turlet
 
@@ -8,113 +9,132 @@
 
 ## Problem Statement
 
-Current workout tracking methods (Apple Notes, Excel) are highly flexible but lack structure and visual clarity. Existing apps are either too rigid (hard-coded structures) or over-engineered (unnecessary features).
+Current workout tracking methods (Notes, Excel) are highly flexible but lack structure and visual clarity. 
+
+Existing apps are either:
+- Too rigid (hard-coded structures)
+- Over-engineered (unnecessary features)
 
 **Goal:** Build a workout tracker that combines spreadsheet-level flexibility with clean, modern mobile UX.
 
 ---
 
-## Must Have (MVP - v0.1)
+## MVP Scope (v0.1)
 
-**Core functionality required for first release:**
+### Must Have
 
+**Workout Management:**
 - View, add, and remove workouts
 - View, add, and remove exercises within workouts
 - View, add, and remove sets within exercises
-- Track exercise metadata:
-  - Set format/target (e.g., "3x8-12", "4x10-15")
-  - Rest time between sets
-- Track per-set data:
-  - Weight (kg)
-  - Reps performed
-  - RIR (Reps in Reserve)
-- View previous session data for each exercise
-- Plan next session (target weight and reps)
+
+**Exercise Tracking:**
+- Set format/target (e.g., "3x8-12", "4x10-15")
+- Rest time between sets
+- Support bodyweight exercises (weight = 0 or "BW")
+
+**Per-Set Data:**
+- Weight (lbs)
+- Reps performed
+- RIR (Reps in Reserve)
+
+**Session Context:**
+- View previous session data
+- Plan next session targets (weight and reps)
 - Display set numbers clearly (Set 1, Set 2, etc.)
 
----
+### Should Have (v0.2)
 
-## Should Have (v0.2)
-
-**Important but not blocking MVP:**
-
-- Add notes/comments per exercise (form cues, injuries, etc.)
+- Add notes/comments per exercise (form cues, injuries)
 - First-time onboarding flow:
   - "Create your workout" screen
   - Options: Build from scratch / Import from notes / Use template
 - LLM integration to parse quickly-entered data (e.g., "bench 60x8 60x8 62.5x6")
 
----
-
-## Could Have (v0.3+)
-
-**Nice-to-have features for future versions:**
+### Could Have (v0.3+)
 
 - Built-in rest timer with notifications
-- Customizable columns per user (swap RIR for "form quality" or other metrics)
-- Change Sets numbers for other types of sets (warm-ups, dropsets..)
-- Auto-suggest next session targets based on RIR (e.g., RIR 3 → suggest +1 rep)
-- Exercise database to browse when creating programs
+- Customizable tracking columns (swap RIR for "form quality", etc.)
+- Set type variations (warm-ups, dropsets)
+- Auto-suggest next session based on RIR (e.g., RIR 3 → suggest +1 rep)
+- Exercise database for program creation
 - Pre-built workout templates
-- Share workout templates with friends
+- Share templates with friends
 
----
+### Won't Have
 
-## Won't Have (Out of Scope)
-
-**Features explicitly excluded from this project:**
-
-- Social network features (feed, followers, likes)
-- User accounts or authentication system
+**Explicitly out of scope:**
+- Social network features
+- User accounts/authentication
+- Cloud sync (local only for MVP)
+- Meal/nutrition tracking
+- Cardio tracking
+- Video tutorials
+- Workout reminders/notifications
 
 ---
 
 ## User Workflow
 
-### Current Behavior (Apple Notes)
-1. Check last session numbers before starting
-2. Load weight for first set and check planned rep target
+### Current Behavior (Notes)
+
+1. Check last session numbers
+2. Load weight and check planned rep target
 3. Perform set
-4. After set: Start rest timer, write down RIR, optionally note form quality
-5. Check next set's target reps
-6. Repeat steps 3-5 until all sets complete
-7. After exercise: Write estimated targets for next session (weight and reps)
-8. Move to next exercise and repeat
+4. After set: Start rest timer, write RIR, optionally note form quality
+5. Check next set's target
+6. Repeat until all sets complete
+7. After exercise: Write estimated targets for next session
+8. Move to next exercise
 
 ### Target Behavior (App)
-1. Open workout screen
-2. See last session data pre-filled
-3. Perform set
-4. After set: Confirm values or adjust if different from plan
-5. After exercise: Input planned targets for next session
-6. Move to next exercise and repeat
+
+1. Open workout → see last session pre-filled
+2. Perform set
+3. After set: Confirm or adjust values
+4. After exercise: Input planned targets for next session
+5. Repeat for remaining exercises
 
 ---
 
 ## Technical Constraints
 
-- Must work offline (no internet required for core functionality)
-- Must be faster than typing in Notes (~5 seconds per exercise)
-- Must be readable with sweaty hands (large touch targets, high contrast)
-- Must persist data locally between sessions
+| Constraint | Requirement |
+|------------|-------------|
+| **Connectivity** | Must work offline |
+| **Speed** | Faster than typing in Notes (~5 sec/exercise) |
+| **Usability** | Large touch targets, high contrast (sweaty hands) |
+| **Persistence** | Data must persist between sessions |
+| **Units** | Default: pounds (lbs) / Future: kg/lbs toggle |
 
 ---
 
 ## Success Criteria
 
 **MVP is successful if:**
-- Logging a workout is faster than using Notes
-- Data persists between app restarts
-- UI remains readable during actual workouts (gym environment)
-- I consistently use it for 2+ weeks without reverting to Notes
+
+- ✅ Logging a workout is faster than using Notes
+- ✅ Data persists between app restarts
+- ✅ UI remains readable during actual workouts
+- ✅ I consistently use it for 2+ weeks
 
 ---
 
-## Open Questions
+## Edge Cases
 
-_(To be answered during design phase)_
+| Scenario | Handling |
+|----------|----------|
+| **First time exercise** | No previous data shown, user inputs from scratch |
+| **Failed set (0 reps)** | Allow logging, don't suggest 0 for next session |
+| **Bodyweight exercises** | Allow weight = 0, display as "BW" |
+| **Exercise reordering** | MVP: Fixed order / Future: Drag-and-drop |
 
-- Should RIR field be always visible or optional/collapsible?
-- Inline editing vs. modal for set data entry?
-- When to input "next session" plan: during workout or after completion?
-- How to handle exercises with no previous data (first time)?
+---
+
+## Assumptions
+
+- User tracks one workout at a time (no concurrent sessions)
+- User completes sets in sequential order
+- User has basic gym knowledge (RIR, rest time concepts)
+- Mobile device accessible during entire workout
+
