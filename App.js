@@ -1,45 +1,23 @@
-/**
- * App.js - Version 0.1.0 (Minimal)
- */
-
-import React, { useState } from 'react';
-import { StyleSheet, View, StatusBar } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import PagerView from 'react-native-pager-view';
-
-import { workouts } from './src/data/workouts';
-import WorkoutScreen from './src/components/WorkoutScreen';
-import colors from './src/theme/colors';
+import { View, StyleSheet } from 'react-native';
+import Text from './src/components/Text';
+import { COLORS, SPACING } from './src/theme/theme';
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        
-        <PagerView style={styles.pagerView} initialPage={0}>
-          {workouts.map((workout) => (
-            <View key={workout.id} style={styles.page}>
-              <WorkoutScreen workout={workout} />
-            </View>
-          ))}
-        </PagerView>
-      </SafeAreaView>
-    </SafeAreaProvider>
+    <View style={styles.container}>
+      <Text variant="hero">PECTORAUX</Text>
+      <Text variant="caption" style={{ marginTop: SPACING.sm }}>
+        Last: 4 days ago
+      </Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
-  },
-  
-  pagerView: {
-    flex: 1,
-  },
-  
-  page: {
-    flex: 1,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

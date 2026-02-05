@@ -1,5 +1,9 @@
 # Push Workout Tracker
 
+![React Native](https://img.shields.io/badge/React%20Native-0.76-blue)
+![Expo](https://img.shields.io/badge/Expo-SDK%2052-black)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 A minimalist workout tracking app that combines the flexibility of spreadsheets with clean mobile UI.
 
 ## Motivation
@@ -75,7 +79,9 @@ npx expo start
 
 ## License
 
-MIT
+MIT License — See [LICENSE](LICENSE) for details.
+
+This project is open-source for learning and portfolio purposes. If you find it useful, feel free to star the repo or reach out!
 
 ---
 
