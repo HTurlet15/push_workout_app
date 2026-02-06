@@ -7,46 +7,48 @@
  */
 
 export const COLORS = {
-  background: '#FFFFFF',
-  surface: '#F8F8F8',
+    background: '#FFFFFF',
+    surface: '#F8F8F8',
 
-  textPrimary: '#1A1A1A',
-  textSecondary: '#8E8E93',
-  textTertiary: '#C7C7CC',
+    textPrimary: '#4b4b4b',
+    textSecondary :'#A7A7A7',
 
-  accent: '#2D2D2D',
-
-  border: '#E5E5EA',
-  success: '#34C759',
-  destructive: '#FF3B30',
+    exerciseName: '#007AFF',
+    lightGray : '#f7f7f7',
+    mediumGray : '#A7A7A7',
+    successLight: '#D0FFE3',
 };
 
 export const SPACING = {
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48,
 };
 
 export const FONT_SIZE = {
-  caption: 12,
-  body: 16,
-  title: 20,
-  headline: 28,
-  hero: 34,
+    caption: 12,
+    body: 16,
+    title: 20,
+    headline: 28,
+    hero: 34,
 };
 
 export const FONT_WEIGHT = {
-  regular: '400',
-  medium: '500',
-  semibold: '600',
-  bold: '700',
+    regular: '400',
+    medium: '500',
+    semibold: '600',
+    bold: '700',
 };
 
 export const RADIUS = {
-  sm: 8,
-  md: 12,
-  lg: 16,
+    sm: 8,
+    md: 12,
+    lg: 16,
+};
+
+export const SET_TABLE = {
+  headerHeight: 28,
 };

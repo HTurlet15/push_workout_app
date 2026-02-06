@@ -1,42 +1,42 @@
 import { View, StyleSheet } from 'react-native';
 import Text from './Text';
+import SetInput from './SetInput';
 import { COLORS, SPACING, RADIUS } from '../theme/theme';
 
 /**
  * Renders a single set row within an exercise card.
- * Displays set number, weight, reps, and optionally RIR (Reps In Reserve).
- * Visual state changes based on completion status.
+ * Each value (weight, reps, RIR) is a tappable SetInput badge.
+ * Background turns green when the set is marked as completed.
+ *
+ * Column widths are proportional (1:3:2:2) to account for varying
+ * content lengths and ensure visually even spacing between columns.
  *
  * @param {Object} props
  * @param {number} props.index - Set position (0-based), displayed as 1-based.
  * @param {number} props.weight - Weight lifted in kilograms.
  * @param {number} props.reps - Number of repetitions performed.
- * @param {number|null} [props.rir] - Reps In Reserve. Hidden when null.
+ * @param {number|null} [props.rir] - Reps In Reserve. Displays "—" when null.
  * @param {boolean} props.completed - Whether the set has been logged.
+ * @param {'filled'|'previous'|'planned'|'empty'} [props.state='empty'] - Visual state for all inputs.
  */
-export default function SetRow({ index, weight, reps, rir, completed }) {
+export default function SetRow({ index, weight, reps, rir, completed, state = 'empty' }) {
   return (
     <View style={[styles.container, completed && styles.completedContainer]}>
-      <Text
-        variant="body"
-        style={[styles.cell, styles.indexCell, completed && styles.completedText]}
-      >
+      <Text variant="body" style={styles.setCell}>
         {index + 1}
       </Text>
 
-      <Text variant="body" style={[styles.cell, styles.valueCell]}>
-        {weight} kg
-      </Text>
+      <View style={styles.weightCell}>
+        <SetInput value={weight} unit="kg" state={state} />
+      </View>
 
-      <Text variant="body" style={[styles.cell, styles.valueCell]}>
-        {reps}
-      </Text>
+      <View style={styles.repsCell}>
+        <SetInput value={reps} state={state} />
+      </View>
 
-      {rir !== null && rir !== undefined && (
-        <Text variant="body" style={[styles.cell, styles.valueCell]}>
-          {rir}
-        </Text>
-      )}
+      <View style={styles.rirCell}>
+        <SetInput value={rir} state={rir !== null && rir !== undefined ? state : 'empty'} />
+      </View>
     </View>
   );
 }
@@ -45,25 +45,26 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.md,
-    borderRadius: RADIUS.sm,
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.sm,
     marginBottom: SPACING.xs,
+    gap: SPACING.xs,
   },
   completedContainer: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.successLight,
   },
-  cell: {
+  setCell: {
+    flex: 2,
     textAlign: 'center',
-  },
-  indexCell: {
-    width: 32,
     fontWeight: '600',
   },
-  completedText: {
-    color: COLORS.success,
+  weightCell: {
+    flex: 3,
   },
-  valueCell: {
-    flex: 1,
+  repsCell: {
+    flex: 2,
+  },
+  rirCell: {
+    flex: 2,
   },
 });
