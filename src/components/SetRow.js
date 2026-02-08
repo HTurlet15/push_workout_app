@@ -62,12 +62,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.successLight,
   },
   setCell: {
-    flex: 1,
+    flex: 2,
     textAlign: 'center',
     fontWeight: '600',
   },
   weightCell: {
-    flex: 3,
+    flex: 4,
   },
   repsCell: {
     flex: 2,

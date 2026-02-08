@@ -5,6 +5,7 @@ import ViewSelector from './ViewSelector';
 import SetHeader from './SetHeader';
 import SetFooter from './SetFooter';
 import SetRow from './SetRow';
+import PreviousSetRow from './PreviousSetRow';
 import { COLORS, SPACING } from '../theme/theme';
 
 /**
@@ -12,23 +13,15 @@ import { COLORS, SPACING } from '../theme/theme';
  * Manages its own view state (previous/current/next) independently.
  *
  * @param {Object} props
- * @param {Object} props.exercise - Exercise data object.
- * @param {string} props.exercise.name - Exercise display name.
- * @param {Array} props.exercise.sets - Array of set objects.
+ * @param {Object} props.exercise - Current exercise data object.
+ * @param {Object} [props.previousExercise] - Previous workout data for this exercise.
  * @param {Function} [props.onUpdateSet] - Callback: (exerciseId, setId, field, value).
  */
-export default function ExerciseCard({ exercise, onUpdateSet }) {
+export default function ExerciseCard({ exercise, previousExercise, onUpdateSet }) {
   const [activeView, setActiveView] = useState('current');
 
-  return (
-    <View style={styles.card}>
-      <View style={styles.titleRow}>
-        <Text variant="title" style={styles.exerciseName}>
-          {exercise.name}
-        </Text>
-        <ViewSelector activeView={activeView} onChangeView={setActiveView} />
-      </View>
-
+  const renderCurrentView = () => (
+    <>
       <SetHeader />
 
       {exercise.sets.map((set, index) => (
@@ -41,6 +34,48 @@ export default function ExerciseCard({ exercise, onUpdateSet }) {
       ))}
 
       <SetFooter />
+    </>
+  );
+
+  const renderPreviousView = () => {
+    if (!previousExercise) {
+      return (
+        <Text variant="caption" style={styles.emptyMessage}>
+          No previous data available
+        </Text>
+      );
+    }
+
+    return (
+      <>
+        <SetHeader />
+
+        {previousExercise.sets.map((set, index) => (
+          <PreviousSetRow
+            key={set.id}
+            index={index}
+            weight={set.weight}
+            reps={set.reps}
+            rir={set.rir}
+          />
+        ))}
+
+        <SetFooter />
+      </>
+    );
+  };
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.titleRow}>
+        <Text variant="title" style={styles.exerciseName}>
+          {exercise.name}
+        </Text>
+        <ViewSelector activeView={activeView} onChangeView={setActiveView} />
+      </View>
+
+      {activeView === 'current' && renderCurrentView()}
+      {activeView === 'previous' && renderPreviousView()}
     </View>
   );
 }
@@ -56,6 +91,10 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   exerciseName: {
-    color: COLORS.mediumBlue,
+    color: COLORS.exerciseName,
+  },
+  emptyMessage: {
+    textAlign: 'center',
+    paddingVertical: SPACING.lg,
   },
 });

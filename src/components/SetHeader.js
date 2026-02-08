@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     flex: 2,
   },
   weightCell: {
-    flex: 3,
+    flex: 4,
   },
   repsCell: {
     flex: 2,

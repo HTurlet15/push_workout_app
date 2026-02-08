@@ -4,22 +4,34 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Text from '../components/Text';
 import ExerciseCard from '../components/ExerciseCard';
 import MOCK_WORKOUT from '../data/mockWorkout';
+import MOCK_PREVIOUS_WORKOUT from '../data/mockPreviousWorkout';
 import { COLORS, SPACING } from '../theme/theme';
 
 /**
  * Main workout session screen.
  * Owns the workout state and passes update callbacks down to child components.
- * Currently initialized with mock data — will connect to persistent storage later.
+ * Matches exercises between current and previous workouts by exercise ID.
  */
 export default function WorkoutScreen() {
   const insets = useSafeAreaInsets();
   const [workout, setWorkout] = useState(MOCK_WORKOUT);
 
   /**
+   * Finds the matching exercise from the previous workout by ID.
+   * Returns undefined if no match exists.
+   *
+   * @param {string} exerciseId - Exercise identifier to look up.
+   * @returns {Object|undefined} Previous exercise data or undefined.
+   */
+  const findPreviousExercise = (exerciseId) => {
+    return MOCK_PREVIOUS_WORKOUT.exercises.find(
+      (exercise) => exercise.id === exerciseId
+    );
+  };
+
+  /**
    * Updates a single field within a specific set.
    * Creates a new state object (immutable update) to trigger re-render.
-   * Automatically transitions state to 'filled' on edit.
-   * State comparison with planned data will be handled here once available.
    *
    * @param {string} exerciseId - Target exercise identifier.
    * @param {string} setId - Target set identifier.
@@ -65,6 +77,7 @@ export default function WorkoutScreen() {
           <ExerciseCard
             key={exercise.id}
             exercise={exercise}
+            previousExercise={findPreviousExercise(exercise.id)}
             onUpdateSet={handleUpdateSet}
           />
         ))}
@@ -80,13 +93,13 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    paddingVertical: SPACING.xxl,
+    paddingVertical: SPACING.xl,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.xxl,
+    paddingBottom: SPACING.xxl,
   },
 });
