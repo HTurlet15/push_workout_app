@@ -15,6 +15,7 @@ export const COLORS = {
 
     exerciseName: '#007AFF',
     lightGray : '#f7f7f7',
+    selectedInput : '#d6d6d6',
     mediumGray : '#A7A7A7',
     successLight: '#D0FFE3',
 };

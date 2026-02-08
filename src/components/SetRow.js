@@ -5,37 +5,44 @@ import { COLORS, SPACING, RADIUS } from '../theme/theme';
 
 /**
  * Renders a single set row within an exercise card.
- * Each value (weight, reps, RIR) is a tappable SetInput badge.
- * Background turns green when the set is marked as completed.
- *
- * Column widths are proportional (1:3:2:2) to account for varying
- * content lengths and ensure visually even spacing between columns.
+ * Each value (weight, reps, RIR) is a tappable SetInput badge
+ * with its own independent visual state.
  *
  * @param {Object} props
  * @param {number} props.index - Set position (0-based), displayed as 1-based.
- * @param {number} props.weight - Weight lifted in kilograms.
- * @param {number} props.reps - Number of repetitions performed.
- * @param {number|null} [props.rir] - Reps In Reserve. Displays "—" when null.
- * @param {boolean} props.completed - Whether the set has been logged.
- * @param {'filled'|'previous'|'planned'|'empty'} [props.state='empty'] - Visual state for all inputs.
+ * @param {Object} props.set - Full set object with field-level state.
+ * @param {Function} [props.onUpdateSet] - Callback: (field, value) when a set value changes.
  */
-export default function SetRow({ index, weight, reps, rir, completed, state = 'empty' }) {
+export default function SetRow({ index, set, onUpdateSet }) {
   return (
-    <View style={[styles.container, completed && styles.completedContainer]}>
+    <View style={[styles.container, set.completed && styles.completedContainer]}>
       <Text variant="body" style={styles.setCell}>
         {index + 1}
       </Text>
 
       <View style={styles.weightCell}>
-        <SetInput value={weight} unit="kg" state={state} />
+        <SetInput
+          value={set.weight.value}
+          unit="kg"
+          state={set.weight.state}
+          onChangeValue={(val) => onUpdateSet?.('weight', val)}
+        />
       </View>
 
       <View style={styles.repsCell}>
-        <SetInput value={reps} state={state} />
+        <SetInput
+          value={set.reps.value}
+          state={set.reps.state}
+          onChangeValue={(val) => onUpdateSet?.('reps', val)}
+        />
       </View>
 
       <View style={styles.rirCell}>
-        <SetInput value={rir} state={rir !== null && rir !== undefined ? state : 'empty'} />
+        <SetInput
+          value={set.rir.value}
+          state={set.rir.state}
+          onChangeValue={(val) => onUpdateSet?.('rir', val)}
+        />
       </View>
     </View>
   );
@@ -47,6 +54,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: SPACING.xs,
     paddingHorizontal: SPACING.sm,
+    borderRadius: RADIUS.sm,
     marginBottom: SPACING.xs,
     gap: SPACING.xs,
   },
@@ -54,7 +62,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.successLight,
   },
   setCell: {
-    flex: 2,
+    flex: 1,
     textAlign: 'center',
     fontWeight: '600',
   },
