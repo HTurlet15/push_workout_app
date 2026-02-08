@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   exerciseName: {
-    color: COLORS.exerciseName,
+    color: COLORS.mediumBlue,
   },
   emptyMessage: {
     textAlign: 'center',
