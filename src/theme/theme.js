@@ -13,7 +13,10 @@ export const COLORS = {
     textPrimary: '#4b4b4b',
     textSecondary :'#A7A7A7',
 
-    exerciseName: '#007AFF',
+    lightBlue : '#B6C0FF',
+    mediumBlue: '#007AFF',
+
+
     lightGray : '#f7f7f7',
     selectedInput : '#d6d6d6',
     mediumGray : '#A7A7A7',

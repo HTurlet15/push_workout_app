@@ -80,13 +80,13 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    paddingVertical: SPACING.xl,
+    paddingVertical: SPACING.xxl,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: SPACING.lg,
-    paddingBottom: SPACING.xxl,
+    paddingVertical: SPACING.xxl,
   },
 });

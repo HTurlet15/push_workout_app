@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Text from './Text';
+import ViewSelector from './ViewSelector';
 import SetHeader from './SetHeader';
 import SetFooter from './SetFooter';
 import SetRow from './SetRow';
@@ -7,7 +9,7 @@ import { COLORS, SPACING } from '../theme/theme';
 
 /**
  * Displays a single exercise with its associated sets.
- * Acts as a visual card grouping all set data for one movement.
+ * Manages its own view state (previous/current/next) independently.
  *
  * @param {Object} props
  * @param {Object} props.exercise - Exercise data object.
@@ -16,11 +18,16 @@ import { COLORS, SPACING } from '../theme/theme';
  * @param {Function} [props.onUpdateSet] - Callback: (exerciseId, setId, field, value).
  */
 export default function ExerciseCard({ exercise, onUpdateSet }) {
+  const [activeView, setActiveView] = useState('current');
+
   return (
     <View style={styles.card}>
-      <Text variant="title" style={styles.exerciseName}>
-        {exercise.name}
-      </Text>
+      <View style={styles.titleRow}>
+        <Text variant="title" style={styles.exerciseName}>
+          {exercise.name}
+        </Text>
+        <ViewSelector activeView={activeView} onChangeView={setActiveView} />
+      </View>
 
       <SetHeader />
 
@@ -42,8 +49,13 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: SPACING.xl,
   },
-  exerciseName: {
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: SPACING.md,
-    color: COLORS.exerciseName,
+  },
+  exerciseName: {
+    color: COLORS.mediumBlue,
   },
 });
