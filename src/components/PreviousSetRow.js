@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
   },
   setCell: {
-    flex: 2,
+    flex: 1,
     fontWeight: '600',
   },
   weightCell: {

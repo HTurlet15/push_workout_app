@@ -56,13 +56,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm,
     borderRadius: RADIUS.sm,
     marginBottom: SPACING.xs,
-    gap: SPACING.xs,
+    gap: SPACING.md,
   },
   completedContainer: {
     backgroundColor: COLORS.successLight,
   },
   setCell: {
-    flex: 2,
+    flex: 1,
     textAlign: 'center',
     fontWeight: '600',
   },

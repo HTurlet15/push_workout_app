@@ -5,33 +5,34 @@ import Text from '../components/Text';
 import ExerciseCard from '../components/ExerciseCard';
 import MOCK_WORKOUT from '../data/mockWorkout';
 import MOCK_PREVIOUS_WORKOUT from '../data/mockPreviousWorkout';
+import MOCK_NEXT_WORKOUT from '../data/mockNextWorkout';
 import { COLORS, SPACING } from '../theme/theme';
 
 /**
  * Main workout session screen.
- * Owns the workout state and passes update callbacks down to child components.
- * Matches exercises between current and previous workouts by exercise ID.
+ * Owns the workout state and next workout state.
+ * Passes data and update callbacks down to child components.
  */
 export default function WorkoutScreen() {
   const insets = useSafeAreaInsets();
   const [workout, setWorkout] = useState(MOCK_WORKOUT);
+  const [nextWorkout, setNextWorkout] = useState(MOCK_NEXT_WORKOUT);
 
   /**
-   * Finds the matching exercise from the previous workout by ID.
-   * Returns undefined if no match exists.
+   * Finds the matching exercise from a workout by exercise ID.
    *
+   * @param {Object} sourceWorkout - Workout to search in.
    * @param {string} exerciseId - Exercise identifier to look up.
-   * @returns {Object|undefined} Previous exercise data or undefined.
+   * @returns {Object|undefined} Matching exercise or undefined.
    */
-  const findPreviousExercise = (exerciseId) => {
-    return MOCK_PREVIOUS_WORKOUT.exercises.find(
+  const findExercise = (sourceWorkout, exerciseId) => {
+    return sourceWorkout.exercises.find(
       (exercise) => exercise.id === exerciseId
     );
   };
 
   /**
-   * Updates a single field within a specific set.
-   * Creates a new state object (immutable update) to trigger re-render.
+   * Updates a single field within a specific set in the current workout.
    *
    * @param {string} exerciseId - Target exercise identifier.
    * @param {string} setId - Target set identifier.
@@ -59,6 +60,32 @@ export default function WorkoutScreen() {
     }));
   };
 
+  /**
+   * Updates a single field within a specific set in the next planned workout.
+   *
+   * @param {string} exerciseId - Target exercise identifier.
+   * @param {string} setId - Target set identifier.
+   * @param {string} field - Field name to update ('weight' or 'reps').
+   * @param {number} value - New value for the field.
+   */
+  const handleUpdateNextSet = (exerciseId, setId, field, value) => {
+    setNextWorkout((prev) => ({
+      ...prev,
+      exercises: prev.exercises.map((exercise) => {
+        if (exercise.id !== exerciseId) return exercise;
+
+        return {
+          ...exercise,
+          sets: exercise.sets.map((set) => {
+            if (set.id !== setId) return set;
+
+            return { ...set, [field]: value };
+          }),
+        };
+      }),
+    }));
+  };
+
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.header}>
@@ -77,8 +104,10 @@ export default function WorkoutScreen() {
           <ExerciseCard
             key={exercise.id}
             exercise={exercise}
-            previousExercise={findPreviousExercise(exercise.id)}
+            previousExercise={findExercise(MOCK_PREVIOUS_WORKOUT, exercise.id)}
+            nextExercise={findExercise(nextWorkout, exercise.id)}
             onUpdateSet={handleUpdateSet}
+            onUpdateNextSet={handleUpdateNextSet}
           />
         ))}
       </ScrollView>
@@ -99,7 +128,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: SPACING.lg,
+    paddingHorizontal: SPACING.md,
     paddingBottom: SPACING.xxl,
   },
 });

@@ -17,5 +17,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: RADIUS.sm,
     borderBottomRightRadius: RADIUS.sm,
     height: SET_TABLE.headerHeight,
+    borderTopWidth : 1,
+    borderColor : COLORS.darkGray,
   },
 });

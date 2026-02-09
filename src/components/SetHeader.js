@@ -9,19 +9,19 @@ import { COLORS, SPACING, RADIUS, SET_TABLE } from '../theme/theme';
 export default function SetHeader() {
   return (
     <View style={styles.container}>
-      <Text variant="caption" style={[styles.cell, styles.setCell]}>
+      <Text variant="subtitle" style={[styles.cell, styles.setCell]}>
         Set
       </Text>
 
-      <Text variant="caption" style={[styles.cell, styles.weightCell]}>
+      <Text variant="subtitle" style={[styles.cell, styles.weightCell]}>
         Weight
       </Text>
 
-      <Text variant="caption" style={[styles.cell, styles.repsCell]}>
+      <Text variant="subtitle" style={[styles.cell, styles.repsCell]}>
         Reps
       </Text>
 
-      <Text variant="caption" style={[styles.cell, styles.rirCell]}>
+      <Text variant="subtitle" style={[styles.cell, styles.rirCell]}>
         RIR
       </Text>
     </View>
@@ -38,12 +38,16 @@ const styles = StyleSheet.create({
     borderTopLeftRadius : RADIUS.sm,
     backgroundColor : COLORS.lightGray,
     height: SET_TABLE.headerHeight,
+    borderBottomWidth : 1,
+    borderColor : COLORS.darkGray,
   },
   cell: {
     textAlign: 'center',
+    color: COLORS.textPrimary,
+    fontWeight: '700',
   },
   setCell: {
-    flex: 2,
+    flex: 1,
   },
   weightCell: {
     flex: 4,

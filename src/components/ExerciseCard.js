@@ -3,9 +3,11 @@ import { View, StyleSheet } from 'react-native';
 import Text from './Text';
 import ViewSelector from './ViewSelector';
 import SetHeader from './SetHeader';
+import NextSetHeader from './NextSetHeader';
 import SetFooter from './SetFooter';
 import SetRow from './SetRow';
 import PreviousSetRow from './PreviousSetRow';
+import NextSetRow from './NextSetRow';
 import { COLORS, SPACING } from '../theme/theme';
 
 /**
@@ -15,9 +17,11 @@ import { COLORS, SPACING } from '../theme/theme';
  * @param {Object} props
  * @param {Object} props.exercise - Current exercise data object.
  * @param {Object} [props.previousExercise] - Previous workout data for this exercise.
+ * @param {Object} [props.nextExercise] - Next planned data for this exercise.
  * @param {Function} [props.onUpdateSet] - Callback: (exerciseId, setId, field, value).
+ * @param {Function} [props.onUpdateNextSet] - Callback: (exerciseId, setId, field, value).
  */
-export default function ExerciseCard({ exercise, previousExercise, onUpdateSet }) {
+export default function ExerciseCard({ exercise, previousExercise, nextExercise, onUpdateSet, onUpdateNextSet }) {
   const [activeView, setActiveView] = useState('current');
 
   const renderCurrentView = () => (
@@ -65,6 +69,39 @@ export default function ExerciseCard({ exercise, previousExercise, onUpdateSet }
     );
   };
 
+ const renderNextView = () => {
+  if (!nextExercise) {
+    return (
+      <Text variant="caption" style={styles.emptyMessage}>
+        No planned data available
+      </Text>
+    );
+  }
+
+  return (
+    <>
+      <NextSetHeader />
+
+      {exercise.sets.map((set, index) => {
+        const nextSet = nextExercise.sets[index];
+        if (!nextSet) return null;
+
+        return (
+          <NextSetRow
+            key={set.id}
+            index={index}
+            currentSet={set}
+            nextSet={nextSet}
+            onUpdateNextSet={(field, value) => onUpdateNextSet?.(exercise.id, nextSet.id, field, value)}
+          />
+        );
+      })}
+
+      <SetFooter />
+    </>
+  );
+};
+
   return (
     <View style={styles.card}>
       <View style={styles.titleRow}>
@@ -76,6 +113,7 @@ export default function ExerciseCard({ exercise, previousExercise, onUpdateSet }
 
       {activeView === 'current' && renderCurrentView()}
       {activeView === 'previous' && renderPreviousView()}
+      {activeView === 'next' && renderNextView()}
     </View>
   );
 }

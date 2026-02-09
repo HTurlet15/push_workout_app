@@ -20,6 +20,8 @@ export const COLORS = {
     lightGray : '#f7f7f7',
     selectedInput : '#d6d6d6',
     mediumGray : '#A7A7A7',
+    darkGray : '#C0C0C0',
+
     successLight: '#D0FFE3',
 };
 
@@ -34,6 +36,7 @@ export const SPACING = {
 
 export const FONT_SIZE = {
     caption: 12,
+    subtitle : 14,
     body: 16,
     title: 20,
     headline: 28,
@@ -54,5 +57,5 @@ export const RADIUS = {
 };
 
 export const SET_TABLE = {
-  headerHeight: 28,
+  headerHeight: 32,
 };
