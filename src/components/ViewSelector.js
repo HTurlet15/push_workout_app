@@ -42,6 +42,7 @@ export default function ViewSelector({ activeView, onChangeView }) {
         onPress={goLeft}
         activeOpacity={0.6}
         disabled={!hasPrevious}
+        hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
       >
         <Feather
           name="chevron-left"
@@ -60,6 +61,7 @@ export default function ViewSelector({ activeView, onChangeView }) {
         onPress={goRight}
         activeOpacity={0.6}
         disabled={!hasNext}
+        hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
       >
         <Feather
           name="chevron-right"
