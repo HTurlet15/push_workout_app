@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Text from '../components/Text';
 import ExerciseCard from '../components/ExerciseCard';
 import usePersistedState from '../hooks/usePersistedState';
+import useSessionRotation from '../hooks/useSessionRotation';
 import MOCK_WORKOUT from '../data/mockWorkout';
 import MOCK_PREVIOUS_WORKOUT from '../data/mockPreviousWorkout';
 import MOCK_NEXT_WORKOUT from '../data/mockNextWorkout';
@@ -10,8 +11,7 @@ import { COLORS, SPACING } from '../theme/theme';
 
 /**
  * Main workout session screen.
- * Owns the persisted workout state and passes update callbacks down.
- * Data survives app restarts via AsyncStorage.
+ * Owns the persisted workout state and handles session rotation.
  */
 export default function WorkoutScreen() {
   const insets = useSafeAreaInsets();
@@ -33,27 +33,23 @@ export default function WorkoutScreen() {
 
   const isLoading = workoutLoading || previousLoading || nextLoading;
 
-  /**
-   * Finds the matching exercise from a workout by exercise ID.
-   *
-   * @param {Object} sourceWorkout - Workout to search in.
-   * @param {string} exerciseId - Exercise identifier to look up.
-   * @returns {Object|undefined} Matching exercise or undefined.
-   */
+  /** Check and perform session rotation if 12h have elapsed */
+  useSessionRotation({
+    workout,
+    setWorkout,
+    previousWorkout,
+    setPreviousWorkout,
+    nextWorkout,
+    setNextWorkout,
+    isLoading,
+  });
+
   const findExercise = (sourceWorkout, exerciseId) => {
     return sourceWorkout.exercises.find(
       (exercise) => exercise.id === exerciseId
     );
   };
 
-  /**
-   * Updates a single field within a specific set in the current workout.
-   *
-   * @param {string} exerciseId - Target exercise identifier.
-   * @param {string} setId - Target set identifier.
-   * @param {string} field - Field name to update ('weight', 'reps', or 'rir').
-   * @param {number} value - New value for the field.
-   */
   const handleUpdateSet = (exerciseId, setId, field, value) => {
     setWorkout((prev) => ({
       ...prev,
@@ -75,14 +71,6 @@ export default function WorkoutScreen() {
     }));
   };
 
-  /**
-   * Updates a single field within a specific set in the next planned workout.
-   *
-   * @param {string} exerciseId - Target exercise identifier.
-   * @param {string} setId - Target set identifier.
-   * @param {string} field - Field name to update ('weight' or 'reps').
-   * @param {number} value - New value for the field.
-   */
   const handleUpdateNextSet = (exerciseId, setId, field, value) => {
     setNextWorkout((prev) => ({
       ...prev,
@@ -101,7 +89,6 @@ export default function WorkoutScreen() {
     }));
   };
 
-  /** Show loading spinner while data is being read from storage */
   if (isLoading) {
     return (
       <View style={[styles.screen, styles.loadingContainer, { paddingTop: insets.top }]}>
