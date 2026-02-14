@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: SPACING.lg,
+    paddingHorizontal: SPACING.md,
     paddingBottom: SPACING.xxl,
   },
 });
