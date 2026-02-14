@@ -72,22 +72,22 @@ export default function WorkoutScreen() {
   };
 
   const handleUpdateNextSet = (exerciseId, setId, field, value) => {
-    setNextWorkout((prev) => ({
-      ...prev,
-      exercises: prev.exercises.map((exercise) => {
-        if (exercise.id !== exerciseId) return exercise;
+  setNextWorkout((prev) => ({
+    ...prev,
+    exercises: prev.exercises.map((exercise) => {
+      if (exercise.id !== exerciseId) return exercise;
 
-        return {
-          ...exercise,
-          sets: exercise.sets.map((set) => {
-            if (set.id !== setId) return set;
+      return {
+        ...exercise,
+        sets: exercise.sets.map((set) => {
+          if (set.id !== setId) return set;
 
-            return { ...set, [field]: value };
-          }),
-        };
-      }),
-    }));
-  };
+          return { ...set, [field]: { value, edited: true } };
+        }),
+      };
+    }),
+  }));
+};
 
   if (isLoading) {
     return (

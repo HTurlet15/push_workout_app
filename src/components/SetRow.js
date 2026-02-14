@@ -7,6 +7,7 @@ import { COLORS, SPACING, RADIUS } from '../theme/theme';
  * Renders a single set row within an exercise card.
  * Each value (weight, reps, RIR) is a tappable SetInput badge
  * with its own independent visual state.
+ * Row turns green when both weight and reps are filled.
  *
  * @param {Object} props
  * @param {number} props.index - Set position (0-based), displayed as 1-based.
@@ -14,8 +15,11 @@ import { COLORS, SPACING, RADIUS } from '../theme/theme';
  * @param {Function} [props.onUpdateSet] - Callback: (field, value) when a set value changes.
  */
 export default function SetRow({ index, set, onUpdateSet }) {
+  const isCompleted =
+    set.weight.state === 'filled' && set.reps.state === 'filled';
+
   return (
-    <View style={[styles.container, set.completed && styles.completedContainer]}>
+    <View style={[styles.container, isCompleted && styles.completedContainer]}>
       <Text variant="body" style={styles.setCell}>
         {index + 1}
       </Text>
@@ -56,7 +60,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm,
     borderRadius: RADIUS.sm,
     marginBottom: SPACING.xs,
-    gap: SPACING.md,
+    gap: SPACING.xs,
   },
   completedContainer: {
     backgroundColor: COLORS.successLight,

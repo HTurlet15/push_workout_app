@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LAST_ACTIVITY_KEY = 'push_last_activity';
-const ROTATION_DELAY_MS = 12 * 60 * 60 * 1000;
+const ROTATION_DELAY_MS = 5*1000; //12 * 60 * 60 * 1000;
 
 /**
  * Hook that checks if 12h have passed since last activity.
@@ -146,15 +146,27 @@ export default function useSessionRotation({
 
 /**
  * Determines the pre-filled value and state for a single field.
- * Priority: next planned value > previous workout value > empty.
+ * Priority: user-edited next value (planned) > pre-filled next value (previous) > previous workout value > empty.
  *
- * @param {number|null} nextValue - Value from next workout (if planned).
+ * Next field format:
+ * - { value, edited: true } → user explicitly set this, becomes 'planned' with calendar
+ * - raw number → pre-filled from current, treated same as previous (no calendar)
+ * - null → no data
+ *
+ * @param {number|Object|null} nextValue - Value from next workout.
  * @param {number|null} prevValue - Value from previous workout (fallback).
  * @returns {Object} Field object with value and state.
  */
 function resolveField(nextValue, prevValue) {
   if (nextValue !== null && nextValue !== undefined) {
-    return { value: nextValue, state: 'planned' };
+    /** User-edited next value → planned with calendar */
+    if (typeof nextValue === 'object' && nextValue.edited) {
+      return { value: nextValue.value, state: 'planned' };
+    }
+
+    /** Pre-filled next value (raw number) → treat as previous, no calendar */
+    const rawValue = typeof nextValue === 'object' ? nextValue.value : nextValue;
+    return { value: rawValue, state: 'previous' };
   }
 
   if (prevValue !== null && prevValue !== undefined) {
