@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Text from '../components/Text';
 import ExerciseCard from '../components/ExerciseCard';
+import usePersistedState from '../hooks/usePersistedState';
 import MOCK_WORKOUT from '../data/mockWorkout';
 import MOCK_PREVIOUS_WORKOUT from '../data/mockPreviousWorkout';
 import MOCK_NEXT_WORKOUT from '../data/mockNextWorkout';
@@ -10,13 +10,28 @@ import { COLORS, SPACING } from '../theme/theme';
 
 /**
  * Main workout session screen.
- * Owns the workout state and next workout state.
- * Passes data and update callbacks down to child components.
+ * Owns the persisted workout state and passes update callbacks down.
+ * Data survives app restarts via AsyncStorage.
  */
 export default function WorkoutScreen() {
   const insets = useSafeAreaInsets();
-  const [workout, setWorkout] = useState(MOCK_WORKOUT);
-  const [nextWorkout, setNextWorkout] = useState(MOCK_NEXT_WORKOUT);
+
+  const [workout, setWorkout, workoutLoading] = usePersistedState(
+    'push_current_workout',
+    MOCK_WORKOUT
+  );
+
+  const [previousWorkout, setPreviousWorkout, previousLoading] = usePersistedState(
+    'push_previous_workout',
+    MOCK_PREVIOUS_WORKOUT
+  );
+
+  const [nextWorkout, setNextWorkout, nextLoading] = usePersistedState(
+    'push_next_workout',
+    MOCK_NEXT_WORKOUT
+  );
+
+  const isLoading = workoutLoading || previousLoading || nextLoading;
 
   /**
    * Finds the matching exercise from a workout by exercise ID.
@@ -86,6 +101,15 @@ export default function WorkoutScreen() {
     }));
   };
 
+  /** Show loading spinner while data is being read from storage */
+  if (isLoading) {
+    return (
+      <View style={[styles.screen, styles.loadingContainer, { paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={COLORS.accent} />
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.header}>
@@ -104,7 +128,7 @@ export default function WorkoutScreen() {
           <ExerciseCard
             key={exercise.id}
             exercise={exercise}
-            previousExercise={findExercise(MOCK_PREVIOUS_WORKOUT, exercise.id)}
+            previousExercise={findExercise(previousWorkout, exercise.id)}
             nextExercise={findExercise(nextWorkout, exercise.id)}
             onUpdateSet={handleUpdateSet}
             onUpdateNextSet={handleUpdateNextSet}
@@ -120,6 +144,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   header: {
     alignItems: 'center',
     paddingVertical: SPACING.xl,
@@ -128,7 +156,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: SPACING.md,
+    paddingHorizontal: SPACING.lg,
     paddingBottom: SPACING.xxl,
   },
 });
