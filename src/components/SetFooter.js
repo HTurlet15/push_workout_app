@@ -13,11 +13,9 @@ export default function SetFooter() {
 const styles = StyleSheet.create({
   container: {
     height: SPACING.sm,
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.lightGray,
     borderBottomLeftRadius: RADIUS.sm,
     borderBottomRightRadius: RADIUS.sm,
-    height: SET_TABLE.headerHeight,
-    borderTopWidth : 1,
-    borderColor : COLORS.darkGray,
+    paddingVertical : SPACING.sm,
   },
 });

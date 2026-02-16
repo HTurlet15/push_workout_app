@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
   },
   badgeText: {
-    color: COLORS.background,
+    color: COLORS.white,
     fontWeight: '600',
   },
 });

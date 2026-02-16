@@ -129,7 +129,7 @@ export default function WorkoutScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.screenBackground,
   },
   loadingContainer: {
     justifyContent: 'center',

@@ -103,7 +103,7 @@ export default function SetInput({ value, unit, state = 'empty', onChangeValue }
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.lightGray,
     borderRadius: RADIUS.sm,
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,

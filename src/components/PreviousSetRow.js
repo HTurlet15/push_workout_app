@@ -41,8 +41,8 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xs,
     paddingHorizontal: SPACING.sm,
     borderRadius: RADIUS.sm,
-    marginBottom: SPACING.xs,
-    gap: SPACING.xs,
+    marginBottom: SPACING.sm,
+    gap: SPACING.md,
   },
   cell: {
     textAlign: 'center',

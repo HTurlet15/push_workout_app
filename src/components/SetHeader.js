@@ -34,16 +34,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: SPACING.xs,
     paddingHorizontal: SPACING.sm,
-    borderTopRightRadius : RADIUS.sm,
-    borderTopLeftRadius : RADIUS.sm,
     backgroundColor : COLORS.lightGray,
     height: SET_TABLE.headerHeight,
-    borderBottomWidth : 1,
-    borderColor : COLORS.darkGray,
   },
   cell: {
     textAlign: 'center',
-    color: COLORS.textPrimary,
+    color: COLORS.textSecondary,
     fontWeight: '700',
   },
   setCell: {

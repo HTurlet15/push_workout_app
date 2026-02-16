@@ -8,7 +8,7 @@ import SetFooter from './SetFooter';
 import SetRow from './SetRow';
 import PreviousSetRow from './PreviousSetRow';
 import NextSetRow from './NextSetRow';
-import { COLORS, SPACING } from '../theme/theme';
+import { COLORS, SPACING, RADIUS } from '../theme/theme';
 
 /**
  * Displays a single exercise with its associated sets.
@@ -25,7 +25,7 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
   const [activeView, setActiveView] = useState('current');
 
   const renderCurrentView = () => (
-    <>
+    <View style={styles.tableCard}>
       <SetHeader />
 
       {exercise.sets.map((set, index) => (
@@ -38,7 +38,7 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
       ))}
 
       <SetFooter />
-    </>
+    </View>
   );
 
   const renderPreviousView = () => {
@@ -51,7 +51,7 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
     }
 
     return (
-      <>
+      <View style={styles.tableCard}>
         <SetHeader />
 
         {previousExercise.sets.map((set, index) => (
@@ -65,42 +65,42 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
         ))}
 
         <SetFooter />
-      </>
+      </View>
     );
   };
 
- const renderNextView = () => {
-  if (!nextExercise) {
+  const renderNextView = () => {
+    if (!nextExercise) {
+      return (
+        <Text variant="caption" style={styles.emptyMessage}>
+          No planned data available
+        </Text>
+      );
+    }
+
     return (
-      <Text variant="caption" style={styles.emptyMessage}>
-        No planned data available
-      </Text>
+      <View style={styles.tableCard}>
+        <NextSetHeader />
+
+        {exercise.sets.map((set, index) => {
+          const nextSet = nextExercise.sets[index];
+          if (!nextSet) return null;
+
+          return (
+            <NextSetRow
+              key={set.id}
+              index={index}
+              currentSet={set}
+              nextSet={nextSet}
+              onUpdateNextSet={(field, value) => onUpdateNextSet?.(exercise.id, nextSet.id, field, value)}
+            />
+          );
+        })}
+
+        <SetFooter />
+      </View>
     );
-  }
-
-  return (
-    <>
-      <NextSetHeader />
-
-      {exercise.sets.map((set, index) => {
-        const nextSet = nextExercise.sets[index];
-        if (!nextSet) return null;
-
-        return (
-          <NextSetRow
-            key={set.id}
-            index={index}
-            currentSet={set}
-            nextSet={nextSet}
-            onUpdateNextSet={(field, value) => onUpdateNextSet?.(exercise.id, nextSet.id, field, value)}
-          />
-        );
-      })}
-
-      <SetFooter />
-    </>
-  );
-};
+  };
 
   return (
     <View style={styles.card}>
@@ -120,13 +120,22 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
 
 const styles = StyleSheet.create({
   card: {
-    marginBottom: SPACING.xl,
+    marginVertical: SPACING.md,
+  },
+  tableCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.md,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
   },
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.md,
+    marginVertical: SPACING.md,
   },
   exerciseName: {
     color: COLORS.mediumBlue,

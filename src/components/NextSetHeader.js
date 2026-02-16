@@ -56,25 +56,23 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: SPACING.sm,
         paddingHorizontal: SPACING.sm,
-        backgroundColor: COLORS.surface,
+        backgroundColor: COLORS.lightGray,
         borderTopLeftRadius: RADIUS.sm,
         borderTopRightRadius: RADIUS.sm,
-        borderBottomWidth : 1,
-        borderColor : COLORS.darkGray,
         gap : SPACING.sm,
     },
     subRow: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: SPACING.sm,
-        paddingVertical: SPACING.xs,
+        paddingTop: SPACING.sm,
         gap : SPACING.sm,
     },
     cell: {
         textAlign: 'center',
     },
     mainLabel: {
-        color: COLORS.textPrimary,
+        color: COLORS.textSecondary,
         fontWeight: '700',
     },
     setCell: {

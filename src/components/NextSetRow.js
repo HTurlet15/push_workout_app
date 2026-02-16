@@ -78,11 +78,11 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: SPACING.xs,
+    paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.sm,
     borderRadius: RADIUS.sm,
     marginBottom: SPACING.xs,
-    gap: SPACING.sm,
+    gap: SPACING.xxs,
   },
   setCell: {
     flex: 1,
