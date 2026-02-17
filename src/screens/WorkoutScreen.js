@@ -9,6 +9,7 @@ import MOCK_PREVIOUS_WORKOUT from '../data/mockPreviousWorkout';
 import MOCK_NEXT_WORKOUT from '../data/mockNextWorkout';
 import { COLORS, SPACING } from '../theme/theme';
 import BottomBar from '../components/BottomBar';
+import useRestTimer from '../hooks/useRestTimer';
 
 /**
  * Main workout session screen.
@@ -16,6 +17,15 @@ import BottomBar from '../components/BottomBar';
  */
 export default function WorkoutScreen() {
   const insets = useSafeAreaInsets();
+
+  const {
+  timerState,
+  timeRemaining,
+  duration,
+  playPause,
+  reset,
+  updateDuration,
+} = useRestTimer(90);
 
   const [workout, setWorkout, workoutLoading] = usePersistedState(
     'push_current_workout',
@@ -112,7 +122,7 @@ export default function WorkoutScreen() {
             Last: 4 days ago
           </Text>
         </View>
-        
+
         {workout.exercises.map((exercise) => (
           <ExerciseCard
             key={exercise.id}
@@ -126,14 +136,14 @@ export default function WorkoutScreen() {
       </ScrollView>
 
       <BottomBar
-      timerState="idle"
-      timeRemaining={90}
-      onPlayPause={() => {}}
-      onReset={() => {}}
-      onTimerPress={() => {}}
-      onAddSet={() => {}}
-      onLLMPress={() => {}}
-      bottomInset={insets.bottom}
+        timerState={timerState}
+        timeRemaining={timeRemaining}
+        onPlayPause={playPause}
+        onReset={reset}
+        onTimerPress={() => {}}
+        onAddSet={() => {}}
+        onLLMPress={() => {}}
+        bottomInset={insets.bottom}
       />
 
     </View>
