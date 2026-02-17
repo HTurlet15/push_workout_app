@@ -40,9 +40,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: SPACING.xs,
     paddingHorizontal: SPACING.sm,
-    borderRadius: RADIUS.sm,
-    marginBottom: SPACING.sm,
-    gap: SPACING.md,
+    gap: SPACING.xs,
   },
   cell: {
     textAlign: 'center',
@@ -51,10 +49,13 @@ const styles = StyleSheet.create({
   },
   setCell: {
     flex: 1,
+    textAlign: 'center',
     fontWeight: '600',
+    fontSize: 14,
+    color: COLORS.mediumGray,
   },
   weightCell: {
-    flex: 4,
+    flex: 3,
   },
   repsCell: {
     flex: 2,

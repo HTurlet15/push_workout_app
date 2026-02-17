@@ -12,6 +12,7 @@ import BottomBar from '../components/BottomBar';
 import useRestTimer from '../hooks/useRestTimer';
 import TimerPicker from '../components/TimerPicker';
 import { useState } from 'react';
+import {RADIUS} from '../theme/theme'
 
 /**
  * Main workout session screen.
@@ -104,6 +105,16 @@ export default function WorkoutScreen() {
     }));
   };
 
+    const completedSets = workout.exercises.reduce((total, exercise) => {
+      return total + exercise.sets.filter(
+        (set) => set.weight.state === 'filled' && set.reps.state === 'filled'
+      ).length;
+    }, 0);
+
+    const totalSets = workout.exercises.reduce(
+      (total, exercise) => total + exercise.sets.length, 0
+    );
+
     if (isLoading) {
       return (
         <View style={[styles.screen, styles.loadingContainer, { paddingTop: insets.top }]}>
@@ -121,10 +132,16 @@ export default function WorkoutScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Text variant="hero">{workout.muscleGroup.toUpperCase()}</Text>
-            <Text variant="caption" style={{ marginTop: SPACING.xs }}>
-              Last: 4 days ago
-            </Text>
+            <Text variant="caption" style={styles.headerLabel}>WORKOUT</Text>
+            <Text variant="hero" style={styles.headerTitle}>Pectoraux</Text>
+            <View style={styles.headerMeta}>
+              <View style={styles.progressBadge}>
+                <Text variant="caption" style={styles.progressText}>
+                  {completedSets}/{totalSets} sets done
+                </Text>
+              </View>
+              <Text variant="caption" style={styles.lastDate}>· 4 days ago</Text>
+            </View>
           </View>
 
           {workout.exercises.map((exercise) => (
@@ -174,8 +191,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   header: {
+  alignItems: 'center',
+  paddingVertical: SPACING.lg,
+  },
+  headerLabel: {
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
+  },
+  headerTitle: {
+    color: COLORS.textPrimary,
+  },
+  headerMeta: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: SPACING.xl,
+    marginTop: SPACING.sm,
+    gap: SPACING.sm,
+  },
+  progressBadge: {
+    backgroundColor: COLORS.successLight,
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: RADIUS.md,
+  },
+  progressText: {
+    color: COLORS.timerDone,
+    fontWeight: '500',
+  },
+  lastDate: {
+    color: COLORS.textSecondary,
   },
   scrollView: {
     flex: 1,

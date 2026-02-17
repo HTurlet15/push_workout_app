@@ -24,7 +24,7 @@ import { COLORS, FONT_SIZE, FONT_WEIGHT, SPACING, RADIUS } from '../theme/theme'
  * @param {'filled'|'previous'|'planned'|'plannedFilled'|'empty'} [props.state='empty'] - Visual state.
  * @param {Function} [props.onChangeValue] - Callback with the new numeric value on edit confirm.
  */
-export default function SetInput({ value, unit, state = 'empty', onChangeValue }) {
+export default function SetInput({ value, unit, state = 'empty', onChangeValue, completed = false }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const inputRef = useRef(null);
@@ -76,7 +76,13 @@ export default function SetInput({ value, unit, state = 'empty', onChangeValue }
   }
 
   return (
-    <Pressable style={({ pressed }) => [styles.container, pressed && styles.containerPressed]} onPress={handlePress} >
+    <Pressable style={({ pressed }) => [
+    styles.container,
+    completed && styles.completedBadge,
+    pressed && styles.containerPressed,
+  ]}
+  onPress={handlePress}
+>
       {showCalendar && (
         <Feather
           name="calendar"
@@ -102,7 +108,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.lightGray,
     borderRadius: RADIUS.sm,
     paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.md,
+    paddingHorizontal: SPACING.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -120,6 +126,9 @@ const styles = StyleSheet.create({
     fontWeight: FONT_WEIGHT.medium,
     color: COLORS.textPrimary,
     textAlign: 'center',
+  },
+  completedBadge: {
+    backgroundColor: COLORS.completedBadge,
   },
   icon: {
     marginRight: SPACING.xs,

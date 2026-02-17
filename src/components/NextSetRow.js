@@ -78,16 +78,16 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: SPACING.sm,
+    paddingVertical: SPACING.xs,
     paddingHorizontal: SPACING.sm,
-    borderRadius: RADIUS.sm,
-    marginBottom: SPACING.xs,
     gap: SPACING.xxs,
   },
   setCell: {
     flex: 1,
     textAlign: 'center',
     fontWeight: '600',
+    fontSize: 14,
+    color: COLORS.mediumGray,
   },
   weightGroup: {
     flex: 4,

@@ -3,24 +3,13 @@ import Text from './Text';
 import SetInput from './SetInput';
 import { COLORS, SPACING, RADIUS } from '../theme/theme';
 
-/**
- * Renders a single set row within an exercise card.
- * Each value (weight, reps, RIR) is a tappable SetInput badge
- * with its own independent visual state.
- * Row turns green when both weight and reps are filled.
- *
- * @param {Object} props
- * @param {number} props.index - Set position (0-based), displayed as 1-based.
- * @param {Object} props.set - Full set object with field-level state.
- * @param {Function} [props.onUpdateSet] - Callback: (field, value) when a set value changes.
- */
 export default function SetRow({ index, set, onUpdateSet }) {
   const isCompleted =
     set.weight.state === 'filled' && set.reps.state === 'filled';
 
   return (
     <View style={[styles.container, isCompleted && styles.completedContainer]}>
-      <Text variant="body" style={styles.setCell}>
+      <Text variant="body" style={[styles.setCell, isCompleted && styles.completedSetNum]}>
         {index + 1}
       </Text>
 
@@ -30,6 +19,7 @@ export default function SetRow({ index, set, onUpdateSet }) {
           unit="kg"
           state={set.weight.state}
           onChangeValue={(val) => onUpdateSet?.('weight', val)}
+          completed={isCompleted}
         />
       </View>
 
@@ -38,6 +28,7 @@ export default function SetRow({ index, set, onUpdateSet }) {
           value={set.reps.value}
           state={set.reps.state}
           onChangeValue={(val) => onUpdateSet?.('reps', val)}
+          completed={isCompleted}
         />
       </View>
 
@@ -46,6 +37,7 @@ export default function SetRow({ index, set, onUpdateSet }) {
           value={set.rir.value}
           state={set.rir.state}
           onChangeValue={(val) => onUpdateSet?.('rir', val)}
+          completed={isCompleted}
         />
       </View>
     </View>
@@ -56,9 +48,9 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: SPACING.sm,
+    paddingVertical: SPACING.xs,
     paddingHorizontal: SPACING.sm,
-    gap: SPACING.md,
+    gap: SPACING.xs,
   },
   completedContainer: {
     backgroundColor: COLORS.successLight,
@@ -67,9 +59,14 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     fontWeight: '600',
+    fontSize: 14,
+    color: COLORS.textPrimary,
+  },
+  completedSetNum: {
+    color: COLORS.timerDone,
   },
   weightCell: {
-    flex: 4,
+    flex: 3,
   },
   repsCell: {
     flex: 2,

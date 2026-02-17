@@ -25,6 +25,7 @@ export const COLORS = {
 
   //SetInput = Badges
   badgePressed: '#ECECEC',
+  completedBadge: '#D4EDDA',
   
   // Timer states
   timerIdle: '#C0C0C0',
