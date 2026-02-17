@@ -22,6 +22,22 @@ export const COLORS = {
   darkGray: '#C0C0C0',
 
   successLight: '#E8F5E9',
+
+  //SetInput = Badges
+  badgePressed: '#ECECEC',
+  
+  // Timer states
+  timerIdle: '#C0C0C0',
+  timerActive: '#E65100',
+  timerActiveBg: '#FFF3E0',
+  timerDone: '#2E7D32',
+  timerDoneBg: '#E8F5E9',
+  timerResetBg: '#F4F4F4',
+  timerIdlePressedBg: '#C8E6C9',
+  timerActivePressedBg: '#FFE0B2',
+  timerDonePressedBg: '#C8E6C9',
+  timerResetPressedBg: '#EAEAEA',
+  addBtnPressed: '#333333',
 };
 
 export const SPACING = {

@@ -8,6 +8,7 @@ import MOCK_WORKOUT from '../data/mockWorkout';
 import MOCK_PREVIOUS_WORKOUT from '../data/mockPreviousWorkout';
 import MOCK_NEXT_WORKOUT from '../data/mockNextWorkout';
 import { COLORS, SPACING } from '../theme/theme';
+import BottomBar from '../components/BottomBar';
 
 /**
  * Main workout session screen.
@@ -99,18 +100,19 @@ export default function WorkoutScreen() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text variant="hero">{workout.muscleGroup.toUpperCase()}</Text>
-        <Text variant="caption" style={{ marginTop: SPACING.xs }}>
-          Last: 4 days ago
-        </Text>
-      </View>
 
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        <View style={styles.header}>
+          <Text variant="hero">{workout.muscleGroup.toUpperCase()}</Text>
+          <Text variant="caption" style={{ marginTop: SPACING.xs }}>
+            Last: 4 days ago
+          </Text>
+        </View>
+        
         {workout.exercises.map((exercise) => (
           <ExerciseCard
             key={exercise.id}
@@ -122,6 +124,18 @@ export default function WorkoutScreen() {
           />
         ))}
       </ScrollView>
+
+      <BottomBar
+      timerState="idle"
+      timeRemaining={90}
+      onPlayPause={() => {}}
+      onReset={() => {}}
+      onTimerPress={() => {}}
+      onAddSet={() => {}}
+      onLLMPress={() => {}}
+      bottomInset={insets.bottom}
+      />
+
     </View>
   );
 }

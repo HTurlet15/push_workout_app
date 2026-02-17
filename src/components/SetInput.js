@@ -1,4 +1,4 @@
-import { TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { Pressable, TextInput, StyleSheet } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from './Text';
@@ -76,11 +76,7 @@ export default function SetInput({ value, unit, state = 'empty', onChangeValue }
   }
 
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={handlePress}
-      activeOpacity={0.6}
-    >
+    <Pressable style={({ pressed }) => [styles.container, pressed && styles.containerPressed]} onPress={handlePress} >
       {showCalendar && (
         <Feather
           name="calendar"
@@ -96,7 +92,7 @@ export default function SetInput({ value, unit, state = 'empty', onChangeValue }
       >
         {getDisplayValue()}
       </Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
@@ -109,6 +105,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  containerPressed: {
+    backgroundColor: COLORS.badgePressed,
   },
   input: {
     backgroundColor: COLORS.background,
