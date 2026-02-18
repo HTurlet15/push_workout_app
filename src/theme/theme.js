@@ -44,11 +44,10 @@ export const COLORS = {
   viewPrevious: '#8E8E93',
   viewCurrent: '#007AFF',
   viewNext: '#E65100',
-  viewNextBg: '#FFF8F0',
-  viewNextBadge: '#FFF3E0',
-  viewPreviousBg: '#F4F4F4',
 
   //Next View
+  viewNextBg: '#f7f7f7', //'#FFF8F0', <- orange clair
+  viewNextBadge: '#FFF3E0',
   deltaUp: '#2E7D32',
   deltaDown: '#C62828',
   deltaSame: '#C0C0C0',
@@ -58,9 +57,11 @@ export const COLORS = {
   nextEdited: '#E65100',
 
   //Current View
-  viewCurrentBg : '#e7f3ff',
+  viewCurrent: '#007AFF',
+  viewCurrentBg : '#f7f7f7', //'#e7f3ff', <-bleu clair
 
   //Previous View
+  viewPrevious: '#8E8E93',
   viewPreviousBg : '#f7f7f7',
 
 };

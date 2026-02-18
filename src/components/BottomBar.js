@@ -6,10 +6,11 @@ import { COLORS, SPACING, RADIUS, FONT_SIZE } from '../theme/theme';
 export default function BottomBar({
   timerState = 'idle',
   timeRemaining = 90,
+  editMode = false,
   onPlayPause,
   onReset,
   onTimerPress,
-  onAddSet,
+  onEditToggle,
   onLLMPress,
   bottomInset = 0,
 }) {
@@ -51,7 +52,6 @@ export default function BottomBar({
 
   return (
     <View style={[styles.container, { paddingBottom: bottomInset + SPACING.md }]}>
-      {/* LLM */}
       <Pressable
         style={({ pressed }) => [styles.iconBtn, pressed && styles.iconBtnPressed]}
         onPress={onLLMPress}
@@ -59,7 +59,6 @@ export default function BottomBar({
         <Feather name="message-square" size={22} color={COLORS.textSecondary} />
       </Pressable>
 
-      {/* Play / Pause / Check */}
       <Pressable
         style={({ pressed }) => [styles.roundBtn, getPlayStyle(), pressed && getPlayPressedStyle()]}
         onPress={onPlayPause}
@@ -67,7 +66,6 @@ export default function BottomBar({
         <Feather name={getPlayIcon()} size={16} color={getPlayIconColor()} />
       </Pressable>
 
-      {/* Timer display */}
       <Pressable
         style={({ pressed }) => [styles.timerBtn, pressed && styles.timerBtnPressed]}
         onPress={onTimerPress}
@@ -77,7 +75,6 @@ export default function BottomBar({
         </Text>
       </Pressable>
 
-      {/* Reset */}
       <Pressable
         style={({ pressed }) => [styles.roundBtn, styles.resetBtn, pressed && styles.resetBtnPressed]}
         onPress={onReset}
@@ -85,12 +82,19 @@ export default function BottomBar({
         <Feather name="rotate-ccw" size={16} color={COLORS.textSecondary} />
       </Pressable>
 
-      {/* Add set */}
       <Pressable
-        style={({ pressed }) => [styles.iconBtn, styles.addBtn, pressed && styles.addBtnPressed]}
-        onPress={onAddSet}
+        style={({ pressed }) => [
+          styles.iconBtn,
+          editMode ? styles.editBtnActive : styles.editBtn,
+          pressed && (editMode ? styles.editBtnActivePressed : styles.editBtnPressed),
+        ]}
+        onPress={onEditToggle}
       >
-        <Feather name="plus" size={22} color={COLORS.white} />
+        <Feather
+          name={editMode ? 'check' : 'edit-2'}
+          size={20}
+          color={editMode ? COLORS.white : COLORS.white}
+        />
       </Pressable>
     </View>
   );
@@ -132,7 +136,7 @@ const styles = StyleSheet.create({
   },
   playIdlePressed: {
     backgroundColor: COLORS.timerIdlePressedBg,
-    },
+  },
   playActive: {
     backgroundColor: COLORS.timerActiveBg,
   },
@@ -151,12 +155,19 @@ const styles = StyleSheet.create({
   resetBtnPressed: {
     backgroundColor: COLORS.timerResetPressedBg,
   },
-  addBtn: {
+  editBtn: {
     backgroundColor: COLORS.textPrimary,
     borderRadius: RADIUS.sm,
   },
-  addBtnPressed: {
+  editBtnPressed: {
     backgroundColor: COLORS.addBtnPressed,
+  },
+  editBtnActive: {
+    backgroundColor: COLORS.viewCurrent,
+    borderRadius: RADIUS.sm,
+  },
+  editBtnActivePressed: {
+    backgroundColor: '#0066DD',
   },
   timerBtn: {
     paddingVertical: SPACING.xs,

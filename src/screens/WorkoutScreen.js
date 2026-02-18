@@ -20,7 +20,7 @@ import {RADIUS} from '../theme/theme'
  */
 export default function WorkoutScreen() {
     const insets = useSafeAreaInsets();
-
+    const [editMode, setEditMode] = useState(false);
     const {
     timerState,
     timeRemaining,
@@ -28,10 +28,8 @@ export default function WorkoutScreen() {
     playPause,
     reset,
     updateDuration,
-  } = useRestTimer(90);
-
-  const [showTimerPicker, setShowTimerPicker] = useState(false);
-
+    } = useRestTimer(90);
+    const [showTimerPicker, setShowTimerPicker] = useState(false);
     const [workout, setWorkout, workoutLoading] = usePersistedState(
       'push_current_workout',
       MOCK_WORKOUT
@@ -152,6 +150,7 @@ export default function WorkoutScreen() {
               nextExercise={findExercise(nextWorkout, exercise.id)}
               onUpdateSet={handleUpdateSet}
               onUpdateNextSet={handleUpdateNextSet}
+              editMode={editMode}
             />
           ))}
         </ScrollView>
@@ -159,10 +158,11 @@ export default function WorkoutScreen() {
         <BottomBar
           timerState={timerState}
           timeRemaining={timeRemaining}
+          editMode={editMode}
           onPlayPause={playPause}
           onReset={reset}
           onTimerPress={() => setShowTimerPicker(true)}
-          onAddSet={() => {}}
+          onEditToggle={() => setEditMode((prev) => !prev)}
           onLLMPress={() => {}}
           bottomInset={insets.bottom}
         />
