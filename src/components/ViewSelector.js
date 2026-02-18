@@ -9,6 +9,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY } from '../theme/theme'
  * flanked by directional arrows.
  *
  * View order: Previous ← Current → Next
+ * Badge color matches the view: gray (previous), blue (current), orange (next).
  *
  * @param {Object} props
  * @param {'previous'|'current'|'next'} props.activeView - Currently displayed view.
@@ -23,10 +24,17 @@ const VIEW_LABELS = {
   next: 'Next',
 };
 
+const VIEW_COLORS = {
+  previous: COLORS.viewPrevious,
+  current: COLORS.viewCurrent,
+  next: COLORS.viewNext,
+};
+
 export default function ViewSelector({ activeView, onChangeView }) {
   const currentIndex = VIEWS.indexOf(activeView);
   const hasPrevious = currentIndex > 0;
   const hasNext = currentIndex < VIEWS.length - 1;
+  const accentColor = VIEW_COLORS[activeView];
 
   const goLeft = () => {
     if (hasPrevious) onChangeView(VIEWS[currentIndex - 1]);
@@ -47,11 +55,11 @@ export default function ViewSelector({ activeView, onChangeView }) {
         <Feather
           name="chevron-left"
           size={FONT_SIZE.title}
-          color={hasPrevious ? COLORS.mediumBlue : COLORS.lightBlue}
+          color={hasPrevious ? accentColor : COLORS.mediumGray}
         />
       </TouchableOpacity>
 
-      <View style={styles.badge}>
+      <View style={[styles.badge, { backgroundColor: accentColor }]}>
         <Text variant="caption" style={styles.badgeText}>
           {VIEW_LABELS[activeView]}
         </Text>
@@ -66,7 +74,7 @@ export default function ViewSelector({ activeView, onChangeView }) {
         <Feather
           name="chevron-right"
           size={FONT_SIZE.title}
-          color={hasNext ? COLORS.mediumBlue : COLORS.lightBlue}
+          color={hasNext ? accentColor : COLORS.mediumGray}
         />
       </TouchableOpacity>
     </View>
@@ -81,13 +89,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   badge: {
-    backgroundColor: COLORS.mediumBlue,
     borderRadius: RADIUS.md,
     paddingVertical: SPACING.xs,
     paddingHorizontal: SPACING.md,
   },
   badgeText: {
     color: COLORS.white,
-    fontFamily : FONT_FAMILY.semibold,
+    fontFamily: FONT_FAMILY.semibold,
   },
 });
