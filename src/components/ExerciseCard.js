@@ -54,8 +54,8 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
               onChangeText={(text) => onUpdateNote?.(exercise.id, text)}
               placeholder="Write a note..."
               placeholderTextColor={COLORS.mediumGray}
-              multiline
-              autoFocus={editingNote && !exercise.note}
+              returnKeyType="done"
+              onSubmitEditing={() => setEditingNote(false)}
               onBlur={() => setEditingNote(false)}
             />
           </View>
