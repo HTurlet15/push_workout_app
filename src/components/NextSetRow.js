@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
     fontSize: FONT_SIZE.subtitle,
-    color: COLORS.mediumGray,
+    color: COLORS.textSecondary,
   },
   weightCell: {
     flex: 3,
