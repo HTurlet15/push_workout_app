@@ -4,7 +4,7 @@ import Text from './Text';
 import ViewSelector from './ViewSelector';
 import SetHeader from './SetHeader';
 import NextSetHeader from './NextSetHeader';
-import PreviousSetHeader from './PreviousSetHeader'
+import PreviousSetHeader from './PreviousSetHeader';
 import SetFooter from './SetFooter';
 import SetRow from './SetRow';
 import PreviousSetRow from './PreviousSetRow';
@@ -18,7 +18,7 @@ const VIEW_BORDER_COLORS = {
   next: COLORS.viewNext,
 };
 
-export default function ExerciseCard({ exercise, previousExercise, nextExercise, onUpdateSet, onUpdateNextSet }) {
+export default function ExerciseCard({ exercise, previousExercise, nextExercise, onUpdateSet, onUpdateNextSet, onDeleteSet, editMode = false }) {
   const { width } = useWindowDimensions();
   const { displayedView, slideAnim, transitionTo } = useSlideTransition('current');
 
@@ -41,7 +41,9 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
           key={set.id}
           index={index}
           set={set}
+          editMode={editMode}
           onUpdateSet={(field, value) => onUpdateSet?.(exercise.id, set.id, field, value)}
+          onDelete={() => onDeleteSet?.(exercise.id, set.id)}
         />
       ))}
 
