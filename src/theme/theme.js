@@ -105,6 +105,7 @@ export const SET_TABLE = {
 
 export const FONT_FAMILY = {
   regular: 'DMSans-Regular',
+  italic: 'DMSans-Italic',
   medium: 'DMSans-Medium',
   semibold: 'DMSans-SemiBold',
   bold: 'DMSans-Bold',

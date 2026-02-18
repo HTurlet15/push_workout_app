@@ -2,7 +2,7 @@ import { View, Pressable, TextInput, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from './Text';
-import { COLORS, SPACING } from '../theme/theme';
+import { COLORS, SPACING, FONT_FAMILY } from '../theme/theme';
 
 /**
  * Note strip for an exercise. Displays inline in all views.
@@ -61,42 +61,43 @@ export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
 }
 
 const styles = StyleSheet.create({
-  noteStrip: {
-    backgroundColor: '#FFFDE7',
-    borderLeftWidth: 3,
-    borderLeftColor: '#FDD835',
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.sm + SPACING.xs,
-  },
-  noteStripPressed: {
-    backgroundColor: '#FFF9C4',
-  },
-  noteText: {
-    color: '#8D6E00',
-    fontStyle: 'italic',
-  },
-  noteInput: {
-    fontSize: 12,
-    color: '#8D6E00',
-    fontStyle: 'italic',
-    paddingVertical: SPACING.xs,
-    minHeight: 28,
-  },
-  addNoteBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.xs,
-    backgroundColor: '#FFFDE7',
-    borderLeftWidth: 3,
-    borderLeftColor: '#FDD835',
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.sm + SPACING.xs,
-  },
-  addNoteBtnPressed: {
-    backgroundColor: '#FFF9C4',
-  },
-  addNoteText: {
-    color: '#BDA200',
-    fontStyle: 'italic',
-  },
+    noteStrip: {
+        backgroundColor: '#FFFDE7',
+        borderLeftWidth: 3,
+        borderLeftColor: '#FDD835',
+        paddingVertical: SPACING.sm,
+        paddingHorizontal: SPACING.sm + SPACING.xs,
+        minHeight: 36,
+        justifyContent: 'center',
+    },
+    noteText: {
+        color: COLORS.noteText,
+        fontSize: 12,
+        fontFamily: FONT_FAMILY.italic,
+        },
+    noteInput: {
+        fontSize: 12,
+        color: COLORS.noteText,
+        fontFamily: FONT_FAMILY.italic,
+        padding: 0,
+        margin: 0,
+        minHeight: 16,
+        },
+    addNoteBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: SPACING.xs,
+        backgroundColor: '#FFFDE7',
+        borderLeftWidth: 3,
+        borderLeftColor: '#FDD835',
+        paddingVertical: SPACING.sm,
+        paddingHorizontal: SPACING.sm + SPACING.xs,
+    },
+    addNoteBtnPressed: {
+        backgroundColor: '#FFF9C4',
+    },
+    addNoteText: {
+        color: COLORS.notePlaceholder,
+        fontFamily: FONT_FAMILY.italic,
+        },
 });
