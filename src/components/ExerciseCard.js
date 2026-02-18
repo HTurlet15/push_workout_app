@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, Animated, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Animated, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import Text from './Text';
 import ViewSelector from './ViewSelector';
 import SetHeader from './SetHeader';
@@ -18,7 +18,7 @@ const VIEW_BORDER_COLORS = {
   next: COLORS.viewNext,
 };
 
-export default function ExerciseCard({ exercise, previousExercise, nextExercise, onUpdateSet, onUpdateNextSet, onDeleteSet, editMode = false }) {
+export default function ExerciseCard({ exercise, previousExercise, nextExercise, onUpdateSet, onUpdateNextSet, onDeleteSet, onAddSet, editMode = false }) {
   const { width } = useWindowDimensions();
   const { displayedView, slideAnim, transitionTo } = useSlideTransition('current');
 
@@ -46,6 +46,16 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
           onDelete={() => onDeleteSet?.(exercise.id, set.id)}
         />
       ))}
+
+      {editMode && (
+        <Pressable
+          style={({ pressed }) => [styles.addSetBtn, pressed && styles.addSetBtnPressed]}
+          onPress={() => onAddSet?.(exercise.id)}
+        >
+          <Feather name="plus" size={12} color={COLORS.textSecondary} />
+          <Text variant="caption" style={styles.addSetText}>Add set</Text>
+        </Pressable>
+      )}
 
       <SetFooter />
     </>
@@ -164,4 +174,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: SPACING.lg,
   },
+  addSetBtn: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  alignSelf: 'center',
+  gap: SPACING.xs,
+  paddingVertical: SPACING.sm,
+  paddingHorizontal: SPACING.md,
+  borderRadius: RADIUS.lg,
+  borderWidth: 1.5,
+  borderStyle: 'dashed',
+  borderColor: COLORS.mediumGray,
+  marginVertical: SPACING.sm,
+},
+addSetBtnPressed: {
+  backgroundColor: COLORS.timerResetBg,
+},
+addSetText: {
+  color: COLORS.textSecondary,
+  fontWeight: '600',
+},
 });

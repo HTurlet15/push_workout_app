@@ -117,6 +117,29 @@ export default function WorkoutScreen() {
     }));
   };
 
+    const handleAddSet = (exerciseId) => {
+    setWorkout((prev) => ({
+      ...prev,
+      exercises: prev.exercises.map((exercise) => {
+        if (exercise.id !== exerciseId) return exercise;
+
+        const newSetId = `set-${Date.now()}`;
+        return {
+          ...exercise,
+          sets: [
+            ...exercise.sets,
+            {
+              id: newSetId,
+              weight: { value: null, state: 'empty' },
+              reps: { value: null, state: 'empty' },
+              rir: { value: null, state: 'empty' },
+            },
+          ],
+        };
+      }),
+    }));
+};
+
     const completedSets = workout.exercises.reduce((total, exercise) => {
       return total + exercise.sets.filter(
         (set) => set.weight.state === 'filled' && set.reps.state === 'filled'
@@ -165,6 +188,7 @@ export default function WorkoutScreen() {
               onUpdateSet={handleUpdateSet}
               onUpdateNextSet={handleUpdateNextSet}
               onDeleteSet={handleDeleteSet}
+              onAddSet={handleAddSet}
               editMode={editMode}
             />
           ))}
