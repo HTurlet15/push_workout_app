@@ -1,16 +1,15 @@
 import { View, StyleSheet } from 'react-native';
 import Text from './Text';
 import SetInput from './SetInput';
-import { COLORS, SPACING, RADIUS } from '../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZE } from '../theme/theme';
 
 /**
- * Set row for the Next view.
- * Current values are displayed as read-only reference labels (gray, small)
- * with an arrow pointing to the editable next value badge.
+ * Set row for the Next view with delta indicators.
+ * Each field shows the planned next value in an orange badge,
+ * with a fixed-width delta indicator on the right (↑, ↓, or =).
  *
- * Next field format:
- * - Raw number (e.g. 120.5): pre-filled from current, displayed gray
- * - Object { value, edited: true }: user-modified, displayed black
+ * Delta compares next value to current value.
+ * Edited values (user-modified) are displayed in dark orange.
  *
  * @param {Object} props
  * @param {number} props.index - Set position (0-based), displayed as 1-based.
@@ -20,23 +19,47 @@ import { COLORS, SPACING, RADIUS } from '../theme/theme';
  */
 export default function NextSetRow({ index, currentSet, nextSet, onUpdateNextSet }) {
   /**
-   * Reads a next field and determines its display value and state.
-   * Raw numbers are pre-filled (gray), objects with edited flag are user-modified (black).
+   * Resolves a next field into value, edited flag, and display state.
    */
   const resolveNextField = (field) => {
     if (field === null || field === undefined) {
-      return { value: null, state: 'empty' };
+      return { value: null, edited: false, state: 'empty' };
     }
 
     if (typeof field === 'object') {
-      return { value: field.value, state: field.edited ? 'filled' : 'previous' };
+      return { value: field.value, edited: !!field.edited, state: field.edited ? 'filled' : 'previous' };
     }
 
-    return { value: field, state: 'previous' };
+    return { value: field, edited: false, state: 'previous' };
+  };
+
+  /**
+   * Computes the delta between next and current values.
+   * Returns { label, style } for the indicator.
+   */
+  const getDelta = (nextValue, currentValue) => {
+    if (nextValue === null || nextValue === undefined || currentValue === null || currentValue === undefined) {
+      return { label: '', style: styles.deltaEmpty };
+    }
+
+    const diff = nextValue - currentValue;
+
+    if (diff > 0) {
+      return { label: `↑${Number.isInteger(diff) ? diff : diff.toFixed(1)}`, style: styles.deltaUp };
+    }
+
+    if (diff < 0) {
+      return { label: `↓${Number.isInteger(Math.abs(diff)) ? Math.abs(diff) : Math.abs(diff).toFixed(1)}`, style: styles.deltaDown };
+    }
+
+    return { label: '=', style: styles.deltaSame };
   };
 
   const nextWeight = resolveNextField(nextSet.weight);
   const nextReps = resolveNextField(nextSet.reps);
+
+  const weightDelta = getDelta(nextWeight.value, currentSet.weight.value);
+  const repsDelta = getDelta(nextReps.value, currentSet.reps.value);
 
   return (
     <View style={styles.container}>
@@ -44,30 +67,42 @@ export default function NextSetRow({ index, currentSet, nextSet, onUpdateNextSet
         {index + 1}
       </Text>
 
-      <View style={styles.weightGroup}>
-        <Text variant="caption" style={[styles.referenceText, styles.weightCurrentLabel]}>
-          {currentSet.weight.value} →
-        </Text>
-        <View style={styles.weightNextLabel}>
-          <SetInput
-            value={nextWeight.value}
-            unit="kg"
-            state={nextWeight.state}
-            onChangeValue={(val) => onUpdateNextSet?.('weight', val)}
-          />
+      <View style={styles.weightCell}>
+        <View style={styles.badgeGroup}>
+          <View style={styles.badgeWrapper}>
+            <SetInput
+              value={nextWeight.value}
+              unit="kg"
+              state={nextWeight.state}
+              onChangeValue={(val) => onUpdateNextSet?.('weight', val)}
+              badgeColor={COLORS.nextBadge}
+              textColor={nextWeight.edited ? COLORS.nextEdited : COLORS.nextBadgeText}
+            />
+          </View>
+          <View style={[styles.deltaBox, weightDelta.style]}>
+            <Text variant="caption" style={[styles.deltaText, weightDelta.style]}>
+              {weightDelta.label}
+            </Text>
+          </View>
         </View>
       </View>
 
-      <View style={styles.repsGroup}>
-        <Text variant="caption" style={[styles.referenceText, styles.repCurrentLabel]}>
-          {currentSet.reps.value} →
-        </Text>
-        <View style={styles.repNextLabel}>
-          <SetInput
-            value={nextReps.value}
-            state={nextReps.state}
-            onChangeValue={(val) => onUpdateNextSet?.('reps', val)}
-          />
+      <View style={styles.repsCell}>
+        <View style={styles.badgeGroup}>
+          <View style={styles.badgeWrapper}>
+            <SetInput
+              value={nextReps.value}
+              state={nextReps.state}
+              onChangeValue={(val) => onUpdateNextSet?.('reps', val)}
+              badgeColor={COLORS.nextBadge}
+              textColor={nextReps.edited ? COLORS.nextEdited : COLORS.nextBadgeText}
+            />
+          </View>
+          <View style={[styles.deltaBox, repsDelta.style]}>
+            <Text variant="caption" style={[styles.deltaText, repsDelta.style]}>
+              {repsDelta.label}
+            </Text>
+          </View>
         </View>
       </View>
     </View>
@@ -82,39 +117,46 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm,
   },
   setCell: {
-    flex: 1,
+    flex: 0.5,
     textAlign: 'center',
-    fontWeight: '600',
-    fontSize: 14,
+    fontWeight: '500',
+    fontSize: FONT_SIZE.caption,
     color: COLORS.mediumGray,
   },
-  weightGroup: {
-    flex: 4,
+  weightCell: {
+    flex: 2.5,
+  },
+  repsCell: {
+    flex: 1.5,
+  },
+  badgeGroup: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 1,
   },
-  repsGroup: {
-    flex: 3,
-    flexDirection: 'row',
+  badgeWrapper: {
+    flex: 1,
+  },
+  deltaBox: {
+    width: 32,
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: SPACING.sm,
   },
-  weightCurrentLabel: {
-    flex: 1,
-    textAlign: 'center',
+  deltaText: {
+    fontSize: FONT_SIZE.small,
+    fontWeight: '700',
   },
-  weightNextLabel: {
-    flex: 2,
-    textAlign: 'center',
+  deltaUp: {
+    color: COLORS.deltaUp,
   },
-  repCurrentLabel: {
-    flex: 1,
-    textAlign: 'center',
+  deltaDown: {
+    color: COLORS.deltaDown,
   },
-  repNextLabel: {
-    flex: 1,
-    textAlign: 'center',
+  deltaSame: {
+    color: COLORS.deltaSame,
   },
-  referenceText: {
-    color: COLORS.mediumGray,
+  deltaEmpty: {
+    color: 'transparent',
   },
 });

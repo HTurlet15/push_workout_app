@@ -47,7 +47,16 @@ export const COLORS = {
   viewNextBg: '#FFF8F0',
   viewNextBadge: '#FFF3E0',
   viewPreviousBg: '#F4F4F4',
-  
+
+  //Next View
+  deltaUp: '#2E7D32',
+  deltaDown: '#C62828',
+  deltaSame: '#C0C0C0',
+  nextBadge: '#FFF3E0',
+  nextBadgeText: '#C4956A',
+  nextBadgeBorder: '#FFE8CC',
+  nextEdited: '#E65100',
+
 };
 
 export const SPACING = {

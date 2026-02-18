@@ -24,7 +24,7 @@ import { COLORS, FONT_SIZE, FONT_WEIGHT,FONT_FAMILY, SPACING, RADIUS } from '../
  * @param {'filled'|'previous'|'planned'|'plannedFilled'|'empty'} [props.state='empty'] - Visual state.
  * @param {Function} [props.onChangeValue] - Callback with the new numeric value on edit confirm.
  */
-export default function SetInput({ value, unit, state = 'empty', onChangeValue, completed = false }) {
+export default function SetInput({ value, unit, state = 'empty', onChangeValue, completed = false, badgeColor, textColor }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const inputRef = useRef(null);
@@ -76,13 +76,15 @@ export default function SetInput({ value, unit, state = 'empty', onChangeValue, 
   }
 
   return (
-    <Pressable style={({ pressed }) => [
-    styles.container,
-    completed && styles.completedBadge,
-    pressed && styles.containerPressed,
-  ]}
-  onPress={handlePress}
->
+    <Pressable
+      style={({ pressed }) => [
+        styles.container,
+        completed && styles.completedBadge,
+        badgeColor && { backgroundColor: badgeColor },
+        pressed && styles.containerPressed,
+      ]}
+      onPress={handlePress}
+    >
       {showCalendar && (
         <Feather
           name="calendar"
@@ -94,7 +96,11 @@ export default function SetInput({ value, unit, state = 'empty', onChangeValue, 
 
       <Text
         variant="body"
-        style={[styles.text, isActive ? styles.filledText : styles.inactiveText]}
+        style={[
+          styles.text,
+          isActive ? styles.filledText : styles.inactiveText,
+          textColor && { color: textColor },
+        ]}
       >
         {getDisplayValue()}
       </Text>
