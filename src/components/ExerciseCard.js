@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, Animated, StyleSheet, useWindowDimensions } from 'react-native';
 import Text from './Text';
 import ViewSelector from './ViewSelector';
 import SetHeader from './SetHeader';
@@ -8,6 +8,7 @@ import SetFooter from './SetFooter';
 import SetRow from './SetRow';
 import PreviousSetRow from './PreviousSetRow';
 import NextSetRow from './NextSetRow';
+import useSlideTransition from '../hooks/useSlideTransition';
 import { COLORS, SPACING, RADIUS } from '../theme/theme';
 
 const VIEW_BORDER_COLORS = {
@@ -17,7 +18,18 @@ const VIEW_BORDER_COLORS = {
 };
 
 export default function ExerciseCard({ exercise, previousExercise, nextExercise, onUpdateSet, onUpdateNextSet }) {
-  const [activeView, setActiveView] = useState('current');
+  const { width } = useWindowDimensions();
+  const { displayedView, slideAnim, transitionTo } = useSlideTransition('current');
+
+  const translateX = slideAnim.interpolate({
+    inputRange: [-1, 0, 1],
+    outputRange: [-width * 0.3, 0, width * 0.3],
+  });
+
+  const opacity = slideAnim.interpolate({
+    inputRange: [-1, 0, 1],
+    outputRange: [0, 1, 0],
+  });
 
   const renderCurrentView = () => (
     <>
@@ -103,16 +115,18 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
         <Text variant="title" style={styles.exerciseName}>
           {exercise.name}
         </Text>
-        <ViewSelector activeView={activeView} onChangeView={setActiveView} />
+        <ViewSelector activeView={displayedView} onChangeView={transitionTo} />
       </View>
 
       <View style={[
         styles.tableCard,
-        { borderLeftColor: VIEW_BORDER_COLORS[activeView] },
+        { borderLeftColor: VIEW_BORDER_COLORS[displayedView] },
       ]}>
-        {activeView === 'current' && renderCurrentView()}
-        {activeView === 'previous' && renderPreviousView()}
-        {activeView === 'next' && renderNextView()}
+        <Animated.View style={{ transform: [{ translateX }], opacity }}>
+          {displayedView === 'current' && renderCurrentView()}
+          {displayedView === 'previous' && renderPreviousView()}
+          {displayedView === 'next' && renderNextView()}
+        </Animated.View>
       </View>
     </View>
   );
@@ -132,6 +146,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     borderLeftWidth: 3,
     borderLeftColor: COLORS.viewCurrent,
+    overflow: 'hidden',
   },
   titleRow: {
     flexDirection: 'row',
