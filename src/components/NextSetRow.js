@@ -117,22 +117,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm,
   },
   setCell: {
-    flex: 0.5,
+    flex: 1,
     textAlign: 'center',
     fontWeight: '500',
-    fontSize: FONT_SIZE.caption,
+    fontSize: FONT_SIZE.subtitle,
     color: COLORS.mediumGray,
   },
   weightCell: {
-    flex: 2.5,
+    flex: 3,
   },
   repsCell: {
-    flex: 1.5,
+    flex: 2,
   },
   badgeGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 1,
   },
   badgeWrapper: {
     flex: 1,
@@ -144,7 +143,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
   },
   deltaText: {
-    fontSize: FONT_SIZE.small,
+    fontSize: FONT_SIZE.caption,
     fontWeight: '700',
   },
   deltaUp: {

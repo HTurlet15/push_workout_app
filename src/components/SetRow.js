@@ -1,7 +1,7 @@
 import { View, StyleSheet } from 'react-native';
 import Text from './Text';
 import SetInput from './SetInput';
-import { COLORS, SPACING, RADIUS } from '../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZE } from '../theme/theme';
 
 export default function SetRow({ index, set, onUpdateSet }) {
   const isCompleted =
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: FONT_SIZE.subtitle,
     color: COLORS.textPrimary,
   },
   completedSetNum: {

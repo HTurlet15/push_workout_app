@@ -4,23 +4,34 @@ import { COLORS, SPACING, FONT_FAMILY } from '../theme/theme';
 
 /**
  * Column header for the Next view.
- * Same layout as SetHeader but with warm orange background.
- * Only 3 columns: Set, Weight, Reps (no RIR in Next view).
+ * 5 cells matching NextSetRow layout:
+ * Set | Weight badge | Weight delta | Reps badge | Reps delta
+ * Titles sit above the badge columns, delta columns stay empty.
  */
 export default function NextSetHeader() {
   return (
     <View style={styles.container}>
-      <Text variant="subtitle" style={[styles.cell, styles.setCell]}>
-        Set
-      </Text>
+        <Text variant="subtitle" style={[styles.cell, styles.setCell]}>
+            Set
+        </Text>
 
-      <Text variant="subtitle" style={[styles.cell, styles.weightCell]}>
-        Weight
-      </Text>
+        <View style={styles.weightCell}>
+            <View style={styles.badgeGroup}>
+                    <Text variant="subtitle" style={[styles.cell]}>
+                        Weight
+                    </Text>
+                    <View style={styles.deltaCell} />
+            </View>
+        </View>
 
-      <Text variant="subtitle" style={[styles.cell, styles.repsCell]}>
-        Reps
-      </Text>
+        <View style={styles.repsCell}>      
+            <View style={styles.badgeGroup}>
+                    <Text variant="subtitle" style={[styles.cell]}>
+                        Reps
+                    </Text>
+                    <View style={styles.deltaCell} />
+            </View>
+        </View> 
     </View>
   );
 }
@@ -34,17 +45,28 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.viewNextBg,
   },
   cell: {
+    flex : 1,
     textAlign: 'center',
     color: COLORS.textPrimary,
     fontFamily: FONT_FAMILY.semibold,
   },
   setCell: {
-    flex: 0.5,
+    flex: 1,
+  },
+  badgeGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  badgeWrapper: {
+    flex: 1,
   },
   weightCell: {
-    flex: 2.5,
+    flex: 3,
   },
   repsCell: {
-    flex: 1.5,
+    flex: 2,
+  },
+  deltaCell: {
+    width: 32,
   },
 });
