@@ -12,6 +12,7 @@ import PreviousSetRow from './PreviousSetRow';
 import NextSetRow from './NextSetRow';
 import useSlideTransition from '../hooks/useSlideTransition';
 import { COLORS, SPACING, RADIUS } from '../theme/theme';
+import ExerciseNote from './ExerciseNote';
 
 const VIEW_BORDER_COLORS = {
   previous: COLORS.viewPrevious,
@@ -37,38 +38,11 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
     <>
       <SetHeader />
 
-      {/* Note display in normal mode */}
-      {!editMode && exercise.note && (
-        <View style={styles.noteStrip}>
-          <Text variant="caption" style={styles.noteText}>{exercise.note}</Text>
-        </View>
-      )}
-
-      {/* Note editor in edit mode */}
-      {editMode && (
-        editingNote || exercise.note ? (
-          <View style={styles.noteEditStrip}>
-            <TextInput
-              style={styles.noteInput}
-              value={exercise.note || ''}
-              onChangeText={(text) => onUpdateNote?.(exercise.id, text)}
-              placeholder="Write a note..."
-              placeholderTextColor={COLORS.mediumGray}
-              returnKeyType="done"
-              onSubmitEditing={() => setEditingNote(false)}
-              onBlur={() => setEditingNote(false)}
-            />
-          </View>
-        ) : (
-          <Pressable
-            style={({ pressed }) => [styles.addNoteBtn, pressed && styles.addNoteBtnPressed]}
-            onPress={() => setEditingNote(true)}
-          >
-            <Feather name="edit-2" size={12} color="#BDA200" />
-            <Text variant="caption" style={styles.addNoteText}>add note...</Text>
-          </Pressable>
-        )
-      )}
+      <ExerciseNote
+        note={exercise.note}
+        editMode={editMode}
+        onUpdateNote={(text) => onUpdateNote?.(exercise.id, text)}
+      />
 
       {exercise.sets.map((set, index) => (
         <SetRow
@@ -108,6 +82,12 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
       <>
         <PreviousSetHeader />
 
+        <ExerciseNote
+          note={exercise.note}
+          editMode={editMode}
+          onUpdateNote={(text) => onUpdateNote?.(exercise.id, text)}
+        />
+
         {previousExercise.sets.map((set, index) => (
           <PreviousSetRow
             key={set.id}
@@ -135,6 +115,12 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
     return (
       <>
         <NextSetHeader />
+        
+        <ExerciseNote
+          note={exercise.note}
+          editMode={editMode}
+          onUpdateNote={(text) => onUpdateNote?.(exercise.id, text)}
+        />
 
         {exercise.sets.map((set, index) => {
           const nextSet = nextExercise.sets[index];
@@ -228,46 +214,5 @@ addSetBtnPressed: {
 addSetText: {
   color: COLORS.textSecondary,
   fontWeight: '600',
-},noteStrip: {
-  backgroundColor: '#FFFDE7',
-  borderLeftWidth: 3,
-  borderLeftColor: '#FDD835',
-  paddingVertical: SPACING.sm,
-  paddingHorizontal: SPACING.sm + SPACING.xs,
-},
-noteText: {
-  color: '#8D6E00',
-  fontStyle: 'italic',
-},
-noteEditStrip: {
-  backgroundColor: '#FFFDE7',
-  borderLeftWidth: 3,
-  borderLeftColor: '#FDD835',
-  paddingVertical: SPACING.xs,
-  paddingHorizontal: SPACING.sm,
-},
-noteInput: {
-  fontSize: 12,
-  color: '#8D6E00',
-  fontStyle: 'italic',
-  paddingVertical: SPACING.xs,
-  minHeight: 32,
-},
-addNoteBtn: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: SPACING.xs,
-  backgroundColor: '#FFFDE7',
-  borderLeftWidth: 3,
-  borderLeftColor: '#FDD835',
-  paddingVertical: SPACING.sm,
-  paddingHorizontal: SPACING.sm + SPACING.xs,
-},
-addNoteBtnPressed: {
-  backgroundColor: '#FFF9C4',
-},
-addNoteText: {
-  color: '#BDA200',
-  fontStyle: 'italic',
 },
 });
