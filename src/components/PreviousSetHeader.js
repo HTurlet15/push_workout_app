@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.sm,
-    backgroundColor: COLORS.viewCurrentBg,
+    backgroundColor: COLORS.viewPreviousBg,
   },
   cell: {
     textAlign: 'center',

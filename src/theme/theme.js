@@ -57,6 +57,12 @@ export const COLORS = {
   nextBadgeBorder: '#FFE8CC',
   nextEdited: '#E65100',
 
+  //Current View
+  viewCurrentBg : '#e7f3ff',
+
+  //Previous View
+  viewPreviousBg : '#f7f7f7',
+
 };
 
 export const SPACING = {

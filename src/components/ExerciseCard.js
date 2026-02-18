@@ -4,6 +4,7 @@ import Text from './Text';
 import ViewSelector from './ViewSelector';
 import SetHeader from './SetHeader';
 import NextSetHeader from './NextSetHeader';
+import PreviousSetHeader from './PreviousSetHeader'
 import SetFooter from './SetFooter';
 import SetRow from './SetRow';
 import PreviousSetRow from './PreviousSetRow';
@@ -59,7 +60,7 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
 
     return (
       <>
-        <SetHeader />
+        <PreviousSetHeader />
 
         {previousExercise.sets.map((set, index) => (
           <PreviousSetRow

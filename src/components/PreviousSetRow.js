@@ -52,7 +52,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
     fontSize: 14,
-    color: COLORS.mediumGray,
   },
   weightCell: {
     flex: 3,

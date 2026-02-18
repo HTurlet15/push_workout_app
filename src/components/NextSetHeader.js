@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   badgeGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal : SPACING.sm,
+    paddingRight : SPACING.sm,
   },
   badgeWrapper: {
     flex: 1,

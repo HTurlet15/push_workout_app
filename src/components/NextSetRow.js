@@ -75,8 +75,6 @@ export default function NextSetRow({ index, currentSet, nextSet, onUpdateNextSet
               unit="kg"
               state={nextWeight.state}
               onChangeValue={(val) => onUpdateNextSet?.('weight', val)}
-              badgeColor={COLORS.nextBadge}
-              textColor={nextWeight.edited ? COLORS.nextEdited : COLORS.nextBadgeText}
             />
           </View>
           <View style={[styles.deltaBox, weightDelta.style]}>
@@ -94,8 +92,6 @@ export default function NextSetRow({ index, currentSet, nextSet, onUpdateNextSet
               value={nextReps.value}
               state={nextReps.state}
               onChangeValue={(val) => onUpdateNextSet?.('reps', val)}
-              badgeColor={COLORS.nextBadge}
-              textColor={nextReps.edited ? COLORS.nextEdited : COLORS.nextBadgeText}
             />
           </View>
           <View style={[styles.deltaBox, repsDelta.style]}>
@@ -132,7 +128,7 @@ const styles = StyleSheet.create({
   badgeGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal : SPACING.sm,
+    paddingRight : SPACING.sm,
   },
   badgeWrapper: {
     flex: 1,
@@ -141,7 +137,6 @@ const styles = StyleSheet.create({
     width: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: SPACING.sm,
   },
   deltaText: {
     fontSize: FONT_SIZE.caption,
