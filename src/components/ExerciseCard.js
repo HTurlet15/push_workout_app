@@ -1,4 +1,5 @@
-import { View, Animated, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Animated, Pressable, TextInput, StyleSheet, useWindowDimensions } from 'react-native';
+import { useState } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from './Text';
 import ViewSelector from './ViewSelector';
@@ -18,10 +19,10 @@ const VIEW_BORDER_COLORS = {
   next: COLORS.viewNext,
 };
 
-export default function ExerciseCard({ exercise, previousExercise, nextExercise, onUpdateSet, onUpdateNextSet, onDeleteSet, onAddSet, editMode = false }) {
+export default function ExerciseCard({ exercise, previousExercise, nextExercise, onUpdateSet, onUpdateNextSet, onDeleteSet, onAddSet, onUpdateNote, editMode = false }) {
   const { width } = useWindowDimensions();
   const { displayedView, slideAnim, transitionTo } = useSlideTransition('current');
-
+  const [editingNote, setEditingNote] = useState(false);
   const translateX = slideAnim.interpolate({
     inputRange: [-1, 0, 1],
     outputRange: [-width * 0.3, 0, width * 0.3],
@@ -35,6 +36,39 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
   const renderCurrentView = () => (
     <>
       <SetHeader />
+
+      {/* Note display in normal mode */}
+      {!editMode && exercise.note && (
+        <View style={styles.noteStrip}>
+          <Text variant="caption" style={styles.noteText}>{exercise.note}</Text>
+        </View>
+      )}
+
+      {/* Note editor in edit mode */}
+      {editMode && (
+        editingNote || exercise.note ? (
+          <View style={styles.noteEditStrip}>
+            <TextInput
+              style={styles.noteInput}
+              value={exercise.note || ''}
+              onChangeText={(text) => onUpdateNote?.(exercise.id, text)}
+              placeholder="Write a note..."
+              placeholderTextColor={COLORS.mediumGray}
+              multiline
+              autoFocus={editingNote && !exercise.note}
+              onBlur={() => setEditingNote(false)}
+            />
+          </View>
+        ) : (
+          <Pressable
+            style={({ pressed }) => [styles.addNoteBtn, pressed && styles.addNoteBtnPressed]}
+            onPress={() => setEditingNote(true)}
+          >
+            <Feather name="edit-2" size={12} color="#BDA200" />
+            <Text variant="caption" style={styles.addNoteText}>add note...</Text>
+          </Pressable>
+        )
+      )}
 
       {exercise.sets.map((set, index) => (
         <SetRow
@@ -194,5 +228,46 @@ addSetBtnPressed: {
 addSetText: {
   color: COLORS.textSecondary,
   fontWeight: '600',
+},noteStrip: {
+  backgroundColor: '#FFFDE7',
+  borderLeftWidth: 3,
+  borderLeftColor: '#FDD835',
+  paddingVertical: SPACING.sm,
+  paddingHorizontal: SPACING.sm + SPACING.xs,
+},
+noteText: {
+  color: '#8D6E00',
+  fontStyle: 'italic',
+},
+noteEditStrip: {
+  backgroundColor: '#FFFDE7',
+  borderLeftWidth: 3,
+  borderLeftColor: '#FDD835',
+  paddingVertical: SPACING.xs,
+  paddingHorizontal: SPACING.sm,
+},
+noteInput: {
+  fontSize: 12,
+  color: '#8D6E00',
+  fontStyle: 'italic',
+  paddingVertical: SPACING.xs,
+  minHeight: 32,
+},
+addNoteBtn: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: SPACING.xs,
+  backgroundColor: '#FFFDE7',
+  borderLeftWidth: 3,
+  borderLeftColor: '#FDD835',
+  paddingVertical: SPACING.sm,
+  paddingHorizontal: SPACING.sm + SPACING.xs,
+},
+addNoteBtnPressed: {
+  backgroundColor: '#FFF9C4',
+},
+addNoteText: {
+  color: '#BDA200',
+  fontStyle: 'italic',
 },
 });

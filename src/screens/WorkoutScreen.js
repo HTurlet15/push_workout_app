@@ -158,6 +158,16 @@ export default function WorkoutScreen() {
       );
     }
 
+    const handleUpdateNote = (exerciseId, note) => {
+      setWorkout((prev) => ({
+        ...prev,
+        exercises: prev.exercises.map((exercise) => {
+          if (exercise.id !== exerciseId) return exercise;
+          return { ...exercise, note };
+        }),
+      }));
+    };
+
     return (
       <View style={[styles.screen, { paddingTop: insets.top }]}>
 
@@ -189,6 +199,7 @@ export default function WorkoutScreen() {
               onUpdateNextSet={handleUpdateNextSet}
               onDeleteSet={handleDeleteSet}
               onAddSet={handleAddSet}
+              onUpdateNote={handleUpdateNote}
               editMode={editMode}
             />
           ))}
