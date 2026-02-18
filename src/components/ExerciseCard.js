@@ -10,22 +10,17 @@ import PreviousSetRow from './PreviousSetRow';
 import NextSetRow from './NextSetRow';
 import { COLORS, SPACING, RADIUS } from '../theme/theme';
 
-/**
- * Displays a single exercise with its associated sets.
- * Manages its own view state (previous/current/next) independently.
- *
- * @param {Object} props
- * @param {Object} props.exercise - Current exercise data object.
- * @param {Object} [props.previousExercise] - Previous workout data for this exercise.
- * @param {Object} [props.nextExercise] - Next planned data for this exercise.
- * @param {Function} [props.onUpdateSet] - Callback: (exerciseId, setId, field, value).
- * @param {Function} [props.onUpdateNextSet] - Callback: (exerciseId, setId, field, value).
- */
+const VIEW_BORDER_COLORS = {
+  previous: COLORS.viewPrevious,
+  current: COLORS.viewCurrent,
+  next: COLORS.viewNext,
+};
+
 export default function ExerciseCard({ exercise, previousExercise, nextExercise, onUpdateSet, onUpdateNextSet }) {
   const [activeView, setActiveView] = useState('current');
 
   const renderCurrentView = () => (
-    <View style={styles.tableCard}>
+    <>
       <SetHeader />
 
       {exercise.sets.map((set, index) => (
@@ -38,7 +33,7 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
       ))}
 
       <SetFooter />
-    </View>
+    </>
   );
 
   const renderPreviousView = () => {
@@ -51,7 +46,7 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
     }
 
     return (
-      <View style={styles.tableCard}>
+      <>
         <SetHeader />
 
         {previousExercise.sets.map((set, index) => (
@@ -65,7 +60,7 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
         ))}
 
         <SetFooter />
-      </View>
+      </>
     );
   };
 
@@ -79,7 +74,7 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
     }
 
     return (
-      <View style={styles.tableCard}>
+      <>
         <NextSetHeader />
 
         {exercise.sets.map((set, index) => {
@@ -98,7 +93,7 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
         })}
 
         <SetFooter />
-      </View>
+      </>
     );
   };
 
@@ -111,9 +106,14 @@ export default function ExerciseCard({ exercise, previousExercise, nextExercise,
         <ViewSelector activeView={activeView} onChangeView={setActiveView} />
       </View>
 
-      {activeView === 'current' && renderCurrentView()}
-      {activeView === 'previous' && renderPreviousView()}
-      {activeView === 'next' && renderNextView()}
+      <View style={[
+        styles.tableCard,
+        { borderLeftColor: VIEW_BORDER_COLORS[activeView] },
+      ]}>
+        {activeView === 'current' && renderCurrentView()}
+        {activeView === 'previous' && renderPreviousView()}
+        {activeView === 'next' && renderNextView()}
+      </View>
     </View>
   );
 }
@@ -130,6 +130,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 3,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.viewCurrent,
   },
   titleRow: {
     flexDirection: 'row',

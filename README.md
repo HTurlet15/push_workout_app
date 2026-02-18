@@ -86,4 +86,4 @@ This project is open-source for learning and portfolio purposes. If you find it 
 ---
 
 Built by Hugo Turlet  
-[LinkedIn](https://linkedin.com/in/hugo-turlet) • [Portfolio](#)
+[LinkedIn](https://linkedin.com/in/hugo-turlet)
