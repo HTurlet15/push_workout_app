@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     marginVertical: SPACING.md,
   },
   exerciseName: {
-    color: COLORS.mediumBlue,
+    color: COLORS.textPrimary,
   },
   emptyMessage: {
     textAlign: 'center',
