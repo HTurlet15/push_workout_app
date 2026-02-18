@@ -1,33 +1,55 @@
 /**
- * Push — Design System Tokens
+ * Push - Design System Tokens
  *
  * Single source of truth for all visual styling across the app.
  * Every component must reference these tokens instead of hardcoding values.
  * Built around a minimal, monochromatic aesthetic inspired by modern fintech apps.
+ *
+ * Structure:
+ * - COLORS:      Semantic color palette organized by purpose
+ * - SPACING:     Consistent spacing scale (4px base unit)
+ * - FONT_SIZE:   Typography scale mapped to component roles
+ * - FONT_WEIGHT: Named weight values for readability
+ * - FONT_FAMILY: DM Sans variants loaded via expo-google-fonts
+ * - RADIUS:      Border radius scale from subtle to fully round
+ * - SIZE:        Fixed dimensions for interactive elements and layout
+ * - SHADOW:      Reusable elevation presets for cards, bars, and modals
  */
 
+// ─── COLORS ────────────────────────────────────────────────
+
 export const COLORS = {
+  // Core neutrals
   white: '#FFFFFF',
-  screenBackground: '#f7f7f7',
+  black: '#1A1A1A',
+  screenBackground: '#F7F7F7',
 
-  textPrimary: '#1A1A1A',
-  textSecondary: '#8E8E93',
+  // Typography hierarchy
+  textPrimary: '#1A1A1A',     // Headings, filled values, active content
+  textSecondary: '#8E8E93',   // Labels, captions, inactive content
+  textMuted: '#C0C0C0',       // Set numbers, placeholder-level text
 
-  lightBlue: '#B6C0FF',
-  mediumBlue: '#007AFF',
+  // Neutral palette
+  lightGray: '#F7F7F7',       // Badge backgrounds, subtle fills
+  mediumGray: '#C0C0C0',      // Borders, disabled states, dashed outlines
+  selectedInput: '#D6D6D6',   // Input selection highlight
 
-  lightGray: '#f7f7f7',
-  selectedInput: '#d6d6d6',
-  mediumGray: '#C0C0C0',
-  darkGray: '#C0C0C0',
+  // Primary accent
+  blue: '#007AFF',            // Active input border, interactive highlights
 
-  successLight: '#E8F5E9',
+  // Semantic status colors
+  success: '#2E7D32',         // Completed sets, positive indicators
+  successLight: '#E8F5E9',    // Completed row background
+  successBadge: '#D4EDDA',    // Completed badge fill
+  error: '#C62828',           // Delete actions, negative deltas
+  errorLight: '#FFEBEE',      // Delete button background
+  errorPressed: '#FFCDD2',    // Delete button pressed state
 
-  //SetInput = Badges
-  badgePressed: '#ECECEC',
-  completedBadge: '#D4EDDA',
-  
-  // Timer states
+  // Badge system (SetInput component)
+  badgeBackground: '#F8F8F8', // Default badge fill
+  badgePressed: '#ECECEC',    // Badge touch feedback
+
+  // Timer states (BottomBar + TimerPicker)
   timerIdle: '#C0C0C0',
   timerActive: '#E65100',
   timerActiveBg: '#FFF3E0',
@@ -38,52 +60,68 @@ export const COLORS = {
   timerActivePressedBg: '#FFE0B2',
   timerDonePressedBg: '#C8E6C9',
   timerResetPressedBg: '#EAEAEA',
-  addBtnPressed: '#333333',
 
-  // View accents
-  viewPrevious: '#8E8E93',
-  viewCurrent: '#007AFF',
-  viewNext: '#E65100',
+  // Button states
+  btnDarkPressed: '#333333',          // Dark button pressed feedback
+  editBtnActivePressed: '#0066DD',    // Edit mode check button pressed
 
-  //Next View
-  viewNextBg: '#f7f7f7', //'#FFF8F0', <- orange clair
-  viewNextBadge: '#FFF3E0',
-  deltaUp: '#2E7D32',
-  deltaDown: '#C62828',
-  deltaSame: '#C0C0C0',
-  nextBadge: '#FFF3E0',
-  nextBadgeText: '#C4956A',
-  nextBadgeBorder: '#FFE8CC',
-  nextEdited: '#E65100',
+  // View accent system (Previous / Current / Next)
+  viewPrevious: '#8E8E93',       // Gray - historical data
+  viewPreviousBg: '#F7F7F7',     // Previous view header background
+  viewCurrent: '#007AFF',        // Blue - active session
+  viewCurrentBg: '#F7F7F7',      // Current view header background
+  viewNext: '#E65100',           // Orange - planned future
+  viewNextBg: '#F7F7F7',         // Next view header background
 
-  //Current View
-  viewCurrent: '#007AFF',
-  viewCurrentBg : '#f7f7f7', //'#e7f3ff', <-bleu clair
+  // Next view delta system
+  nextBadge: '#FFF3E0',          // Orange-tinted badge background
+  nextBadgeText: '#C4956A',      // Default (inherited) next value text
+  nextBadgeBorder: '#FFE8CC',    // Badge separator border
+  nextEdited: '#E65100',         // User-edited next value text
+  deltaUp: '#2E7D32',            // Positive change indicator (↑)
+  deltaDown: '#C62828',          // Negative change indicator (↓)
+  deltaSame: '#C0C0C0',          // No change indicator (=)
 
-  //Previous View
-  viewPrevious: '#8E8E93',
-  viewPreviousBg : '#f7f7f7',
+  // Note system (ExerciseNote component)
+  noteBackground: '#FFFDE7',         // Warm yellow strip background
+  noteBorder: '#FDD835',             // Left accent border
+  noteText: '#8D6E00',              // Note content text
+  notePlaceholder: '#BDA200',        // "add note..." placeholder text
+  noteBackgroundPressed: '#FFF9C4',  // Touch feedback on note strip
 
+  // Shadow base color (used in SHADOW presets)
+  shadow: '#000000',
 };
+
+// ─── SPACING ───────────────────────────────────────────────
+// 4px base unit. Use multiples for consistent rhythm.
 
 export const SPACING = {
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
+  xs: 4,    // Tight gaps: icon margins, inline spacing
+  sm: 8,    // Badge padding, row gaps, small margins
+  md: 16,   // Card padding, section margins, input padding
+  lg: 24,   // Section spacing, modal padding
+  xl: 32,   // Screen-edge horizontal padding (BottomBar)
+  xxl: 48,  // Scroll content bottom padding (above BottomBar)
 };
 
+// ─── FONT SIZES ────────────────────────────────────────────
+// Mapped to specific component roles for clarity.
+
 export const FONT_SIZE = {
-  small: 10,
-  caption: 13,
-  subtitle: 14,
-  body: 15,
-  title: 20,
-  headline: 28,
-  hero: 34,
+  xs: 11,        // Delta indicators (↑3, ↓1.5, =)
+  sm: 12,       // Table column headers (Set, Weight, Reps, RIR)
+  caption: 13,  // Set numbers, note text, view selector badge, edit buttons
+  body: 14,     // Badge values, row content, default text
+  md: 15,       // Subtitle text, secondary labels
+  lg: 17,       // Exercise names in card headers
+  title: 20,    // Timer display, section titles
+  xl: 34,       // Screen title (workout name)
+  hero: 40,     // Reserved for future large display use
 };
+
+// ─── FONT WEIGHTS ──────────────────────────────────────────
+// Named aliases for React Native numeric weight strings.
 
 export const FONT_WEIGHT = {
   regular: '400',
@@ -92,21 +130,86 @@ export const FONT_WEIGHT = {
   bold: '700',
 };
 
-export const RADIUS = {
-  xs: 6,
-  sm: 8,
-  md: 12,
-  lg: 16,
-};
-
-export const SET_TABLE = {
-  headerHeight: 32,
-};
+// ─── FONT FAMILIES ─────────────────────────────────────────
+// DM Sans variants loaded in App.js via @expo-google-fonts/dm-sans.
+// Use fontFamily instead of fontWeight for consistent cross-platform rendering.
 
 export const FONT_FAMILY = {
-  regular: 'DMSans-Regular',
-  italic: 'DMSans-Italic',
-  medium: 'DMSans-Medium',
-  semibold: 'DMSans-SemiBold',
-  bold: 'DMSans-Bold',
+  regular: 'DMSans-Regular',     // Body text, captions
+  italic: 'DMSans-Italic',       // Notes (exercise annotations)
+  medium: 'DMSans-Medium',       // Badge values, subtitle text
+  semibold: 'DMSans-SemiBold',   // Headers, exercise names, buttons
+  bold: 'DMSans-Bold',           // Screen titles, delta indicators
+};
+
+// ─── BORDER RADIUS ─────────────────────────────────────────
+
+export const RADIUS = {
+  xs: 6,      // Small badges, inline elements
+  sm: 8,      // Input fields, buttons, table headers
+  md: 12,     // Cards, view selector badge, progress badge
+  lg: 16,     // Modal containers, dashed action buttons
+  full: 999,  // Fully round (pills, circular buttons)
+};
+
+// ─── COMPONENT SIZES ───────────────────────────────────────
+// Fixed pixel dimensions for interactive elements and layout alignment.
+
+export const SIZE = {
+  // BottomBar buttons
+  iconBtn: 40,         // Square touch target for icon buttons
+  roundBtn: 36,        // Circular play/reset buttons
+  timerMinWidth: 56,   // Timer display minimum width for alignment
+  iconSm: 16,          // Small icons (play, reset, delete X)
+  iconMd: 20,          // Medium icons (edit pencil/check)
+  iconLg: 22,          // Large icons (LLM chat bubble)
+
+  // Set table layout
+  tableHeaderHeight: 32,  // Reserved for future fixed header height
+  deleteBtn: 20,          // Red delete circle diameter
+  deltaBox: 32,           // Fixed-width delta indicator column
+
+  // View selector
+  viewSelectorWidth: 120, // Total width of Previous/Current/Next selector
+  chevronSize: 20,        // Navigation arrow icon size
+
+  // Timer picker
+  wheelWidth: 80,          // Scroll wheel column width
+  wheelItemHeight: 48,     // Individual wheel item height
+  wheelVisibleItems: 5,    // Number of visible items in wheel
+
+  // Card structure
+  tableBorderLeft: 3,      // Colored left border on exercise cards
+  noteBorderLeft: 3,       // Yellow left border on note strips
+};
+
+// ─── SHADOWS ───────────────────────────────────────────────
+// Reusable elevation presets. Spread into StyleSheet objects.
+// Example: ...SHADOW.card
+
+export const SHADOW = {
+  /** Exercise table cards - subtle lift */
+  card: {
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  /** Bottom navigation bar - upward shadow */
+  bottomBar: {
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  /** Modal overlays (TimerPicker) - prominent elevation */
+  modal: {
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: SPACING.xs },
+    shadowOpacity: 0.1,
+    shadowRadius: SPACING.md,
+    elevation: 8,
+  },
 };

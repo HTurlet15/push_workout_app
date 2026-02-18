@@ -2,20 +2,28 @@ import { View, Pressable, TextInput, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from './Text';
-import { COLORS, SPACING, FONT_FAMILY } from '../theme/theme';
+import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../theme/theme';
 
 /**
- * Note strip for an exercise. Displays inline in all views.
- * Tap to edit when note exists. In edit mode, shows "add note..." placeholder.
+ * Exercise annotation strip displayed below the table header.
  *
- * @param {string|undefined} note - The current note text.
- * @param {boolean} editMode - Whether the global edit mode is active.
- * @param {Function} onUpdateNote - Callback with new note text.
+ * Renders in three modes:
+ * 1. No note + not in edit mode → hidden (returns null)
+ * 2. No note + edit mode → yellow "add note..." button
+ * 3. Note exists → yellow strip, tappable to edit inline
+ *
+ * Notes persist across views (Previous, Current, Next) and are
+ * always editable by tapping, regardless of edit mode.
+ * Uses DM Sans Italic for visual distinction from data content.
+ *
+ * @param {string|undefined} note    - Current note text.
+ * @param {boolean} editMode         - Whether global edit mode is active.
+ * @param {Function} onUpdateNote    - Callback with updated note text.
  */
 export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
   const [editing, setEditing] = useState(false);
 
-  // Edit mode + no note → show add button
+  // ── No note, not editing: show add button only in edit mode ──
   if (!note && !editing) {
     if (!editMode) return null;
 
@@ -24,13 +32,13 @@ export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
         style={({ pressed }) => [styles.addNoteBtn, pressed && styles.addNoteBtnPressed]}
         onPress={() => setEditing(true)}
       >
-        <Feather name="edit-2" size={12} color="#BDA200" />
+        <Feather name="edit-2" size={FONT_SIZE.caption} color={COLORS.notePlaceholder} />
         <Text variant="caption" style={styles.addNoteText}>add note...</Text>
       </Pressable>
     );
   }
 
-  // Editing state → show input
+  // ── Editing: inline TextInput ──
   if (editing) {
     return (
       <View style={styles.noteStrip}>
@@ -49,7 +57,7 @@ export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
     );
   }
 
-  // Note exists, not editing → tap to edit
+  // ── Display: tappable note strip ──
   return (
     <Pressable
       style={({ pressed }) => [styles.noteStrip, pressed && styles.noteStripPressed]}
@@ -61,43 +69,50 @@ export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
 }
 
 const styles = StyleSheet.create({
-    noteStrip: {
-        backgroundColor: '#FFFDE7',
-        borderLeftWidth: 3,
-        borderLeftColor: '#FDD835',
-        paddingVertical: SPACING.sm,
-        paddingHorizontal: SPACING.sm + SPACING.xs,
-        minHeight: 36,
-        justifyContent: 'center',
-    },
-    noteText: {
-        color: COLORS.noteText,
-        fontSize: 12,
-        fontFamily: FONT_FAMILY.italic,
-        },
-    noteInput: {
-        fontSize: 12,
-        color: COLORS.noteText,
-        fontFamily: FONT_FAMILY.italic,
-        padding: 0,
-        margin: 0,
-        minHeight: 16,
-        },
-    addNoteBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: SPACING.xs,
-        backgroundColor: '#FFFDE7',
-        borderLeftWidth: 3,
-        borderLeftColor: '#FDD835',
-        paddingVertical: SPACING.sm,
-        paddingHorizontal: SPACING.sm + SPACING.xs,
-    },
-    addNoteBtnPressed: {
-        backgroundColor: '#FFF9C4',
-    },
-    addNoteText: {
-        color: COLORS.notePlaceholder,
-        fontFamily: FONT_FAMILY.italic,
-        },
+  /** Yellow strip container — consistent height whether reading or editing */
+  noteStrip: {
+    backgroundColor: COLORS.noteBackground,
+    borderLeftWidth: SIZE.noteBorderLeft,
+    borderLeftColor: COLORS.noteBorder,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.sm + SPACING.xs,
+    minHeight: 36,
+    justifyContent: 'center',
+  },
+  noteStripPressed: {
+    backgroundColor: COLORS.noteBackgroundPressed,
+  },
+  /** Display text: italic for visual distinction from data */
+  noteText: {
+    color: COLORS.noteText,
+    fontSize: FONT_SIZE.caption,
+    fontFamily: FONT_FAMILY.italic,
+  },
+  /** Edit input: matches noteText styling to prevent layout shift */
+  noteInput: {
+    fontSize: FONT_SIZE.caption,
+    color: COLORS.noteText,
+    fontFamily: FONT_FAMILY.italic,
+    padding: 0,
+    margin: 0,
+    minHeight: SPACING.md,
+  },
+  /** "add note..." button — same yellow theme as note strip */
+  addNoteBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+    backgroundColor: COLORS.noteBackground,
+    borderLeftWidth: SIZE.noteBorderLeft,
+    borderLeftColor: COLORS.noteBorder,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.sm + SPACING.xs,
+  },
+  addNoteBtnPressed: {
+    backgroundColor: COLORS.noteBackgroundPressed,
+  },
+  addNoteText: {
+    color: COLORS.notePlaceholder,
+    fontFamily: FONT_FAMILY.italic,
+  },
 });

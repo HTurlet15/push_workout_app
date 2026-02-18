@@ -1,19 +1,20 @@
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import Text from './Text';
-import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY } from '../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE } from '../theme/theme';
 
 /**
- * Navigation control that cycles between Previous, Current, and Next views
- * for a single exercise. Displays the active view name as a colored badge
- * flanked by directional arrows.
+ * Navigation control cycling between Previous, Current, and Next views.
+ *
+ * Displays the active view name as a colored pill badge flanked by
+ * directional chevron arrows. Badge and arrow colors dynamically
+ * match the active view accent (gray / blue / orange).
  *
  * View order: Previous ← Current → Next
- * Badge color matches the view: gray (previous), blue (current), orange (next).
+ * Disabled arrows (at bounds) render in muted gray.
  *
- * @param {Object} props
- * @param {'previous'|'current'|'next'} props.activeView - Currently displayed view.
- * @param {Function} props.onChangeView - Callback with the new view name.
+ * @param {'previous'|'current'|'next'} activeView - Currently displayed view.
+ * @param {Function} onChangeView - Callback with the new view name string.
  */
 
 const VIEWS = ['previous', 'current', 'next'];
@@ -46,34 +47,37 @@ export default function ViewSelector({ activeView, onChangeView }) {
 
   return (
     <View style={styles.container}>
+      {/* Left arrow — navigates to previous view */}
       <TouchableOpacity
         onPress={goLeft}
         activeOpacity={0.6}
         disabled={!hasPrevious}
-        hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+        hitSlop={{ top: SPACING.md, bottom: SPACING.md, left: SPACING.md, right: SPACING.md }}
       >
         <Feather
           name="chevron-left"
-          size={FONT_SIZE.title}
+          size={SIZE.chevronSize}
           color={hasPrevious ? accentColor : COLORS.mediumGray}
         />
       </TouchableOpacity>
 
+      {/* View label badge — colored by active view */}
       <View style={[styles.badge, { backgroundColor: accentColor }]}>
         <Text variant="caption" style={styles.badgeText}>
           {VIEW_LABELS[activeView]}
         </Text>
       </View>
 
+      {/* Right arrow — navigates to next view */}
       <TouchableOpacity
         onPress={goRight}
         activeOpacity={0.6}
         disabled={!hasNext}
-        hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+        hitSlop={{ top: SPACING.md, bottom: SPACING.md, left: SPACING.md, right: SPACING.md }}
       >
         <Feather
           name="chevron-right"
-          size={FONT_SIZE.title}
+          size={SIZE.chevronSize}
           color={hasNext ? accentColor : COLORS.mediumGray}
         />
       </TouchableOpacity>
@@ -85,9 +89,10 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: 120,
+    width: SIZE.viewSelectorWidth,
     justifyContent: 'space-between',
   },
+  /** Colored pill showing active view name */
   badge: {
     borderRadius: RADIUS.md,
     paddingVertical: SPACING.xs,

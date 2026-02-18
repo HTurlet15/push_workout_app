@@ -1,29 +1,21 @@
 import { View, StyleSheet } from 'react-native';
 import Text from './Text';
-import { COLORS, SPACING, FONT_FAMILY, SET_TABLE } from '../theme/theme';
+import { COLORS, SPACING } from '../theme/theme';
 
 /**
- * Column header row displayed above SetRow entries.
- * Column widths mirror SetRow proportions (1:3:2:2) for alignment.
+ * Column header row for the Current view set table.
+ *
+ * Displays column labels (Set, Weight, Reps, RIR) with flex proportions
+ * matching SetRow layout (1:3:2:2) to ensure vertical alignment.
+ * Background color uses the Current view theme.
  */
 export default function SetHeader() {
   return (
     <View style={styles.container}>
-      <Text variant="subtitle" style={[styles.cell, styles.setCell]}>
-        Set
-      </Text>
-
-      <Text variant="subtitle" style={[styles.cell, styles.weightCell]}>
-        Weight
-      </Text>
-
-      <Text variant="subtitle" style={[styles.cell, styles.repsCell]}>
-        Reps
-      </Text>
-
-      <Text variant="subtitle" style={[styles.cell, styles.rirCell]}>
-        RIR
-      </Text>
+      <Text variant="tableHeader" style={styles.setCell}>Set</Text>
+      <Text variant="tableHeader" style={styles.weightCell}>Weight</Text>
+      <Text variant="tableHeader" style={styles.repsCell}>Reps</Text>
+      <Text variant="tableHeader" style={styles.rirCell}>RIR</Text>
     </View>
   );
 }
@@ -36,21 +28,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm,
     backgroundColor: COLORS.viewCurrentBg,
   },
-  cell: {
-    textAlign: 'center',
-    color: COLORS.textPrimary,
-    fontFamily : FONT_FAMILY.semibold,
-  },
-  setCell: {
-    flex: 1,
-  },
-  weightCell: {
-    flex: 3,
-  },
-  repsCell: {
-    flex: 2,
-  },
-  rirCell: {
-    flex: 2,
-  },
+  setCell: { flex: 1, textAlign: 'center' },
+  weightCell: { flex: 3, textAlign: 'center' },
+  repsCell: { flex: 2, textAlign: 'center' },
+  rirCell: { flex: 2, textAlign: 'center' },
 });
