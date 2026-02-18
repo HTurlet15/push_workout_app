@@ -80,7 +80,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: SPACING.xs,
     paddingHorizontal: SPACING.sm,
-    gap: SPACING.xxs,
   },
   setCell: {
     flex: 1,
@@ -93,13 +92,11 @@ const styles = StyleSheet.create({
     flex: 4,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.xs,
   },
   repsGroup: {
     flex: 3,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.xs,
   },
   weightCurrentLabel: {
     flex: 1,

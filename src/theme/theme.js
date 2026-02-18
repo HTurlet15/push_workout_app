@@ -39,6 +39,15 @@ export const COLORS = {
   timerDonePressedBg: '#C8E6C9',
   timerResetPressedBg: '#EAEAEA',
   addBtnPressed: '#333333',
+
+  // View accents
+  viewPrevious: '#8E8E93',
+  viewCurrent: '#007AFF',
+  viewNext: '#E65100',
+  viewNextBg: '#FFF8F0',
+  viewNextBadge: '#FFF3E0',
+  viewPreviousBg: '#F4F4F4',
+  
 };
 
 export const SPACING = {
@@ -52,9 +61,9 @@ export const SPACING = {
 
 export const FONT_SIZE = {
   small: 10,
-  caption: 12,
+  caption: 13,
   subtitle: 14,
-  body: 16,
+  body: 15,
   title: 20,
   headline: 28,
   hero: 34,

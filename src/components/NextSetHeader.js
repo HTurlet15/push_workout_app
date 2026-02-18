@@ -1,6 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import Text from './Text';
-import { COLORS, SPACING, RADIUS } from '../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_FAMILY } from '../theme/theme';
 
 /**
  * Column header for the Next view.
@@ -59,21 +59,19 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.lightGray,
         borderTopLeftRadius: RADIUS.sm,
         borderTopRightRadius: RADIUS.sm,
-        gap : SPACING.sm,
     },
     subRow: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: SPACING.sm,
         paddingTop: SPACING.sm,
-        gap : SPACING.sm,
     },
     cell: {
         textAlign: 'center',
     },
     mainLabel: {
-        color: COLORS.textSecondary,
-        fontWeight: '700',
+        color: COLORS.textPrimary,
+        fontFamily : FONT_FAMILY.semibold,
     },
     setCell: {
         flex: 1,
@@ -98,7 +96,7 @@ const styles = StyleSheet.create({
 
     weightCurrentLabel: {
     flex: 1,
-    textAlign: 'center',
+    textAlign: 'left',
     },
     weightNextLabel: {
     flex: 2,

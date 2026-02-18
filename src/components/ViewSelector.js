@@ -1,7 +1,7 @@
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import Text from './Text';
-import { COLORS, SPACING, RADIUS, FONT_SIZE } from '../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY } from '../theme/theme';
 
 /**
  * Navigation control that cycles between Previous, Current, and Next views
@@ -88,6 +88,6 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: COLORS.white,
-    fontWeight: '600',
+    fontFamily : FONT_FAMILY.semibold,
   },
 });

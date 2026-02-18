@@ -1,6 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import Text from './Text';
-import { COLORS, SPACING, RADIUS, SET_TABLE } from '../theme/theme';
+import { COLORS, SPACING, FONT_FAMILY, SET_TABLE } from '../theme/theme';
 
 /**
  * Column header row displayed above SetRow entries.
@@ -39,8 +39,8 @@ const styles = StyleSheet.create({
   },
   cell: {
     textAlign: 'center',
-    color: COLORS.textSecondary,
-    fontWeight: '700',
+    color: COLORS.textPrimary,
+    fontFamily : FONT_FAMILY.semibold,
   },
   setCell: {
     flex: 1,

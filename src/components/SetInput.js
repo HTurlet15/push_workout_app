@@ -2,7 +2,7 @@ import { Pressable, TextInput, StyleSheet } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from './Text';
-import { COLORS, FONT_SIZE, FONT_WEIGHT, SPACING, RADIUS } from '../theme/theme';
+import { COLORS, FONT_SIZE, FONT_WEIGHT,FONT_FAMILY, SPACING, RADIUS } from '../theme/theme';
 
 /**
  * Tappable badge displaying a single set value (weight, reps, or RIR).
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,
     fontSize: FONT_SIZE.body,
-    fontWeight: FONT_WEIGHT.medium,
+    fontFamily : FONT_FAMILY.medium,
     color: COLORS.textPrimary,
     textAlign: 'center',
   },
@@ -138,8 +138,10 @@ const styles = StyleSheet.create({
   },
   filledText: {
     color: COLORS.textPrimary,
+    fontFamily : FONT_FAMILY.medium,
   },
   inactiveText: {
     color: COLORS.textSecondary,
+    fontFamily : FONT_FAMILY.medium,
   },
 });

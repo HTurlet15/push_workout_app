@@ -50,7 +50,7 @@ export default function BottomBar({
   };
 
   return (
-    <View style={[styles.container, { paddingBottom: bottomInset + SPACING.sm }]}>
+    <View style={[styles.container, { paddingBottom: bottomInset + SPACING.md }]}>
       {/* LLM */}
       <Pressable
         style={({ pressed }) => [styles.iconBtn, pressed && styles.iconBtnPressed]}
