@@ -1,6 +1,6 @@
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Text from '../components/Text';
 import ExerciseCard from '../components/ExerciseCard';
@@ -20,18 +20,28 @@ import TimerPicker from '../components/TimerPicker';
  * Orchestrates the entire workout experience:
  * - Loads and persists current, previous, and next workout data
  * - Handles session rotation (previous → current → next) after 12h
- * - Manages edit mode state for add/delete sets and notes
+ * - Manages edit mode state for add/delete sets, exercises, and notes
  * - Provides rest timer with configurable duration
+ * - Scrolls to newly added exercises using onLayout measurement
  *
- * All workout mutations (update set, add/delete set, update note)
- * are defined here and passed down to ExerciseCard via callbacks.
- * Data flows down, events flow up.
+ * All workout mutations (update set, add/delete set, add/delete exercise,
+ * update note, rename exercise) are defined here and passed down to
+ * ExerciseCard via callbacks. Data flows down, events flow up.
  */
 export default function WorkoutScreen() {
   const insets = useSafeAreaInsets();
   const [editMode, setEditMode] = useState(false);
   const [showTimerPicker, setShowTimerPicker] = useState(false);
+
+  /** ID of the most recently created exercise — used to trigger scroll-to */
   const [newExerciseId, setNewExerciseId] = useState(null);
+
+  /** Ref to KeyboardAwareScrollView for programmatic scrolling */
+  const scrollRef = useRef(null);
+
+  /** Stores { y, height } layout of each exercise card, keyed by exercise ID */
+  const exerciseLayouts = useRef({});
+
   /** Rest timer hook — manages countdown lifecycle */
   const {
     timerState, timeRemaining, duration,
@@ -162,7 +172,10 @@ export default function WorkoutScreen() {
     }));
   };
 
-  /** Insert a new exercise after the given exercise with 3 empty sets */
+  /**
+   * Insert a new exercise after the given exercise with 3 empty sets.
+   * Sets newExerciseId so that onLayout can scroll to it once rendered.
+   */
   const handleAddExercise = (afterExerciseId) => {
     const id = `exercise-${Date.now()}`;
     setWorkout((prev) => {
@@ -182,6 +195,32 @@ export default function WorkoutScreen() {
       return { ...prev, exercises: newExercises };
     });
     setNewExerciseId(id);
+  };
+
+  /** Remove an entire exercise from the workout */
+  const handleDeleteExercise = (exerciseId) => {
+    setWorkout((prev) => ({
+      ...prev,
+      exercises: prev.exercises.filter((e) => e.id !== exerciseId),
+    }));
+  };
+
+  /**
+   * Called when each exercise card wrapper measures its layout.
+   * If the card is the newly created exercise, scroll to position it
+   * ~100px below the top of the screen, then clear the trigger.
+   */
+  const handleExerciseLayout = (exerciseId, event) => {
+    const layout = event.nativeEvent.layout;
+    exerciseLayouts.current[exerciseId] = layout;
+
+    if (exerciseId === newExerciseId) {
+      const targetY = layout.y - 100;
+      setTimeout(() => {
+        scrollRef.current?.scrollToPosition?.(0, Math.max(targetY, 0), true);
+        setNewExerciseId(null);
+      }, 150);
+    }
   };
 
   // ── Derived state ─────────────────────────────────────────
@@ -214,6 +253,7 @@ export default function WorkoutScreen() {
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       {/* Keyboard-aware scrollable content area */}
       <KeyboardAwareScrollView
+        ref={scrollRef}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -235,26 +275,30 @@ export default function WorkoutScreen() {
           </View>
         </View>
 
-        {/* Exercise cards — one per exercise in the workout */}
+        {/* Exercise cards — wrapped in View with onLayout for scroll targeting */}
         {workout.exercises.map((exercise) => (
-          <ExerciseCard
+          <View
             key={exercise.id}
-            exercise={exercise}
-            previousExercise={findExercise(previousWorkout, exercise.id)}
-            nextExercise={findExercise(nextWorkout, exercise.id)}
-            onUpdateSet={handleUpdateSet}
-            onUpdateNextSet={handleUpdateNextSet}
-            onDeleteSet={handleDeleteSet}
-            onAddSet={handleAddSet}
-            onUpdateNote={handleUpdateNote}
-            onUpdateName={handleUpdateName}
-            onAddExercise={handleAddExercise}
-            editMode={editMode}
-            autoFocusName={exercise.id === newExerciseId}
-          />
+            onLayout={(e) => handleExerciseLayout(exercise.id, e)}
+          >
+            <ExerciseCard
+              exercise={exercise}
+              previousExercise={findExercise(previousWorkout, exercise.id)}
+              nextExercise={findExercise(nextWorkout, exercise.id)}
+              onUpdateSet={handleUpdateSet}
+              onUpdateNextSet={handleUpdateNextSet}
+              onDeleteSet={handleDeleteSet}
+              onAddSet={handleAddSet}
+              onUpdateNote={handleUpdateNote}
+              onUpdateName={handleUpdateName}
+              onAddExercise={handleAddExercise}
+              onDeleteExercise={handleDeleteExercise}
+              editMode={editMode}
+            />
+          </View>
         ))}
       </KeyboardAwareScrollView>
-      
+
       {/* Bottom navigation bar with timer and edit controls */}
       <BottomBar
         timerState={timerState}

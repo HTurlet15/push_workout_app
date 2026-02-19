@@ -1,5 +1,5 @@
 import { View, Animated, Pressable, TextInput, StyleSheet, useWindowDimensions } from 'react-native';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from './Text';
 import ViewSelector from './ViewSelector';
@@ -32,7 +32,8 @@ const VIEW_BORDER_COLORS = {
  * data rows, and shared components (note strip, footer).
  *
  * In edit mode, additional controls appear:
- * - Exercise name becomes editable (gray pill background)
+ * - Red delete button to the left of the exercise name
+ * - Exercise name becomes tappable with underline cue
  * - Red delete buttons on each set row
  * - Dashed "Add set" button below the last row
  * - "Add note..." placeholder when no note exists
@@ -48,8 +49,8 @@ const VIEW_BORDER_COLORS = {
  * @param {Function} onUpdateNote      - Callback: (exerciseId, noteText).
  * @param {Function} onUpdateName      - Callback: (exerciseId, newName).
  * @param {Function} onAddExercise     - Callback: (afterExerciseId).
+ * @param {Function} onDeleteExercise  - Callback: (exerciseId).
  * @param {boolean} editMode           - Whether edit controls are visible.
- * @param {boolean} autoFocusName      - Whether to auto-focus the name input (newly created exercise).
  */
 export default function ExerciseCard({
   exercise,
@@ -62,8 +63,8 @@ export default function ExerciseCard({
   onUpdateNote,
   onUpdateName,
   onAddExercise,
+  onDeleteExercise,
   editMode = false,
-  autoFocusName = false,
 }) {
   const { width } = useWindowDimensions();
   const { displayedView, slideAnim, transitionTo } = useSlideTransition('current');
@@ -71,13 +72,6 @@ export default function ExerciseCard({
   /** Controls whether the name TextInput is visible */
   const [editingName, setEditingName] = useState(false);
   const nameInputRef = useRef(null);
-
-  /** Auto-focus name input for newly created exercises */
-  useEffect(() => {
-    if (autoFocusName && editMode) {
-      setEditingName(true);
-    }
-  }, [autoFocusName, editMode]);
 
   /** Whether the exercise has a placeholder name (just created) */
   const isPlaceholderName = !exercise.name || exercise.name === 'New Exercise';
@@ -99,10 +93,10 @@ export default function ExerciseCard({
   // ── Exercise Name ─────────────────────────────────────────
 
   const renderExerciseName = () => {
-    // Editing state: inline TextInput in gray pill
+    // Editing state: inline TextInput with underline
     if (editingName) {
       return (
-        <View style={styles.namePill}>
+        <View style={[styles.nameEditable, styles.nameEditableActive]}>
           <TextInput
             ref={nameInputRef}
             style={styles.nameInput}
@@ -119,11 +113,14 @@ export default function ExerciseCard({
       );
     }
 
-    // Edit mode: tappable pill background — signals "this is editable"
+    // Edit mode: tappable with underline cue — signals "this is editable"
     if (editMode) {
       return (
         <Pressable
-          style={({ pressed }) => [styles.namePill, pressed && styles.namePillPressed]}
+          style={({ pressed }) => [
+            styles.nameEditable,
+            pressed && styles.nameEditablePressed,
+          ]}
           onPress={() => setEditingName(true)}
         >
           <Text
@@ -271,9 +268,24 @@ export default function ExerciseCard({
 
   return (
     <View style={styles.card}>
-      {/* Title row: exercise name (static or editable) + view selector */}
+      {/* Title row: delete button + exercise name + view selector */}
       <View style={styles.titleRow}>
+        {/* Delete exercise button — red circle left of the name */}
+        {editMode && (
+          <Pressable
+            style={({ pressed }) => [
+              styles.deleteExerciseBtn,
+              pressed && styles.deleteExerciseBtnPressed,
+            ]}
+            onPress={() => onDeleteExercise?.(exercise.id)}
+          >
+            <Feather name="x" size={SIZE.iconSm - 4} color={COLORS.error} />
+          </Pressable>
+        )}
+
+        {/* Exercise name: static, underlined tappable, or TextInput */}
         {renderExerciseName()}
+
         <ViewSelector activeView={displayedView} onChangeView={transitionTo} />
       </View>
 
@@ -330,24 +342,28 @@ const styles = StyleSheet.create({
   /** Static exercise name (normal mode) */
   exerciseName: {
     color: COLORS.textPrimary,
+    flex: 1,
   },
-  /** Placeholder text for unnamed exercises — muted, medium weight */
+  /** Placeholder text for unnamed exercises — muted italic hint */
   exerciseNamePlaceholder: {
     color: COLORS.textMuted,
     fontFamily: FONT_FAMILY.medium,
+    fontStyle: 'italic',
   },
-  /** Gray pill background in edit mode — signals "tappable field" */
-  namePill: {
+  /** Underline cue in edit mode — signals "tappable to rename" */
+  nameEditable: {
+    flex: 1,
     borderBottomWidth: 1.5,
     borderBottomColor: COLORS.mediumGray,
     paddingBottom: 2,
-    paddingVertical: SPACING.xs,
-    paddingHorizontal: SPACING.sm + SPACING.xs,
-    borderRadius: RADIUS.sm,
   },
-  /** Pill pressed feedback */
-  namePillPressed: {
-    backgroundColor: COLORS.selectedInput,
+  /** Stronger underline when actively editing */
+  nameEditableActive: {
+    borderBottomColor: COLORS.viewCurrent,
+  },
+  /** Pressed feedback on name tap */
+  nameEditablePressed: {
+    borderBottomColor: COLORS.textSecondary,
   },
   /** Inline TextInput for name editing — matches exercise Text variant styling */
   nameInput: {
@@ -357,6 +373,22 @@ const styles = StyleSheet.create({
     padding: 0,
     margin: 0,
     minWidth: 120,
+  },
+
+  // ── Delete exercise ───────────────────────────────────────
+
+  /** Red circle to delete entire exercise — left of the name in edit mode */
+  deleteExerciseBtn: {
+    width: SIZE.deleteBtn + 4,
+    height: SIZE.deleteBtn + 4,
+    borderRadius: (SIZE.deleteBtn + 4) / 2,
+    backgroundColor: COLORS.errorLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: SPACING.sm,
+  },
+  deleteExerciseBtnPressed: {
+    backgroundColor: COLORS.errorPressed,
   },
 
   // ── Shared styles ─────────────────────────────────────────
