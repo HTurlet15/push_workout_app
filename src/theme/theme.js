@@ -60,7 +60,7 @@ export const COLORS = {
   timerActivePressedBg: '#FFE0B2',
   timerDonePressedBg: '#C8E6C9',
   timerResetPressedBg: '#EAEAEA',
-
+  
   // Button states
   btnDarkPressed: '#333333',          // Dark button pressed feedback
   editBtnActivePressed: '#0066DD',    // Edit mode check button pressed
@@ -83,11 +83,14 @@ export const COLORS = {
   deltaSame: '#C0C0C0',          // No change indicator (=)
 
   // Note system (ExerciseNote component)
-  noteBackground: '#FFFDE7',         // Warm yellow strip background
-  noteBorder: '#FDD835',             // Left accent border
-  noteText: '#8D6E00',              // Note content text
-  notePlaceholder: '#BDA200',        // "add note..." placeholder text
-  noteBackgroundPressed: '#FFF9C4',  // Touch feedback on note strip
+  noteBackground: '#FFFDE7',          // Warm yellow strip background
+  noteBorder: '#FDD835',              // Left accent border
+  noteText: '#8D6E00',                // Note content text
+  notePlaceholder: '#BDA200',         // "add note..." placeholder text
+  noteBackgroundPressed: '#FFF9C4',   // Touch feedback on note strip
+
+  // Edit mode
+  addExercisePressed: '#EBF3FF',      // Touch feedback on add Exercise button
 
   // Shadow base color (used in SHADOW presets)
   shadow: '#000000',

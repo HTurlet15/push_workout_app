@@ -151,6 +151,12 @@ export default function WorkoutScreen() {
     }));
   };
 
+  /** Insert a new exercise after the given exercise (placeholder for future implementation) */
+  const handleAddExercise = (afterExerciseId) => {
+    // TODO: Open exercise picker screen
+    console.log('Add exercise after:', afterExerciseId);
+  };
+
   // ── Derived state ─────────────────────────────────────────
 
   /** Count of fully completed sets (weight + reps filled) */
@@ -213,6 +219,7 @@ export default function WorkoutScreen() {
             onUpdateNextSet={handleUpdateNextSet}
             onDeleteSet={handleDeleteSet}
             onAddSet={handleAddSet}
+            onAddExercise={handleAddExercise}
             onUpdateNote={handleUpdateNote}
             editMode={editMode}
           />

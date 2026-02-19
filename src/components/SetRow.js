@@ -26,7 +26,7 @@ export default function SetRow({ index, set, onUpdateSet, editMode = false, onDe
 
   return (
     <View style={[styles.container, isCompleted && styles.completedContainer]}>
-      {/* Delete button — only visible in edit mode */}
+      {/* Delete button - only visible in edit mode */}
       {editMode && (
         <Pressable
           style={({ pressed }) => [styles.deleteBtn, pressed && styles.deleteBtnPressed]}

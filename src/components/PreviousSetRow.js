@@ -6,14 +6,14 @@ import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY } from '../theme/theme';
  * Read-only set row displaying historical data from a previous workout.
  *
  * All values are shown in secondary (gray) text with no interaction.
- * Null values display as "—" for clean empty state handling.
+ * Null values display as "-" for clean empty state handling.
  *
  * Flex proportions (1:3:2:2) match SetRow and SetHeader for alignment.
  *
  * @param {number} index         - Zero-based set position, displayed as 1-based.
  * @param {number|null} weight   - Weight lifted in kilograms.
  * @param {number|null} reps     - Number of repetitions performed.
- * @param {number|null} rir      - Reps In Reserve. Displays "—" when null.
+ * @param {number|null} rir      - Reps In Reserve. Displays "-" when null.
  */
 export default function PreviousSetRow({ index, weight, reps, rir }) {
   return (
@@ -23,15 +23,15 @@ export default function PreviousSetRow({ index, weight, reps, rir }) {
       </Text>
 
       <Text variant="body" style={styles.valueCell}>
-        {weight !== null && weight !== undefined ? `${weight} kg` : '—'}
+        {weight !== null && weight !== undefined ? `${weight} kg` : '-'}
       </Text>
 
       <Text variant="body" style={styles.repsCell}>
-        {reps !== null && reps !== undefined ? reps : '—'}
+        {reps !== null && reps !== undefined ? reps : '-'}
       </Text>
 
       <Text variant="body" style={styles.rirCell}>
-        {rir !== null && rir !== undefined ? rir : '—'}
+        {rir !== null && rir !== undefined ? rir : '-'}
       </Text>
     </View>
   );

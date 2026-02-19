@@ -69,7 +69,7 @@ export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
 }
 
 const styles = StyleSheet.create({
-  /** Yellow strip container — consistent height whether reading or editing */
+  /** Yellow strip container - consistent height whether reading or editing */
   noteStrip: {
     backgroundColor: COLORS.noteBackground,
     borderLeftWidth: SIZE.noteBorderLeft,
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     margin: 0,
     minHeight: SPACING.md,
   },
-  /** "add note..." button — same yellow theme as note strip */
+  /** "add note..." button - same yellow theme as note strip */
   addNoteBtn: {
     flexDirection: 'row',
     alignItems: 'center',
