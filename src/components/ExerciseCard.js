@@ -1,4 +1,5 @@
-import { View, Animated, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Animated, Pressable, TextInput, StyleSheet, useWindowDimensions } from 'react-native';
+import { useState, useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from './Text';
 import ViewSelector from './ViewSelector';
@@ -31,9 +32,11 @@ const VIEW_BORDER_COLORS = {
  * data rows, and shared components (note strip, footer).
  *
  * In edit mode, additional controls appear:
+ * - Exercise name becomes editable (gray pill background)
  * - Red delete buttons on each set row
  * - Dashed "Add set" button below the last row
  * - "Add note..." placeholder when no note exists
+ * - Dashed blue "Add exercise" button below the card
  *
  * @param {Object} exercise            - Current workout exercise data.
  * @param {Object} previousExercise    - Previous session data (may be undefined).
@@ -43,7 +46,10 @@ const VIEW_BORDER_COLORS = {
  * @param {Function} onDeleteSet       - Callback: (exerciseId, setId).
  * @param {Function} onAddSet          - Callback: (exerciseId).
  * @param {Function} onUpdateNote      - Callback: (exerciseId, noteText).
+ * @param {Function} onUpdateName      - Callback: (exerciseId, newName).
+ * @param {Function} onAddExercise     - Callback: (afterExerciseId).
  * @param {boolean} editMode           - Whether edit controls are visible.
+ * @param {boolean} autoFocusName      - Whether to auto-focus the name input (newly created exercise).
  */
 export default function ExerciseCard({
   exercise,
@@ -54,11 +60,27 @@ export default function ExerciseCard({
   onDeleteSet,
   onAddSet,
   onUpdateNote,
+  onUpdateName,
   onAddExercise,
   editMode = false,
+  autoFocusName = false,
 }) {
   const { width } = useWindowDimensions();
   const { displayedView, slideAnim, transitionTo } = useSlideTransition('current');
+
+  /** Controls whether the name TextInput is visible */
+  const [editingName, setEditingName] = useState(false);
+  const nameInputRef = useRef(null);
+
+  /** Auto-focus name input for newly created exercises */
+  useEffect(() => {
+    if (autoFocusName && editMode) {
+      setEditingName(true);
+    }
+  }, [autoFocusName, editMode]);
+
+  /** Whether the exercise has a placeholder name (just created) */
+  const isPlaceholderName = !exercise.name || exercise.name === 'New Exercise';
 
   /**
    * Slide animation interpolations.
@@ -73,6 +95,57 @@ export default function ExerciseCard({
     inputRange: [-1, 0, 1],
     outputRange: [0, 1, 0],
   });
+
+  // ── Exercise Name ─────────────────────────────────────────
+
+  const renderExerciseName = () => {
+    // Editing state: inline TextInput in gray pill
+    if (editingName) {
+      return (
+        <View style={styles.namePill}>
+          <TextInput
+            ref={nameInputRef}
+            style={styles.nameInput}
+            value={isPlaceholderName ? '' : exercise.name}
+            onChangeText={(text) => onUpdateName?.(exercise.id, text)}
+            placeholder="Tap to name..."
+            placeholderTextColor={COLORS.textMuted}
+            returnKeyType="done"
+            autoFocus
+            onSubmitEditing={() => setEditingName(false)}
+            onBlur={() => setEditingName(false)}
+          />
+        </View>
+      );
+    }
+
+    // Edit mode: tappable pill background — signals "this is editable"
+    if (editMode) {
+      return (
+        <Pressable
+          style={({ pressed }) => [styles.namePill, pressed && styles.namePillPressed]}
+          onPress={() => setEditingName(true)}
+        >
+          <Text
+            variant="exercise"
+            style={[
+              styles.exerciseName,
+              isPlaceholderName && styles.exerciseNamePlaceholder,
+            ]}
+          >
+            {isPlaceholderName ? 'Tap to name...' : exercise.name}
+          </Text>
+        </Pressable>
+      );
+    }
+
+    // Normal mode: static text, no interaction
+    return (
+      <Text variant="exercise" style={styles.exerciseName}>
+        {exercise.name}
+      </Text>
+    );
+  };
 
   // ── Current View ──────────────────────────────────────────
 
@@ -99,7 +172,7 @@ export default function ExerciseCard({
         />
       ))}
 
-      {/* Dashed "Add set" button - only visible in edit mode */}
+      {/* Dashed "Add set" button — only visible in edit mode */}
       {editMode && (
         <Pressable
           style={({ pressed }) => [styles.addSetBtn, pressed && styles.addSetBtnPressed]}
@@ -129,7 +202,7 @@ export default function ExerciseCard({
       <>
         <PreviousSetHeader />
 
-        {/* Note is shared across views - same data, always tappable */}
+        {/* Note is shared across views — same data, always tappable */}
         <ExerciseNote
           note={exercise.note}
           editMode={editMode}
@@ -198,13 +271,13 @@ export default function ExerciseCard({
 
   return (
     <View style={styles.card}>
+      {/* Title row: exercise name (static or editable) + view selector */}
       <View style={styles.titleRow}>
-        <Text variant="exercise" style={styles.exerciseName}>
-          {exercise.name}
-        </Text>
+        {renderExerciseName()}
         <ViewSelector activeView={displayedView} onChangeView={transitionTo} />
       </View>
 
+      {/* Table card with colored left border and slide animation */}
       <View style={[
         styles.tableCard,
         { borderLeftColor: VIEW_BORDER_COLORS[displayedView] },
@@ -251,15 +324,49 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: SPACING.md,
   },
+
+  // ── Exercise name styles ──────────────────────────────────
+
+  /** Static exercise name (normal mode) */
   exerciseName: {
     color: COLORS.textPrimary,
   },
+  /** Placeholder text for unnamed exercises — muted, medium weight */
+  exerciseNamePlaceholder: {
+    color: COLORS.textMuted,
+    fontFamily: FONT_FAMILY.medium,
+  },
+  /** Gray pill background in edit mode — signals "tappable field" */
+  namePill: {
+    borderBottomWidth: 1.5,
+    borderBottomColor: COLORS.mediumGray,
+    paddingBottom: 2,
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.sm + SPACING.xs,
+    borderRadius: RADIUS.sm,
+  },
+  /** Pill pressed feedback */
+  namePillPressed: {
+    backgroundColor: COLORS.selectedInput,
+  },
+  /** Inline TextInput for name editing — matches exercise Text variant styling */
+  nameInput: {
+    fontSize: FONT_SIZE.lg,
+    fontFamily: FONT_FAMILY.semibold,
+    color: COLORS.textPrimary,
+    padding: 0,
+    margin: 0,
+    minWidth: 120,
+  },
+
+  // ── Shared styles ─────────────────────────────────────────
+
   /** Empty state message for missing previous/next data */
   emptyMessage: {
     textAlign: 'center',
     paddingVertical: SPACING.lg,
   },
-  /** Dashed "Add set" button in edit mode */
+  /** Dashed gray "Add set" button in edit mode */
   addSetBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -295,7 +402,7 @@ const styles = StyleSheet.create({
     marginTop: SPACING.sm,
   },
   addExerciseBtnPressed: {
-    backgroundColor: '#EBF3FF',
+    backgroundColor: COLORS.addExercisePressed,
   },
   addExerciseText: {
     color: COLORS.viewCurrent,

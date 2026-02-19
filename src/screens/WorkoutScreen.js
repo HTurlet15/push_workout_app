@@ -31,7 +31,7 @@ export default function WorkoutScreen() {
   const insets = useSafeAreaInsets();
   const [editMode, setEditMode] = useState(false);
   const [showTimerPicker, setShowTimerPicker] = useState(false);
-
+  const [newExerciseId, setNewExerciseId] = useState(null);
   /** Rest timer hook — manages countdown lifecycle */
   const {
     timerState, timeRemaining, duration,
@@ -151,10 +151,37 @@ export default function WorkoutScreen() {
     }));
   };
 
-  /** Insert a new exercise after the given exercise (placeholder for future implementation) */
+  /** Update the name of an exercise */
+  const handleUpdateName = (exerciseId, name) => {
+    setWorkout((prev) => ({
+      ...prev,
+      exercises: prev.exercises.map((exercise) => {
+        if (exercise.id !== exerciseId) return exercise;
+        return { ...exercise, name };
+      }),
+    }));
+  };
+
+  /** Insert a new exercise after the given exercise with 3 empty sets */
   const handleAddExercise = (afterExerciseId) => {
-    // TODO: Open exercise picker screen
-    console.log('Add exercise after:', afterExerciseId);
+    const id = `exercise-${Date.now()}`;
+    setWorkout((prev) => {
+      const exerciseIndex = prev.exercises.findIndex((e) => e.id === afterExerciseId);
+      const newExercise = {
+        id,
+        name: 'New Exercise',
+        note: undefined,
+        sets: [
+          { id: `set-${Date.now()}-1`, weight: { value: null, state: 'empty' }, reps: { value: null, state: 'empty' }, rir: { value: null, state: 'empty' } },
+          { id: `set-${Date.now()}-2`, weight: { value: null, state: 'empty' }, reps: { value: null, state: 'empty' }, rir: { value: null, state: 'empty' } },
+          { id: `set-${Date.now()}-3`, weight: { value: null, state: 'empty' }, reps: { value: null, state: 'empty' }, rir: { value: null, state: 'empty' } },
+        ],
+      };
+      const newExercises = [...prev.exercises];
+      newExercises.splice(exerciseIndex + 1, 0, newExercise);
+      return { ...prev, exercises: newExercises };
+    });
+    setNewExerciseId(id);
   };
 
   // ── Derived state ─────────────────────────────────────────
@@ -219,13 +246,15 @@ export default function WorkoutScreen() {
             onUpdateNextSet={handleUpdateNextSet}
             onDeleteSet={handleDeleteSet}
             onAddSet={handleAddSet}
-            onAddExercise={handleAddExercise}
             onUpdateNote={handleUpdateNote}
+            onUpdateName={handleUpdateName}
+            onAddExercise={handleAddExercise}
             editMode={editMode}
+            autoFocusName={exercise.id === newExerciseId}
           />
         ))}
       </KeyboardAwareScrollView>
-
+      
       {/* Bottom navigation bar with timer and edit controls */}
       <BottomBar
         timerState={timerState}

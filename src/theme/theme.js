@@ -74,9 +74,13 @@ export const COLORS = {
   viewNextBg: '#F7F7F7',         // Next view header background
 
   // Next view delta system
-  nextBadge: '#FFF3E0',          // Orange-tinted badge background
-  nextBadgeText: '#C4956A',      // Default (inherited) next value text
-  nextBadgeBorder: '#FFE8CC',    // Badge separator border
+  nextBadge: '#F8F8F8',            // Same gray as other views
+  nextBadgeText: '#8E8E93',        // Secondary text like Previous view
+  nextBadgeBorder: '#E8E8E8',      // Subtle gray border
+  nextEdited: '#1A1A1A',           // User-edited values become primary (black)
+  //nextBadge: '#FFF3E0',          // Orange-tinted badge background
+  //nextBadgeText: '#C4956A',      // Default (inherited) next value text
+  //nextBadgeBorder: '#FFE8CC',    // Badge separator border
   nextEdited: '#E65100',         // User-edited next value text
   deltaUp: '#2E7D32',            // Positive change indicator (↑)
   deltaDown: '#C62828',          // Negative change indicator (↓)
@@ -91,6 +95,7 @@ export const COLORS = {
 
   // Edit mode
   addExercisePressed: '#EBF3FF',      // Touch feedback on add Exercise button
+  
 
   // Shadow base color (used in SHADOW presets)
   shadow: '#000000',
