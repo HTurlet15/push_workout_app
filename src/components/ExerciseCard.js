@@ -36,7 +36,9 @@ const VIEW_BORDER_COLORS = {
  *
  * Features:
  * - Local kg/lbs toggle — conversion is purely visual, data stored in kg
- * - Per-exercise rest timer displayed in footer, tap to set global timer
+ * - Per-exercise rest timer displayed in footer
+ *   - Normal mode: tap → sets global timer
+ *   - Edit mode: tap → inline edit rest duration
  * - Edit mode controls (delete, rename, add/delete sets, notes)
  *
  * @param {Object} exercise            - Current workout exercise data.
@@ -50,7 +52,8 @@ const VIEW_BORDER_COLORS = {
  * @param {Function} onUpdateName      - Callback: (exerciseId, newName).
  * @param {Function} onAddExercise     - Callback: (afterExerciseId).
  * @param {Function} onDeleteExercise  - Callback: (exerciseId).
- * @param {Function} onRestPress       - Callback: (exerciseId) tap rest badge to set global timer.
+ * @param {Function} onRestPress       - Callback: (exerciseId) tap rest in normal mode.
+ * @param {Function} onUpdateRest      - Callback: (exerciseId, newSeconds) edit rest in edit mode.
  * @param {boolean} editMode           - Whether edit controls are visible.
  */
 export default function ExerciseCard({
@@ -66,6 +69,7 @@ export default function ExerciseCard({
   onAddExercise,
   onDeleteExercise,
   onRestPress,
+  onUpdateRest,
   editMode = false,
 }) {
   const { width } = useWindowDimensions();
@@ -116,7 +120,7 @@ export default function ExerciseCard({
   // ── Exercise Name ─────────────────────────────────────────
 
   const renderExerciseName = () => {
-    // Editing state: inline TextInput with underline
+    // Editing state: inline TextInput with black underline
     if (editingName) {
       return (
         <View style={[styles.nameEditable, styles.nameEditableActive]}>
@@ -136,7 +140,7 @@ export default function ExerciseCard({
       );
     }
 
-    // Edit mode: tappable with underline cue
+    // Edit mode: tappable with gray underline cue
     if (editMode) {
       return (
         <Pressable
@@ -169,13 +173,15 @@ export default function ExerciseCard({
 
   // ── Shared footer for all views ───────────────────────────
 
-  /** Footer reads rest time from exercise data, tap sets global timer */
+  /** Footer reads rest time from exercise data */
   const renderFooter = () => (
     <SetFooter
       restSeconds={restTimerSeconds}
       unit={unit}
       onToggleUnit={setUnit}
       onRestPress={() => onRestPress?.(exercise.id)}
+      onUpdateRest={(seconds) => onUpdateRest?.(exercise.id, seconds)}
+      editMode={editMode}
     />
   );
 
@@ -303,7 +309,6 @@ export default function ExerciseCard({
 
   return (
     <View style={styles.card}>
-      {/* Title row: delete button + exercise name + view selector */}
       <View style={styles.titleRow}>
         {editMode && (
           <Pressable
@@ -322,7 +327,6 @@ export default function ExerciseCard({
         <ViewSelector activeView={displayedView} onChangeView={transitionTo} />
       </View>
 
-      {/* Table card with colored left border and slide animation */}
       <View style={[
         styles.tableCard,
         { borderLeftColor: VIEW_BORDER_COLORS[displayedView] },
@@ -334,7 +338,6 @@ export default function ExerciseCard({
         </Animated.View>
       </View>
 
-      {/* Dashed blue "Add exercise" button */}
       {editMode && (
         <Pressable
           style={({ pressed }) => [styles.addExerciseBtn, pressed && styles.addExerciseBtnPressed]}
@@ -378,14 +381,16 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.medium,
     fontStyle: 'italic',
   },
+  /** Gray underline cue in edit mode */
   nameEditable: {
     flex: 1,
     borderBottomWidth: 1.5,
     borderBottomColor: COLORS.mediumGray,
     paddingBottom: 2,
   },
+  /** Black underline when actively editing */
   nameEditableActive: {
-    borderBottomColor: COLORS.viewCurrent,
+    borderBottomColor: COLORS.textPrimary,
   },
   nameEditablePressed: {
     borderBottomColor: COLORS.textSecondary,
