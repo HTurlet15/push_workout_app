@@ -8,16 +8,16 @@ import { COLORS, FONT_SIZE, FONT_FAMILY, SPACING, RADIUS } from '../theme/theme'
  * Tappable badge displaying a single set value (weight, reps, or RIR).
  * Toggles between display mode and inline edit mode on press.
  *
+ * Input validation:
+ * - Numeric only (keyboard type)
+ * - Maximum 1 decimal place (e.g. 122.5 OK, 122.55 blocked)
+ *
  * Visual states (determined by parent):
  * - filled:        Value entered during current session → black text
  * - previous:      Value carried from last session → gray text
  * - planned:       Value from planned program → gray text + calendar icon
  * - plannedFilled: Planned value confirmed unchanged → black text + calendar icon
  * - empty:         No value → displays "—"
- *
- * Optional overrides (used by NextSetRow):
- * - badgeColor: Custom background color for the badge
- * - textColor:  Custom text color for the value
  *
  * @param {string|number} value       - The value to display.
  * @param {string} unit               - Optional unit suffix (e.g. "kg").
@@ -54,6 +54,17 @@ export default function SetInput({ value, unit, state = 'empty', onChangeValue, 
     setIsEditing(true);
   };
 
+  /**
+   * Validate and update draft text.
+   * Allows: empty string, integers, or numbers with max 1 decimal place.
+   * Blocks: 2+ decimal places, non-numeric characters.
+   */
+  const handleChangeText = (text) => {
+    if (text === '' || /^\d*\.?\d{0,1}$/.test(text)) {
+      setDraft(text);
+    }
+  };
+
   /** Confirm edit: parse to number, notify parent, exit edit mode */
   const handleSubmit = () => {
     setIsEditing(false);
@@ -70,7 +81,7 @@ export default function SetInput({ value, unit, state = 'empty', onChangeValue, 
         ref={inputRef}
         style={styles.input}
         value={draft}
-        onChangeText={setDraft}
+        onChangeText={handleChangeText}
         onSubmitEditing={handleSubmit}
         onBlur={handleSubmit}
         keyboardType="numeric"
@@ -150,12 +161,10 @@ const styles = StyleSheet.create({
   text: {
     textAlign: 'center',
   },
-  /** Active (filled) values: primary color */
   filledText: {
     color: COLORS.textPrimary,
     fontFamily: FONT_FAMILY.medium,
   },
-  /** Inactive (previous/planned) values: secondary color */
   inactiveText: {
     color: COLORS.textSecondary,
     fontFamily: FONT_FAMILY.medium,

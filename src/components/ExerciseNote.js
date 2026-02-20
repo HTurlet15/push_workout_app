@@ -14,7 +14,7 @@ import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../theme/theme';
  *
  * Notes persist across views (Previous, Current, Next) and are
  * always editable by tapping, regardless of edit mode.
- * Uses DM Sans Italic for visual distinction from data content.
+ * Supports multiline — text wraps automatically instead of scrolling.
  *
  * @param {string|undefined} note    - Current note text.
  * @param {boolean} editMode         - Whether global edit mode is active.
@@ -38,7 +38,7 @@ export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
     );
   }
 
-  // ── Editing: inline TextInput ──
+  // ── Editing: multiline TextInput ──
   if (editing) {
     return (
       <View style={styles.noteStrip}>
@@ -48,7 +48,8 @@ export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
           onChangeText={onUpdateNote}
           placeholder="Write a note..."
           placeholderTextColor={COLORS.mediumGray}
-          returnKeyType="done"
+          multiline
+          textAlignVertical="top"
           autoFocus
           onSubmitEditing={() => setEditing(false)}
           onBlur={() => setEditing(false)}
@@ -57,7 +58,7 @@ export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
     );
   }
 
-  // ── Display: tappable note strip ──
+  // ── Display: tappable note strip with text wrapping ──
   return (
     <Pressable
       style={({ pressed }) => [styles.noteStrip, pressed && styles.noteStripPressed]}
@@ -69,7 +70,7 @@ export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
 }
 
 const styles = StyleSheet.create({
-  /** Yellow strip container - consistent height whether reading or editing */
+  /** Yellow strip container — grows vertically with multiline content */
   noteStrip: {
     backgroundColor: COLORS.noteBackground,
     borderLeftWidth: SIZE.noteBorderLeft,
@@ -82,13 +83,14 @@ const styles = StyleSheet.create({
   noteStripPressed: {
     backgroundColor: COLORS.noteBackgroundPressed,
   },
-  /** Display text: italic for visual distinction from data */
+  /** Display text: italic, wraps naturally across lines */
   noteText: {
     color: COLORS.noteText,
     fontSize: FONT_SIZE.caption,
     fontFamily: FONT_FAMILY.italic,
+    lineHeight: FONT_SIZE.caption * 1.5,
   },
-  /** Edit input: matches noteText styling to prevent layout shift */
+  /** Edit input: multiline, grows with content */
   noteInput: {
     fontSize: FONT_SIZE.caption,
     color: COLORS.noteText,
@@ -96,8 +98,9 @@ const styles = StyleSheet.create({
     padding: 0,
     margin: 0,
     minHeight: SPACING.md,
+    textAlignVertical: 'top',
   },
-  /** "add note..." button - same yellow theme as note strip */
+  /** "add note..." button — same yellow theme as note strip */
   addNoteBtn: {
     flexDirection: 'row',
     alignItems: 'center',
