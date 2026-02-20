@@ -26,9 +26,8 @@ import TimerPicker from '../components/TimerPicker';
  *
  * Rest timer flow:
  * - Each exercise has its own restTimerSeconds in its data
- * - Tapping the rest badge in an exercise footer sets the global timer
- *   to that exercise's rest duration via updateDuration
- * - The global timer in BottomBar counts down independently
+ * - Normal mode: tap rest badge → sets global timer to that exercise's rest
+ * - Edit mode: tap rest badge → inline edit to change the exercise's rest time
  *
  * All workout mutations are defined here and passed down via callbacks.
  * Data flows down, events flow up.
@@ -175,6 +174,17 @@ export default function WorkoutScreen() {
     }));
   };
 
+  /** Update the rest timer duration for a specific exercise */
+  const handleUpdateRest = (exerciseId, seconds) => {
+    setWorkout((prev) => ({
+      ...prev,
+      exercises: prev.exercises.map((exercise) => {
+        if (exercise.id !== exerciseId) return exercise;
+        return { ...exercise, restTimerSeconds: seconds };
+      }),
+    }));
+  };
+
   /**
    * Insert a new exercise after the given exercise with 3 empty sets.
    * Includes default restTimerSeconds. Sets newExerciseId for scroll-to.
@@ -228,8 +238,7 @@ export default function WorkoutScreen() {
   };
 
   /**
-   * Tap rest badge in exercise footer → set global timer to that exercise's rest.
-   * Looks up the exercise's own restTimerSeconds from workout data.
+   * Tap rest badge in normal mode → set global timer to that exercise's rest.
    */
   const handleRestPress = (exerciseId) => {
     const exercise = workout.exercises.find((e) => e.id === exerciseId);
@@ -304,6 +313,7 @@ export default function WorkoutScreen() {
               onAddExercise={handleAddExercise}
               onDeleteExercise={handleDeleteExercise}
               onRestPress={handleRestPress}
+              onUpdateRest={handleUpdateRest}
               editMode={editMode}
             />
           </View>
