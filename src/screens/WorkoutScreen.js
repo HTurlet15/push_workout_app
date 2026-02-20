@@ -22,12 +22,14 @@ import TimerPicker from '../components/TimerPicker';
  * - Handles session rotation (previous → current → next) after 12h
  * - Manages edit mode state for add/delete sets, exercises, and notes
  * - Provides rest timer with configurable duration
+ * - Auto-starts rest timer when a set is completed (weight + reps filled)
  * - Scrolls to newly added exercises using onLayout measurement
  *
  * Rest timer flow:
  * - Each exercise has its own restTimerSeconds in its data
- * - Normal mode: tap rest badge → sets global timer to that exercise's rest
- * - Edit mode: tap rest badge → inline edit to change the exercise's rest time
+ * - Completing a set → auto-starts timer with that exercise's rest duration
+ * - Tapping rest badge in normal mode → sets timer to that exercise's rest
+ * - Tapping rest badge in edit mode → inline edit rest duration
  *
  * All workout mutations are defined here and passed down via callbacks.
  * Data flows down, events flow up.
@@ -49,7 +51,7 @@ export default function WorkoutScreen() {
   /** Rest timer hook — manages countdown lifecycle */
   const {
     timerState, timeRemaining, duration,
-    playPause, reset, updateDuration,
+    playPause, reset, updateDuration, startWithDuration,
   } = useRestTimer(90);
 
   // ── Persisted workout data ────────────────────────────────
@@ -80,23 +82,55 @@ export default function WorkoutScreen() {
   const findExercise = (sourceWorkout, exerciseId) =>
     sourceWorkout.exercises.find((e) => e.id === exerciseId);
 
+  /**
+   * Check if updating a field would complete a set.
+   * A set is complete when both weight and reps are filled.
+   */
+  const wouldCompleteSet = (exerciseId, setId, field, value) => {
+    const exercise = workout.exercises.find((e) => e.id === exerciseId);
+    if (!exercise) return false;
+
+    const set = exercise.sets.find((s) => s.id === setId);
+    if (!set) return false;
+
+    // Build the would-be state after this update
+    const weightFilled = field === 'weight' ? true : set.weight.state === 'filled';
+    const repsFilled = field === 'reps' ? true : set.reps.state === 'filled';
+
+    // Only auto-start if this update is what completes the set (not already complete)
+    const wasAlreadyComplete = set.weight.state === 'filled' && set.reps.state === 'filled';
+    return weightFilled && repsFilled && !wasAlreadyComplete;
+  };
+
   // ── Workout mutation handlers ─────────────────────────────
 
-  /** Update a single field (weight/reps/rir) in a set */
+  /**
+   * Update a single field (weight/reps/rir) in a set.
+   * If this update completes the set, auto-starts the rest timer.
+   */
   const handleUpdateSet = (exerciseId, setId, field, value) => {
+    // Check before mutation if this will complete the set
+    const willComplete = wouldCompleteSet(exerciseId, setId, field, value);
+    const exercise = workout.exercises.find((e) => e.id === exerciseId);
+
     setWorkout((prev) => ({
       ...prev,
-      exercises: prev.exercises.map((exercise) => {
-        if (exercise.id !== exerciseId) return exercise;
+      exercises: prev.exercises.map((ex) => {
+        if (ex.id !== exerciseId) return ex;
         return {
-          ...exercise,
-          sets: exercise.sets.map((set) => {
+          ...ex,
+          sets: ex.sets.map((set) => {
             if (set.id !== setId) return set;
             return { ...set, [field]: { value, state: 'filled' } };
           }),
         };
       }),
     }));
+
+    // Auto-start timer when a set is just completed
+    if (willComplete && exercise?.restTimerSeconds) {
+      startWithDuration(exercise.restTimerSeconds);
+    }
   };
 
   /** Update a field in the next workout (marks as user-edited) */

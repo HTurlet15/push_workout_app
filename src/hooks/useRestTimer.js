@@ -27,8 +27,8 @@ export default function useRestTimer(initialDuration = 90) {
   }, []);
 
   /**
-   * Starts or resumes the countdown.
-   * Creates an interval that decrements timeRemaining every second.
+   * Starts the countdown from the current timeRemaining.
+   * Creates an interval that decrements every second.
    */
   const play = useCallback(() => {
     if (timerState === 'done') return;
@@ -79,8 +79,7 @@ export default function useRestTimer(initialDuration = 90) {
   }, [clearTimer, duration]);
 
   /**
-   * Updates the timer duration.
-   * Also resets the current countdown to the new duration.
+   * Updates the timer duration and resets to idle.
    *
    * @param {number} newDuration - New duration in seconds.
    */
@@ -92,8 +91,30 @@ export default function useRestTimer(initialDuration = 90) {
   }, [clearTimer]);
 
   /**
-   * Cleanup interval on unmount to prevent memory leaks.
+   * Sets a specific duration and immediately starts the countdown.
+   * Used for auto-starting the timer when a set is completed.
+   *
+   * @param {number} seconds - Duration in seconds to count down from.
    */
+  const startWithDuration = useCallback((seconds) => {
+    clearTimer();
+    setDuration(seconds);
+    setTimeRemaining(seconds);
+    setTimerState('running');
+
+    intervalRef.current = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev <= 1) {
+          clearTimer();
+          setTimerState('done');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, [clearTimer]);
+
+  /** Cleanup interval on unmount */
   useEffect(() => {
     return () => clearTimer();
   }, [clearTimer]);
@@ -105,5 +126,6 @@ export default function useRestTimer(initialDuration = 90) {
     playPause,
     reset,
     updateDuration,
+    startWithDuration,
   };
 }
