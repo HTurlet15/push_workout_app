@@ -6,26 +6,31 @@ import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../theme/theme';
 /**
  * Set row for the Next view with delta indicators.
  *
- * Each field shows the planned next value in an orange-tinted badge,
+ * Each field shows the planned next value in a neutral badge,
  * with a fixed-width delta indicator on the right (↑, ↓, or =).
  * Delta compares the next planned value against the current session value.
  *
+ * Supports kg/lbs conversion via displayWeight and unit props from parent.
+ * Delta calculation uses raw kg values for accuracy, display uses converted.
+ *
  * Color coding:
- * - Inherited (auto-filled) values: muted orange text (nextBadgeText)
- * - User-edited values: bold orange text (nextEdited)
+ * - Inherited (auto-filled) values: muted text (nextBadgeText)
+ * - User-edited values: bold primary text (nextEdited)
  * - Delta up: green | Delta down: red | Same: gray
  *
- * No RIR column - future perceived effort can't be pre-planned.
+ * No RIR column — future perceived effort can't be pre-planned.
  *
  * @param {number} index              - Zero-based set position, displayed as 1-based.
  * @param {Object} currentSet         - Current session set data (for delta comparison).
  * @param {Object} nextSet            - Next planned set data (raw number or {value, edited}).
+ * @param {string} unit               - Weight unit for display ('kg' or 'lbs').
+ * @param {Function} displayWeight    - Converts kg value for display in current unit.
  * @param {Function} onUpdateNextSet  - Callback: (field, value) for next set edits.
  */
-export default function NextSetRow({ index, currentSet, nextSet, onUpdateNextSet }) {
+export default function NextSetRow({ index, currentSet, nextSet, unit = 'kg', displayWeight, onUpdateNextSet }) {
   /**
    * Resolves a next field into a normalized object.
-   * Raw numbers are inherited (gray), objects with edited flag are user-modified (orange).
+   * Raw numbers are inherited (gray), objects with edited flag are user-modified.
    */
   const resolveNextField = (field) => {
     if (field === null || field === undefined) {
@@ -38,7 +43,7 @@ export default function NextSetRow({ index, currentSet, nextSet, onUpdateNextSet
   };
 
   /**
-   * Computes the delta between next and current values.
+   * Computes the delta between next and current values (in raw kg).
    * Returns a label string and corresponding color style.
    */
   const getDelta = (nextValue, currentValue) => {
@@ -57,8 +62,13 @@ export default function NextSetRow({ index, currentSet, nextSet, onUpdateNextSet
 
   const nextWeight = resolveNextField(nextSet.weight);
   const nextReps = resolveNextField(nextSet.reps);
+
+  /** Deltas computed on raw kg values for accuracy */
   const weightDelta = getDelta(nextWeight.value, currentSet.weight.value);
   const repsDelta = getDelta(nextReps.value, currentSet.reps.value);
+
+  /** Convert weight for display if displayWeight function is provided */
+  const displayWeightValue = displayWeight ? displayWeight(nextWeight.value) : nextWeight.value;
 
   return (
     <View style={styles.container}>
@@ -72,8 +82,8 @@ export default function NextSetRow({ index, currentSet, nextSet, onUpdateNextSet
         <View style={styles.badgeGroup}>
           <View style={styles.badgeWrapper}>
             <SetInput
-              value={nextWeight.value}
-              unit="kg"
+              value={displayWeightValue}
+              unit={unit}
               state={nextWeight.state}
               onChangeValue={(val) => onUpdateNextSet?.('weight', val)}
               badgeColor={COLORS.nextBadge}
@@ -127,11 +137,11 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   /** Flex proportions match header (3:2 for weight:reps) */
-  weightCell: { 
-    flex: 3 
+  weightCell: {
+    flex: 3,
   },
-  repsCell: { 
-    flex: 2 
+  repsCell: {
+    flex: 2,
   },
   /** Badge + delta laid out horizontally */
   badgeGroup: {
@@ -140,7 +150,7 @@ const styles = StyleSheet.create({
     paddingRight: SPACING.sm,
   },
   badgeWrapper: { flex: 1 },
-  /** Fixed-width column for delta indicators - ensures alignment */
+  /** Fixed-width column for delta indicators — ensures alignment */
   deltaBox: {
     width: SIZE.deltaBox,
     alignItems: 'center',
