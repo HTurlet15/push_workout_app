@@ -1,14 +1,18 @@
-import { View, Pressable, TextInput, StyleSheet } from 'react-native';
-import { useState, useRef } from 'react';
+import { View, Pressable, TextInput, Animated, StyleSheet } from 'react-native';
+import { useState, useRef, useEffect } from 'react';
 import Text from './Text';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY } from '../theme/theme';
+
+/** Width of each toggle button — used for slide calculation */
+const TOGGLE_BTN_WIDTH = 32;
+const TOGGLE_PADDING = 1.5;
 
 /**
  * Footer bar at the bottom of each exercise table.
  *
  * Displays secondary exercise controls:
  * - Left: rest timer duration badge (e.g. "⏱ 90s")
- * - Right: kg/lbs unit toggle pill
+ * - Right: kg/lbs unit toggle pill with animated sliding indicator
  *
  * Rest badge behavior changes with edit mode:
  * - Normal mode: tap → sets global timer to this value
@@ -33,9 +37,21 @@ export default function SetFooter({
   const [draft, setDraft] = useState('');
   const inputRef = useRef(null);
 
+  /** Animated value for pill slider position: 0 = kg, 1 = lbs */
+  const slideAnim = useRef(new Animated.Value(unit === 'lbs' ? 1 : 0)).current;
+
+  /** Animate pill slider when unit changes */
+  useEffect(() => {
+    Animated.spring(slideAnim, {
+      toValue: unit === 'lbs' ? 1 : 0,
+      friction: 8,
+      tension: 120,
+      useNativeDriver: true,
+    }).start();
+  }, [unit, slideAnim]);
+
   const hasControls = restSeconds != null || onToggleUnit;
 
-  // Minimal footer bar when no controls are provided
   if (!hasControls) {
     return <View style={styles.minimalBar} />;
   }
@@ -68,7 +84,6 @@ export default function SetFooter({
   const renderRestBadge = () => {
     if (restSeconds == null) return null;
 
-    // Edit mode + actively editing: inline TextInput with black underline
     if (editingRest) {
       return (
         <View style={styles.restEditRow}>
@@ -91,7 +106,6 @@ export default function SetFooter({
       );
     }
 
-    // Edit mode: underline cue — signals "tappable to edit"
     if (editMode) {
       return (
         <Pressable
@@ -107,7 +121,6 @@ export default function SetFooter({
       );
     }
 
-    // Normal mode: tap to set global timer
     return (
       <Pressable
         style={({ pressed }) => [styles.restBadge, pressed && styles.restBadgePressed]}
@@ -119,25 +132,43 @@ export default function SetFooter({
     );
   };
 
+  // ── Pill slider translateX ────────────────────────────────
+
+  const pillTranslateX = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, TOGGLE_BTN_WIDTH],
+  });
+
   return (
     <View style={styles.container}>
       {renderRestBadge()}
 
       <View style={styles.spacer} />
 
-      {/* kg/lbs pill toggle — right side */}
+      {/* kg/lbs pill toggle with animated sliding indicator */}
       {onToggleUnit && (
         <View style={styles.togglePill}>
+          {/* Animated white indicator that slides between positions */}
+          <Animated.View
+            style={[
+              styles.toggleIndicator,
+              { transform: [{ translateX: pillTranslateX }] },
+            ]}
+          />
+
+          {/* kg button — text only, indicator slides behind */}
           <Pressable
-            style={[styles.toggleBtn, unit === 'kg' && styles.toggleBtnActive]}
+            style={styles.toggleBtn}
             onPress={() => unit !== 'kg' && onToggleUnit('kg')}
           >
             <Text style={[styles.toggleText, unit === 'kg' && styles.toggleTextActive]}>
               kg
             </Text>
           </Pressable>
+
+          {/* lbs button */}
           <Pressable
-            style={[styles.toggleBtn, unit === 'lbs' && styles.toggleBtnActive]}
+            style={styles.toggleBtn}
             onPress={() => unit !== 'lbs' && onToggleUnit('lbs')}
           >
             <Text style={[styles.toggleText, unit === 'lbs' && styles.toggleTextActive]}>
@@ -151,14 +182,12 @@ export default function SetFooter({
 }
 
 const styles = StyleSheet.create({
-  /** Minimal bar when no controls */
   minimalBar: {
     height: SPACING.sm,
     backgroundColor: COLORS.lightGray,
     borderBottomLeftRadius: RADIUS.sm,
     borderBottomRightRadius: RADIUS.sm,
   },
-  /** Footer container with controls */
   container: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -174,7 +203,6 @@ const styles = StyleSheet.create({
 
   // ── Rest timer badge ────────────────────────────────────
 
-  /** Normal mode rest badge */
   restBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -191,7 +219,6 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.medium,
     color: COLORS.textSecondary,
   },
-  /** "s" suffix next to the editable input */
   restUnit: {
     fontSize: FONT_SIZE.sm,
     fontFamily: FONT_FAMILY.medium,
@@ -199,15 +226,13 @@ const styles = StyleSheet.create({
     marginLeft: 1,
   },
 
-  // ── Rest editable (edit mode) ───────────────────────────
+  // ── Rest editable ───────────────────────────────────────
 
-  /** Row layout for icon + underlined value + "s" */
   restEditRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
   },
-  /** Underline cue in edit mode — gray, signals "tappable" */
   restEditable: {
     borderBottomWidth: 1.5,
     borderBottomColor: COLORS.mediumGray,
@@ -215,11 +240,9 @@ const styles = StyleSheet.create({
     minWidth: 24,
     alignItems: 'center',
   },
-  /** Active editing — black underline */
   restEditableActive: {
     borderBottomColor: COLORS.textPrimary,
   },
-  /** Inline TextInput for rest time editing */
   restInput: {
     fontSize: FONT_SIZE.sm,
     fontFamily: FONT_FAMILY.medium,
@@ -230,26 +253,38 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // ── kg/lbs pill toggle ──────────────────────────────────
+  // ── Animated pill toggle ────────────────────────────────
 
+  /** Outer pill container — positions the animated indicator */
   togglePill: {
     flexDirection: 'row',
     backgroundColor: COLORS.mediumGray,
     borderRadius: RADIUS.xs,
-    padding: 1.5,
+    padding: TOGGLE_PADDING,
+    position: 'relative',
   },
-  toggleBtn: {
-    paddingVertical: 2,
-    paddingHorizontal: SPACING.sm,
-    borderRadius: RADIUS.xs - 1,
-  },
-  toggleBtnActive: {
+  /** Animated white sliding indicator behind active button */
+  toggleIndicator: {
+    position: 'absolute',
+    top: TOGGLE_PADDING,
+    left: TOGGLE_PADDING,
+    width: TOGGLE_BTN_WIDTH,
+    height: '100%',
     backgroundColor: COLORS.white,
+    borderRadius: RADIUS.xs - 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 2,
     elevation: 1,
+  },
+  /** Toggle button — transparent, text only (indicator slides behind) */
+  toggleBtn: {
+    width: TOGGLE_BTN_WIDTH,
+    paddingVertical: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
   },
   toggleText: {
     fontSize: FONT_SIZE.xs + 1,
