@@ -14,6 +14,9 @@ import ExerciseNote from './ExerciseNote';
 import useSlideTransition from '../hooks/useSlideTransition';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../theme/theme';
 
+/** Conversion factor — all data is stored in kg */
+const KG_TO_LBS = 2.20462;
+
 /**
  * View-to-border-color mapping.
  * Each view gets a distinct left border accent for quick visual identification.
@@ -30,6 +33,9 @@ const VIEW_BORDER_COLORS = {
  * Manages three view modes (Previous / Current / Next) with animated
  * horizontal slide transitions. Each view renders its own header,
  * data rows, and shared components (note strip, footer).
+ *
+ * Features a local kg/lbs toggle — conversion is purely visual,
+ * all data is stored in kg. The toggle state is per-exercise.
  *
  * In edit mode, additional controls appear:
  * - Red delete button to the left of the exercise name
@@ -50,6 +56,7 @@ const VIEW_BORDER_COLORS = {
  * @param {Function} onUpdateName      - Callback: (exerciseId, newName).
  * @param {Function} onAddExercise     - Callback: (afterExerciseId).
  * @param {Function} onDeleteExercise  - Callback: (exerciseId).
+ * @param {number} restSeconds         - Rest timer duration in seconds.
  * @param {boolean} editMode           - Whether edit controls are visible.
  */
 export default function ExerciseCard({
@@ -64,6 +71,7 @@ export default function ExerciseCard({
   onUpdateName,
   onAddExercise,
   onDeleteExercise,
+  restSeconds = 90,
   editMode = false,
 }) {
   const { width } = useWindowDimensions();
@@ -72,6 +80,9 @@ export default function ExerciseCard({
   /** Controls whether the name TextInput is visible */
   const [editingName, setEditingName] = useState(false);
   const nameInputRef = useRef(null);
+
+  /** Weight unit toggle — local to this exercise card */
+  const [unit, setUnit] = useState('kg');
 
   /** Whether the exercise has a placeholder name (just created) */
   const isPlaceholderName = !exercise.name || exercise.name === 'New Exercise';
@@ -89,6 +100,21 @@ export default function ExerciseCard({
     inputRange: [-1, 0, 1],
     outputRange: [0, 1, 0],
   });
+
+  // ── Unit helpers ──────────────────────────────────────────
+
+  /** Convert a kg value for display based on current unit */
+  const displayWeight = (kgValue) => {
+    if (kgValue == null) return null;
+    if (unit === 'lbs') return Math.round(kgValue * KG_TO_LBS * 10) / 10;
+    return kgValue;
+  };
+
+  /** Convert a user-entered value back to kg for storage */
+  const toKg = (inputValue) => {
+    if (unit === 'lbs') return Math.round((inputValue / KG_TO_LBS) * 10) / 10;
+    return inputValue;
+  };
 
   // ── Exercise Name ─────────────────────────────────────────
 
@@ -113,7 +139,7 @@ export default function ExerciseCard({
       );
     }
 
-    // Edit mode: tappable with underline cue — signals "this is editable"
+    // Edit mode: tappable with underline cue
     if (editMode) {
       return (
         <Pressable
@@ -136,7 +162,7 @@ export default function ExerciseCard({
       );
     }
 
-    // Normal mode: static text, no interaction
+    // Normal mode: static text
     return (
       <Text variant="exercise" style={styles.exerciseName}>
         {exercise.name}
@@ -144,32 +170,42 @@ export default function ExerciseCard({
     );
   };
 
+  // ── Shared footer for all views ───────────────────────────
+
+  const renderFooter = () => (
+    <SetFooter
+      restSeconds={restSeconds}
+      unit={unit}
+      onToggleUnit={setUnit}
+    />
+  );
+
   // ── Current View ──────────────────────────────────────────
 
   const renderCurrentView = () => (
     <>
       <SetHeader />
 
-      {/* Note strip: editable in all views, "add note" only in edit mode */}
       <ExerciseNote
         note={exercise.note}
         editMode={editMode}
         onUpdateNote={(text) => onUpdateNote?.(exercise.id, text)}
       />
 
-      {/* Set rows with inline badge editing */}
       {exercise.sets.map((set, index) => (
         <SetRow
           key={set.id}
           index={index}
           set={set}
+          unit={unit}
+          displayWeight={displayWeight}
+          toKg={toKg}
           editMode={editMode}
           onUpdateSet={(field, value) => onUpdateSet?.(exercise.id, set.id, field, value)}
           onDelete={() => onDeleteSet?.(exercise.id, set.id)}
         />
       ))}
 
-      {/* Dashed "Add set" button — only visible in edit mode */}
       {editMode && (
         <Pressable
           style={({ pressed }) => [styles.addSetBtn, pressed && styles.addSetBtnPressed]}
@@ -180,7 +216,7 @@ export default function ExerciseCard({
         </Pressable>
       )}
 
-      <SetFooter />
+      {renderFooter()}
     </>
   );
 
@@ -199,25 +235,24 @@ export default function ExerciseCard({
       <>
         <PreviousSetHeader />
 
-        {/* Note is shared across views — same data, always tappable */}
         <ExerciseNote
           note={exercise.note}
           editMode={editMode}
           onUpdateNote={(text) => onUpdateNote?.(exercise.id, text)}
         />
 
-        {/* Read-only historical rows */}
         {previousExercise.sets.map((set, index) => (
           <PreviousSetRow
             key={set.id}
             index={index}
-            weight={set.weight}
+            weight={displayWeight(set.weight)}
             reps={set.reps}
             rir={set.rir}
+            unit={unit}
           />
         ))}
 
-        <SetFooter />
+        {renderFooter()}
       </>
     );
   };
@@ -243,7 +278,6 @@ export default function ExerciseCard({
           onUpdateNote={(text) => onUpdateNote?.(exercise.id, text)}
         />
 
-        {/* Delta rows: compare current values with next planned values */}
         {exercise.sets.map((set, index) => {
           const nextSet = nextExercise.sets[index];
           if (!nextSet) return null;
@@ -254,12 +288,14 @@ export default function ExerciseCard({
               index={index}
               currentSet={set}
               nextSet={nextSet}
+              unit={unit}
+              displayWeight={displayWeight}
               onUpdateNextSet={(field, value) => onUpdateNextSet?.(exercise.id, nextSet.id, field, value)}
             />
           );
         })}
 
-        <SetFooter />
+        {renderFooter()}
       </>
     );
   };
@@ -270,7 +306,6 @@ export default function ExerciseCard({
     <View style={styles.card}>
       {/* Title row: delete button + exercise name + view selector */}
       <View style={styles.titleRow}>
-        {/* Delete exercise button — red circle left of the name */}
         {editMode && (
           <Pressable
             style={({ pressed }) => [
@@ -283,7 +318,6 @@ export default function ExerciseCard({
           </Pressable>
         )}
 
-        {/* Exercise name: static, underlined tappable, or TextInput */}
         {renderExerciseName()}
 
         <ViewSelector activeView={displayedView} onChangeView={transitionTo} />
@@ -301,7 +335,7 @@ export default function ExerciseCard({
         </Animated.View>
       </View>
 
-      {/* Dashed blue "Add exercise" button — inserts a new exercise below this one */}
+      {/* Dashed blue "Add exercise" button */}
       {editMode && (
         <Pressable
           style={({ pressed }) => [styles.addExerciseBtn, pressed && styles.addExerciseBtnPressed]}
@@ -316,11 +350,9 @@ export default function ExerciseCard({
 }
 
 const styles = StyleSheet.create({
-  /** Outer card wrapper with vertical margin between exercises */
   card: {
     marginVertical: SPACING.md,
   },
-  /** Table container with left accent border and card shadow */
   tableCard: {
     backgroundColor: COLORS.white,
     borderRadius: RADIUS.md,
@@ -329,7 +361,6 @@ const styles = StyleSheet.create({
     borderLeftColor: COLORS.viewCurrent,
     overflow: 'hidden',
   },
-  /** Exercise name + view selector row */
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -337,35 +368,29 @@ const styles = StyleSheet.create({
     marginVertical: SPACING.md,
   },
 
-  // ── Exercise name styles ──────────────────────────────────
+  // ── Exercise name ─────────────────────────────────────────
 
-  /** Static exercise name (normal mode) */
   exerciseName: {
     color: COLORS.textPrimary,
     flex: 1,
   },
-  /** Placeholder text for unnamed exercises — muted italic hint */
   exerciseNamePlaceholder: {
     color: COLORS.textMuted,
     fontFamily: FONT_FAMILY.medium,
     fontStyle: 'italic',
   },
-  /** Underline cue in edit mode — signals "tappable to rename" */
   nameEditable: {
     flex: 1,
     borderBottomWidth: 1.5,
     borderBottomColor: COLORS.mediumGray,
     paddingBottom: 2,
   },
-  /** Stronger underline when actively editing */
   nameEditableActive: {
     borderBottomColor: COLORS.viewCurrent,
   },
-  /** Pressed feedback on name tap */
   nameEditablePressed: {
     borderBottomColor: COLORS.textSecondary,
   },
-  /** Inline TextInput for name editing — matches exercise Text variant styling */
   nameInput: {
     fontSize: FONT_SIZE.lg,
     fontFamily: FONT_FAMILY.semibold,
@@ -377,7 +402,6 @@ const styles = StyleSheet.create({
 
   // ── Delete exercise ───────────────────────────────────────
 
-  /** Red circle to delete entire exercise — left of the name in edit mode */
   deleteExerciseBtn: {
     width: SIZE.deleteBtn + 4,
     height: SIZE.deleteBtn + 4,
@@ -391,14 +415,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.errorPressed,
   },
 
-  // ── Shared styles ─────────────────────────────────────────
+  // ── Shared ────────────────────────────────────────────────
 
-  /** Empty state message for missing previous/next data */
   emptyMessage: {
     textAlign: 'center',
     paddingVertical: SPACING.lg,
   },
-  /** Dashed gray "Add set" button in edit mode */
   addSetBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -420,7 +442,6 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontFamily: FONT_FAMILY.semibold,
   },
-  /** Dashed blue "Add exercise" button below each card in edit mode */
   addExerciseBtn: {
     flexDirection: 'row',
     alignItems: 'center',

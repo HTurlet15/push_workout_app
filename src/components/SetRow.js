@@ -19,7 +19,7 @@ import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../theme/theme';
  * @param {boolean} editMode    - Whether edit controls (delete button) are visible.
  * @param {Function} onDelete   - Callback when delete button is pressed.
  */
-export default function SetRow({ index, set, onUpdateSet, editMode = false, onDelete }) {
+export default function SetRow({ index, set, onUpdateSet, editMode = false, onDelete, unit, displayWeight, toKg }) {
   // A set is complete when both weight and reps have been filled by the user 
   const isCompleted =
     set.weight.state === 'filled' && set.reps.state === 'filled';
@@ -44,10 +44,10 @@ export default function SetRow({ index, set, onUpdateSet, editMode = false, onDe
       {/* Weight badge */}
       <View style={styles.weightCell}>
         <SetInput
-          value={set.weight.value}
-          unit="kg"
+          value={displayWeight(set.weight.value)}
+          unit={unit}
           state={set.weight.state}
-          onChangeValue={(val) => onUpdateSet?.('weight', val)}
+          onChangeValue={(val) => onUpdateSet?.('weight', toKg(val))}
           completed={isCompleted}
         />
       </View>
