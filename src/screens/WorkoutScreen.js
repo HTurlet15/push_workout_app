@@ -24,9 +24,14 @@ import TimerPicker from '../components/TimerPicker';
  * - Provides rest timer with configurable duration
  * - Scrolls to newly added exercises using onLayout measurement
  *
- * All workout mutations (update set, add/delete set, add/delete exercise,
- * update note, rename exercise) are defined here and passed down to
- * ExerciseCard via callbacks. Data flows down, events flow up.
+ * Rest timer flow:
+ * - Each exercise has its own restTimerSeconds in its data
+ * - Tapping the rest badge in an exercise footer sets the global timer
+ *   to that exercise's rest duration via updateDuration
+ * - The global timer in BottomBar counts down independently
+ *
+ * All workout mutations are defined here and passed down via callbacks.
+ * Data flows down, events flow up.
  */
 export default function WorkoutScreen() {
   const insets = useSafeAreaInsets();
@@ -49,7 +54,6 @@ export default function WorkoutScreen() {
   } = useRestTimer(90);
 
   // ── Persisted workout data ────────────────────────────────
-  // Each workout is saved to AsyncStorage and restored on app launch.
 
   const [workout, setWorkout, workoutLoading] = usePersistedState(
     'push_current_workout', MOCK_WORKOUT
@@ -78,7 +82,6 @@ export default function WorkoutScreen() {
     sourceWorkout.exercises.find((e) => e.id === exerciseId);
 
   // ── Workout mutation handlers ─────────────────────────────
-  // Immutable updates using functional setState for safety.
 
   /** Update a single field (weight/reps/rir) in a set */
   const handleUpdateSet = (exerciseId, setId, field, value) => {
@@ -174,7 +177,7 @@ export default function WorkoutScreen() {
 
   /**
    * Insert a new exercise after the given exercise with 3 empty sets.
-   * Sets newExerciseId so that onLayout can scroll to it once rendered.
+   * Includes default restTimerSeconds. Sets newExerciseId for scroll-to.
    */
   const handleAddExercise = (afterExerciseId) => {
     const id = `exercise-${Date.now()}`;
@@ -184,6 +187,7 @@ export default function WorkoutScreen() {
         id,
         name: 'New Exercise',
         note: undefined,
+        restTimerSeconds: 90,
         sets: [
           { id: `set-${Date.now()}-1`, weight: { value: null, state: 'empty' }, reps: { value: null, state: 'empty' }, rir: { value: null, state: 'empty' } },
           { id: `set-${Date.now()}-2`, weight: { value: null, state: 'empty' }, reps: { value: null, state: 'empty' }, rir: { value: null, state: 'empty' } },
@@ -223,21 +227,25 @@ export default function WorkoutScreen() {
     }
   };
 
-  /** Set the rest timer duration from an exercise's rest value */
-  const handleRestPress = (seconds) => {
-    updateDuration(seconds);
+  /**
+   * Tap rest badge in exercise footer → set global timer to that exercise's rest.
+   * Looks up the exercise's own restTimerSeconds from workout data.
+   */
+  const handleRestPress = (exerciseId) => {
+    const exercise = workout.exercises.find((e) => e.id === exerciseId);
+    if (exercise?.restTimerSeconds) {
+      updateDuration(exercise.restTimerSeconds);
+    }
   };
 
   // ── Derived state ─────────────────────────────────────────
 
-  /** Count of fully completed sets (weight + reps filled) */
   const completedSets = workout.exercises.reduce((total, exercise) =>
     total + exercise.sets.filter(
       (set) => set.weight.state === 'filled' && set.reps.state === 'filled'
     ).length, 0
   );
 
-  /** Total sets across all exercises */
   const totalSets = workout.exercises.reduce(
     (total, exercise) => total + exercise.sets.length, 0
   );
@@ -256,7 +264,6 @@ export default function WorkoutScreen() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      {/* Keyboard-aware scrollable content area */}
       <KeyboardAwareScrollView
         ref={scrollRef}
         style={styles.scrollView}
@@ -266,7 +273,6 @@ export default function WorkoutScreen() {
         enableOnAndroid={true}
         extraScrollHeight={120}
       >
-        {/* Workout header: title, progress badge, last session date */}
         <View style={styles.header}>
           <Text variant="caption" style={styles.headerLabel}>WORKOUT</Text>
           <Text variant="screenTitle">{workout.name || 'Pectoraux'}</Text>
@@ -280,7 +286,6 @@ export default function WorkoutScreen() {
           </View>
         </View>
 
-        {/* Exercise cards — wrapped in View with onLayout for scroll targeting */}
         {workout.exercises.map((exercise) => (
           <View
             key={exercise.id}
@@ -298,7 +303,6 @@ export default function WorkoutScreen() {
               onUpdateName={handleUpdateName}
               onAddExercise={handleAddExercise}
               onDeleteExercise={handleDeleteExercise}
-              restSeconds={duration}
               onRestPress={handleRestPress}
               editMode={editMode}
             />
@@ -306,7 +310,6 @@ export default function WorkoutScreen() {
         ))}
       </KeyboardAwareScrollView>
 
-      {/* Bottom navigation bar with timer and edit controls */}
       <BottomBar
         timerState={timerState}
         timeRemaining={timeRemaining}
@@ -319,7 +322,6 @@ export default function WorkoutScreen() {
         bottomInset={insets.bottom}
       />
 
-      {/* Timer duration picker overlay */}
       <TimerPicker
         visible={showTimerPicker}
         currentDuration={duration}
@@ -334,36 +336,30 @@ export default function WorkoutScreen() {
 }
 
 const styles = StyleSheet.create({
-  /** Full-screen container */
   screen: {
     flex: 1,
     backgroundColor: COLORS.screenBackground,
   },
-  /** Centered loading spinner */
   loadingContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  /** Workout header block */
   header: {
     alignItems: 'center',
     paddingVertical: SPACING.lg,
   },
-  /** "WORKOUT" label above the title */
   headerLabel: {
     textTransform: 'uppercase',
     letterSpacing: 2,
     color: COLORS.textSecondary,
     marginBottom: SPACING.xs,
   },
-  /** Progress badge + last date row */
   headerMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: SPACING.sm,
     gap: SPACING.sm,
   },
-  /** Green progress counter badge */
   progressBadge: {
     backgroundColor: COLORS.successLight,
     paddingVertical: SPACING.xs,
@@ -374,15 +370,12 @@ const styles = StyleSheet.create({
     color: COLORS.success,
     fontFamily: FONT_FAMILY.medium,
   },
-  /** "· 4 days ago" text */
   lastDate: {
     color: COLORS.textSecondary,
   },
-  /** Scroll container */
   scrollView: {
     flex: 1,
   },
-  /** Inner scroll padding — bottom padding clears the BottomBar */
   scrollContent: {
     paddingHorizontal: SPACING.md,
     paddingBottom: SPACING.xxl,

@@ -54,7 +54,7 @@ const MOCK_WORKOUT = {
     {
       id: 'e2',
       name: 'Machine Press',
-      restTimerSeconds: 90,
+      restTimerSeconds: 120,
       sets: [
         {
           id: 's4',

@@ -34,16 +34,10 @@ const VIEW_BORDER_COLORS = {
  * horizontal slide transitions. Each view renders its own header,
  * data rows, and shared components (note strip, footer).
  *
- * Features a local kg/lbs toggle — conversion is purely visual,
- * all data is stored in kg. The toggle state is per-exercise.
- *
- * In edit mode, additional controls appear:
- * - Red delete button to the left of the exercise name
- * - Exercise name becomes tappable with underline cue
- * - Red delete buttons on each set row
- * - Dashed "Add set" button below the last row
- * - "Add note..." placeholder when no note exists
- * - Dashed blue "Add exercise" button below the card
+ * Features:
+ * - Local kg/lbs toggle — conversion is purely visual, data stored in kg
+ * - Per-exercise rest timer displayed in footer, tap to set global timer
+ * - Edit mode controls (delete, rename, add/delete sets, notes)
  *
  * @param {Object} exercise            - Current workout exercise data.
  * @param {Object} previousExercise    - Previous session data (may be undefined).
@@ -56,7 +50,7 @@ const VIEW_BORDER_COLORS = {
  * @param {Function} onUpdateName      - Callback: (exerciseId, newName).
  * @param {Function} onAddExercise     - Callback: (afterExerciseId).
  * @param {Function} onDeleteExercise  - Callback: (exerciseId).
- * @param {number} restSeconds         - Rest timer duration in seconds.
+ * @param {Function} onRestPress       - Callback: (exerciseId) tap rest badge to set global timer.
  * @param {boolean} editMode           - Whether edit controls are visible.
  */
 export default function ExerciseCard({
@@ -71,7 +65,6 @@ export default function ExerciseCard({
   onUpdateName,
   onAddExercise,
   onDeleteExercise,
-  restSeconds = 90,
   onRestPress,
   editMode = false,
 }) {
@@ -87,6 +80,9 @@ export default function ExerciseCard({
 
   /** Whether the exercise has a placeholder name (just created) */
   const isPlaceholderName = !exercise.name || exercise.name === 'New Exercise';
+
+  /** Rest timer seconds from the exercise data, default 90 */
+  const restTimerSeconds = exercise.restTimerSeconds ?? 90;
 
   /**
    * Slide animation interpolations.
@@ -173,12 +169,13 @@ export default function ExerciseCard({
 
   // ── Shared footer for all views ───────────────────────────
 
+  /** Footer reads rest time from exercise data, tap sets global timer */
   const renderFooter = () => (
     <SetFooter
-      restSeconds={restSeconds}
+      restSeconds={restTimerSeconds}
       unit={unit}
       onToggleUnit={setUnit}
-      onRestPress={() => onRestPress?.(restSeconds)}
+      onRestPress={() => onRestPress?.(exercise.id)}
     />
   );
 
