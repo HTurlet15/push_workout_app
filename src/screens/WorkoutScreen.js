@@ -223,6 +223,11 @@ export default function WorkoutScreen() {
     }
   };
 
+  /** Set the rest timer duration from an exercise's rest value */
+  const handleRestPress = (seconds) => {
+    updateDuration(seconds);
+  };
+
   // ── Derived state ─────────────────────────────────────────
 
   /** Count of fully completed sets (weight + reps filled) */
@@ -293,6 +298,8 @@ export default function WorkoutScreen() {
               onUpdateName={handleUpdateName}
               onAddExercise={handleAddExercise}
               onDeleteExercise={handleDeleteExercise}
+              restSeconds={duration}
+              onRestPress={handleRestPress}
               editMode={editMode}
             />
           </View>

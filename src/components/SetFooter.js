@@ -20,6 +20,7 @@ export default function SetFooter({
   restSeconds,
   unit = 'kg',
   onToggleUnit,
+  onRestPress,
 }) {
   const hasControls = restSeconds != null || onToggleUnit;
 
@@ -32,10 +33,13 @@ export default function SetFooter({
     <View style={styles.container}>
       {/* Rest timer badge — left side */}
       {restSeconds != null && (
-        <View style={styles.restBadge}>
+        <Pressable
+          style={({ pressed }) => [styles.restBadge, pressed && styles.restBadgePressed]}
+          onPress={onRestPress}
+        >
           <Text style={styles.restIcon}>⏱</Text>
           <Text style={styles.restText}>{restSeconds}s</Text>
-        </View>
+        </Pressable>
       )}
 
       {/* Spacer pushes toggle to the right */}
@@ -139,5 +143,8 @@ const styles = StyleSheet.create({
   /** Active toggle label — dark text */
   toggleTextActive: {
     color: COLORS.textPrimary,
+  },
+  restBadgePressed: {
+    opacity: 0.5,
   },
 });

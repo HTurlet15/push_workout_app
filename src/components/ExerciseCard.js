@@ -72,6 +72,7 @@ export default function ExerciseCard({
   onAddExercise,
   onDeleteExercise,
   restSeconds = 90,
+  onRestPress,
   editMode = false,
 }) {
   const { width } = useWindowDimensions();
@@ -177,6 +178,7 @@ export default function ExerciseCard({
       restSeconds={restSeconds}
       unit={unit}
       onToggleUnit={setUnit}
+      onRestPress={() => onRestPress?.(restSeconds)}
     />
   );
 
