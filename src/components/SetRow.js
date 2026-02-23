@@ -9,41 +9,57 @@ import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../theme/theme';
  * Editable set row for the Current view.
  *
  * Animations:
- * - weightFadeAnim: Animated.Value from parent — fades only the weight cell
- *   on kg/lbs toggle. Reps, RIR, and set number stay fully visible.
- * - Checkmark pop on completion: set number briefly replaced by animated ✓.
- *   Uses a completion counter prop instead of derived state to reliably
- *   detect the exact moment a set transitions to completed.
+ * - Pop-in on mount: when isNew=true, row scales from 0.85→1 and fades in
+ * - weightFadeAnim: fades only the weight cell on kg/lbs toggle
+ * - Checkmark pop on completion via justCompleted prop
  *
  * @param {number} index              - Zero-based set position.
  * @param {Object} set                - Set data with field-level state.
- * @param {string} unit               - Weight display unit ('kg' or 'lbs').
+ * @param {string} unit               - Weight display unit.
  * @param {Function} displayWeight    - Converts kg value for display.
  * @param {Function} toKg             - Converts display value back to kg.
- * @param {Animated.Value} weightFadeAnim - Opacity anim for weight cell only.
+ * @param {Animated.Value} weightFadeAnim - Opacity anim for weight cell.
  * @param {Function} onUpdateSet      - Callback: (field, value).
  * @param {boolean} editMode          - Whether delete button is visible.
  * @param {Function} onDelete         - Callback when delete is pressed.
- * @param {boolean} justCompleted     - True on the render where set just became complete.
+ * @param {boolean} justCompleted     - True when set just became complete.
+ * @param {boolean} isNew             - True for newly added sets (triggers pop-in).
  */
-export default function SetRow({ index, set, onUpdateSet, editMode = false, onDelete, unit, displayWeight, toKg, weightFadeAnim, justCompleted = false }) {
+export default function SetRow({ index, set, onUpdateSet, editMode = false, onDelete, unit, displayWeight, toKg, weightFadeAnim, justCompleted = false, isNew = false }) {
   const isCompleted = set.weight.state === 'filled' && set.reps.state === 'filled';
 
   const [showCheck, setShowCheck] = useState(false);
-
-  /** Checkmark animation values */
   const checkScale = useRef(new Animated.Value(0)).current;
   const checkOpacity = useRef(new Animated.Value(0)).current;
-
-  /** Track if we already animated for this completion event */
   const hasAnimated = useRef(false);
+
+  // ── Pop-in animation for new sets ─────────────────────────
+
+  const mountAnim = useRef(new Animated.Value(isNew ? 0 : 1)).current;
+
+  useEffect(() => {
+    if (isNew) {
+      Animated.spring(mountAnim, {
+        toValue: 1,
+        friction: 7,
+        tension: 120,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, []); // Only on mount
+
+  const mountScale = mountAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.85, 1],
+  });
+
+  // ── Checkmark animation ───────────────────────────────────
 
   useEffect(() => {
     if (justCompleted && !hasAnimated.current) {
       hasAnimated.current = true;
       setShowCheck(true);
 
-      // Pop in: scale 0 → 1.3 → 1 with opacity
       checkScale.setValue(0);
       checkOpacity.setValue(0);
 
@@ -67,7 +83,6 @@ export default function SetRow({ index, set, onUpdateSet, editMode = false, onDe
           useNativeDriver: true,
         }),
       ]).start(() => {
-        // Hold for 800ms, then fade out back to number
         setTimeout(() => {
           Animated.timing(checkOpacity, {
             toValue: 0,
@@ -82,15 +97,22 @@ export default function SetRow({ index, set, onUpdateSet, editMode = false, onDe
       });
     }
 
-    // Reset the flag when justCompleted goes back to false
     if (!justCompleted) {
       hasAnimated.current = false;
     }
   }, [justCompleted, checkScale, checkOpacity]);
 
   return (
-    <View style={[styles.container, isCompleted && styles.completedContainer]}>
-      {/* Delete button — only visible in edit mode */}
+    <Animated.View
+      style={[
+        styles.container,
+        isCompleted && styles.completedContainer,
+        {
+          opacity: mountAnim,
+          transform: [{ scale: mountScale }],
+        },
+      ]}
+    >
       {editMode && (
         <Pressable
           style={({ pressed }) => [styles.deleteBtn, pressed && styles.deleteBtnPressed]}
@@ -128,7 +150,7 @@ export default function SetRow({ index, set, onUpdateSet, editMode = false, onDe
         )}
       </View>
 
-      {/* Weight badge — Animated.View for fade on unit toggle */}
+      {/* Weight badge — fades on unit toggle */}
       <Animated.View style={[styles.weightCell, { opacity: weightFadeAnim || 1 }]}>
         <SetInput
           value={displayWeight(set.weight.value)}
@@ -139,7 +161,6 @@ export default function SetRow({ index, set, onUpdateSet, editMode = false, onDe
         />
       </Animated.View>
 
-      {/* Reps badge — no fade */}
       <View style={styles.repsCell}>
         <SetInput
           value={set.reps.value}
@@ -149,7 +170,6 @@ export default function SetRow({ index, set, onUpdateSet, editMode = false, onDe
         />
       </View>
 
-      {/* RIR badge — no fade */}
       <View style={styles.rirCell}>
         <SetInput
           value={set.rir.value}
@@ -158,7 +178,7 @@ export default function SetRow({ index, set, onUpdateSet, editMode = false, onDe
           completed={isCompleted}
         />
       </View>
-    </View>
+    </Animated.View>
   );
 }
 

@@ -1,5 +1,5 @@
-import { View, Animated, Pressable, TextInput, StyleSheet, useWindowDimensions, LayoutAnimation, Platform, UIManager } from 'react-native';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { View, Animated, Pressable, TextInput, StyleSheet, useWindowDimensions } from 'react-native';
+import { useState, useRef, useCallback } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from './Text';
 import ViewSelector from './ViewSelector';
@@ -14,11 +14,6 @@ import ExerciseNote from './ExerciseNote';
 import useSlideTransition from '../hooks/useSlideTransition';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../theme/theme';
 
-// Enable LayoutAnimation on Android
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
-
 /** Conversion factor — all data is stored in kg */
 const KG_TO_LBS = 2.20462;
 
@@ -31,11 +26,11 @@ const VIEW_BORDER_COLORS = {
 /**
  * Container card for a single exercise within the workout.
  *
- * Animations:
- * - Fade on kg/lbs toggle: only weight text values fade (not entire rows)
- * - Pop on add set/exercise: LayoutAnimation spring scaleXY
- * - Depop on delete set/exercise: LayoutAnimation easeOut opacity
- * - Checkmark flash on set completion: SetRow receives justCompleted prop
+ * Animations (all using native Animated API, no LayoutAnimation):
+ * - Fade on kg/lbs toggle: only weight text values fade
+ * - Pop on add set: new SetRow has isNew=true, animates scale+opacity on mount
+ * - Depop on delete set: row animates out before actual deletion
+ * - Checkmark flash on set completion: SetRow handles via justCompleted
  * - Slide on view change: existing horizontal slide transition
  */
 export default function ExerciseCard({
@@ -62,8 +57,17 @@ export default function ExerciseCard({
   const nameInputRef = useRef(null);
   const [unit, setUnit] = useState('kg');
 
-  /** Animated opacity for weight values only — passed to child rows */
+  /** Animated opacity for weight values only */
   const weightFadeAnim = useRef(new Animated.Value(1)).current;
+
+  /** Set of set IDs that were just added — triggers pop-in animation */
+  const [newSetIds, setNewSetIds] = useState(new Set());
+
+  /** Set of set IDs currently animating out — delays actual deletion */
+  const [deletingSetIds, setDeletingSetIds] = useState(new Set());
+
+  /** Animated values for rows being deleted, keyed by set ID */
+  const deleteAnims = useRef({});
 
   const isPlaceholderName = !exercise.name || exercise.name === 'New Exercise';
   const restTimerSeconds = exercise.restTimerSeconds ?? 90;
@@ -91,25 +95,18 @@ export default function ExerciseCard({
     return inputValue;
   }, [unit]);
 
-  /**
-   * Animated unit toggle: fade out weight values → switch unit → fade in.
-   * Uses a ref to prevent the state update from interrupting the fade-in.
-   */
+  /** Animated unit toggle with requestAnimationFrame for reliable fade-in */
   const pendingUnit = useRef(null);
 
   const handleToggleUnit = useCallback((newUnit) => {
     pendingUnit.current = newUnit;
 
-    // Fade out
     Animated.timing(weightFadeAnim, {
       toValue: 0,
       duration: 120,
       useNativeDriver: true,
     }).start(() => {
-      // Switch unit at the midpoint
       setUnit(pendingUnit.current);
-
-      // Small delay to let re-render complete, then fade in
       requestAnimationFrame(() => {
         Animated.timing(weightFadeAnim, {
           toValue: 1,
@@ -120,33 +117,57 @@ export default function ExerciseCard({
     });
   }, [weightFadeAnim]);
 
-  // ── Add/Delete with LayoutAnimation ───────────────────────
+  // ── Add set with pop ──────────────────────────────────────
 
   const handleAddSet = useCallback(() => {
-    LayoutAnimation.configureNext(
-      LayoutAnimation.create(250, 'easeInEaseOut', 'scaleXY')
-    );
-    onAddSet?.(exercise.id);
+    // Generate the ID here so we can track it as "new"
+    const newId = `set-${Date.now()}`;
+    setNewSetIds((prev) => new Set(prev).add(newId));
+    onAddSet?.(exercise.id, newId);
+
+    // Clear "new" flag after animation completes
+    setTimeout(() => {
+      setNewSetIds((prev) => {
+        const next = new Set(prev);
+        next.delete(newId);
+        return next;
+      });
+    }, 400);
   }, [exercise.id, onAddSet]);
 
+  // ── Delete set with depop ─────────────────────────────────
+
   const handleDeleteSet = useCallback((setId) => {
-    LayoutAnimation.configureNext(
-      LayoutAnimation.create(200, 'easeInEaseOut', 'opacity')
-    );
-    onDeleteSet?.(exercise.id, setId);
+    // Create anim value for this row
+    deleteAnims.current[setId] = new Animated.Value(1);
+    setDeletingSetIds((prev) => new Set(prev).add(setId));
+
+    // Animate out: shrink + fade
+    Animated.timing(deleteAnims.current[setId], {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      // Actually delete after animation
+      setDeletingSetIds((prev) => {
+        const next = new Set(prev);
+        next.delete(setId);
+        return next;
+      });
+      delete deleteAnims.current[setId];
+      onDeleteSet?.(exercise.id, setId);
+    });
   }, [exercise.id, onDeleteSet]);
 
+  // ── Delete exercise with depop ────────────────────────────
+
   const handleDeleteExercise = useCallback(() => {
-    LayoutAnimation.configureNext(
-      LayoutAnimation.create(250, 'easeInEaseOut', 'opacity')
-    );
     onDeleteExercise?.(exercise.id);
   }, [exercise.id, onDeleteExercise]);
 
+  // ── Add exercise ──────────────────────────────────────────
+
   const handleAddExercise = useCallback(() => {
-    LayoutAnimation.configureNext(
-      LayoutAnimation.create(300, 'easeInEaseOut', 'scaleXY')
-    );
     onAddExercise?.(exercise.id);
   }, [exercise.id, onAddExercise]);
 
@@ -214,6 +235,60 @@ export default function ExerciseCard({
     />
   );
 
+  // ── Render a set row with optional delete animation ───────
+
+  const renderSetRow = (set, index) => {
+    const deleteAnim = deleteAnims.current[set.id];
+
+    // If this row is being deleted, wrap in animated container
+    if (deleteAnim) {
+      const deleteScale = deleteAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0.85, 1],
+      });
+
+      return (
+        <Animated.View
+          key={set.id}
+          style={{
+            opacity: deleteAnim,
+            transform: [{ scale: deleteScale }],
+          }}
+        >
+          <SetRow
+            index={index}
+            set={set}
+            unit={unit}
+            displayWeight={displayWeight}
+            toKg={toKg}
+            weightFadeAnim={weightFadeAnim}
+            justCompleted={justCompletedSetId === set.id}
+            editMode={editMode}
+            onUpdateSet={(field, value) => onUpdateSet?.(exercise.id, set.id, field, value)}
+            onDelete={() => {}}
+          />
+        </Animated.View>
+      );
+    }
+
+    return (
+      <SetRow
+        key={set.id}
+        index={index}
+        set={set}
+        unit={unit}
+        displayWeight={displayWeight}
+        toKg={toKg}
+        weightFadeAnim={weightFadeAnim}
+        justCompleted={justCompletedSetId === set.id}
+        isNew={newSetIds.has(set.id)}
+        editMode={editMode}
+        onUpdateSet={(field, value) => onUpdateSet?.(exercise.id, set.id, field, value)}
+        onDelete={() => handleDeleteSet(set.id)}
+      />
+    );
+  };
+
   // ── Current View ──────────────────────────────────────────
 
   const renderCurrentView = () => (
@@ -226,21 +301,7 @@ export default function ExerciseCard({
         onUpdateNote={(text) => onUpdateNote?.(exercise.id, text)}
       />
 
-      {exercise.sets.map((set, index) => (
-        <SetRow
-          key={set.id}
-          index={index}
-          set={set}
-          unit={unit}
-          displayWeight={displayWeight}
-          toKg={toKg}
-          weightFadeAnim={weightFadeAnim}
-          justCompleted={justCompletedSetId === set.id}
-          editMode={editMode}
-          onUpdateSet={(field, value) => onUpdateSet?.(exercise.id, set.id, field, value)}
-          onDelete={() => handleDeleteSet(set.id)}
-        />
-      ))}
+      {exercise.sets.map((set, index) => renderSetRow(set, index))}
 
       {editMode && (
         <Pressable
