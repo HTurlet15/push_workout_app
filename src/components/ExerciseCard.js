@@ -1,5 +1,5 @@
-import { View, Animated, Pressable, TextInput, StyleSheet, useWindowDimensions } from 'react-native';
-import { useState, useRef } from 'react';
+import { View, Animated, Pressable, TextInput, StyleSheet, useWindowDimensions, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from './Text';
 import ViewSelector from './ViewSelector';
@@ -14,13 +14,14 @@ import ExerciseNote from './ExerciseNote';
 import useSlideTransition from '../hooks/useSlideTransition';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../theme/theme';
 
+// Enable LayoutAnimation on Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
 /** Conversion factor — all data is stored in kg */
 const KG_TO_LBS = 2.20462;
 
-/**
- * View-to-border-color mapping.
- * Each view gets a distinct left border accent for quick visual identification.
- */
 const VIEW_BORDER_COLORS = {
   previous: COLORS.viewPrevious,
   current: COLORS.viewCurrent,
@@ -30,31 +31,12 @@ const VIEW_BORDER_COLORS = {
 /**
  * Container card for a single exercise within the workout.
  *
- * Manages three view modes (Previous / Current / Next) with animated
- * horizontal slide transitions. Each view renders its own header,
- * data rows, and shared components (note strip, footer).
- *
- * Features:
- * - Local kg/lbs toggle — conversion is purely visual, data stored in kg
- * - Per-exercise rest timer displayed in footer
- *   - Normal mode: tap → sets global timer
- *   - Edit mode: tap → inline edit rest duration
- * - Edit mode controls (delete, rename, add/delete sets, notes)
- *
- * @param {Object} exercise            - Current workout exercise data.
- * @param {Object} previousExercise    - Previous session data (may be undefined).
- * @param {Object} nextExercise        - Next planned data (may be undefined).
- * @param {Function} onUpdateSet       - Callback: (exerciseId, setId, field, value).
- * @param {Function} onUpdateNextSet   - Callback for next view edits.
- * @param {Function} onDeleteSet       - Callback: (exerciseId, setId).
- * @param {Function} onAddSet          - Callback: (exerciseId).
- * @param {Function} onUpdateNote      - Callback: (exerciseId, noteText).
- * @param {Function} onUpdateName      - Callback: (exerciseId, newName).
- * @param {Function} onAddExercise     - Callback: (afterExerciseId).
- * @param {Function} onDeleteExercise  - Callback: (exerciseId).
- * @param {Function} onRestPress       - Callback: (exerciseId) tap rest in normal mode.
- * @param {Function} onUpdateRest      - Callback: (exerciseId, newSeconds) edit rest in edit mode.
- * @param {boolean} editMode           - Whether edit controls are visible.
+ * Animations:
+ * - Fade on kg/lbs toggle: only weight text values fade (not entire rows)
+ * - Pop on add set/exercise: LayoutAnimation spring scaleXY
+ * - Depop on delete set/exercise: LayoutAnimation easeOut opacity
+ * - Checkmark flash on set completion: SetRow receives justCompleted prop
+ * - Slide on view change: existing horizontal slide transition
  */
 export default function ExerciseCard({
   exercise,
@@ -70,28 +52,22 @@ export default function ExerciseCard({
   onDeleteExercise,
   onRestPress,
   onUpdateRest,
+  justCompletedSetId,
   editMode = false,
 }) {
   const { width } = useWindowDimensions();
   const { displayedView, slideAnim, transitionTo } = useSlideTransition('current');
 
-  /** Controls whether the name TextInput is visible */
   const [editingName, setEditingName] = useState(false);
   const nameInputRef = useRef(null);
-
-  /** Weight unit toggle — local to this exercise card */
   const [unit, setUnit] = useState('kg');
 
-  /** Whether the exercise has a placeholder name (just created) */
-  const isPlaceholderName = !exercise.name || exercise.name === 'New Exercise';
+  /** Animated opacity for weight values only — passed to child rows */
+  const weightFadeAnim = useRef(new Animated.Value(1)).current;
 
-  /** Rest timer seconds from the exercise data, default 90 */
+  const isPlaceholderName = !exercise.name || exercise.name === 'New Exercise';
   const restTimerSeconds = exercise.restTimerSeconds ?? 90;
 
-  /**
-   * Slide animation interpolations.
-   * Content slides horizontally (30% of screen width) and fades during transitions.
-   */
   const translateX = slideAnim.interpolate({
     inputRange: [-1, 0, 1],
     outputRange: [-width * 0.3, 0, width * 0.3],
@@ -104,23 +80,79 @@ export default function ExerciseCard({
 
   // ── Unit helpers ──────────────────────────────────────────
 
-  /** Convert a kg value for display based on current unit */
-  const displayWeight = (kgValue) => {
+  const displayWeight = useCallback((kgValue) => {
     if (kgValue == null) return null;
     if (unit === 'lbs') return Math.round(kgValue * KG_TO_LBS * 10) / 10;
     return kgValue;
-  };
+  }, [unit]);
 
-  /** Convert a user-entered value back to kg for storage */
-  const toKg = (inputValue) => {
+  const toKg = useCallback((inputValue) => {
     if (unit === 'lbs') return Math.round((inputValue / KG_TO_LBS) * 10) / 10;
     return inputValue;
-  };
+  }, [unit]);
+
+  /**
+   * Animated unit toggle: fade out weight values → switch unit → fade in.
+   * Uses a ref to prevent the state update from interrupting the fade-in.
+   */
+  const pendingUnit = useRef(null);
+
+  const handleToggleUnit = useCallback((newUnit) => {
+    pendingUnit.current = newUnit;
+
+    // Fade out
+    Animated.timing(weightFadeAnim, {
+      toValue: 0,
+      duration: 120,
+      useNativeDriver: true,
+    }).start(() => {
+      // Switch unit at the midpoint
+      setUnit(pendingUnit.current);
+
+      // Small delay to let re-render complete, then fade in
+      requestAnimationFrame(() => {
+        Animated.timing(weightFadeAnim, {
+          toValue: 1,
+          duration: 180,
+          useNativeDriver: true,
+        }).start();
+      });
+    });
+  }, [weightFadeAnim]);
+
+  // ── Add/Delete with LayoutAnimation ───────────────────────
+
+  const handleAddSet = useCallback(() => {
+    LayoutAnimation.configureNext(
+      LayoutAnimation.create(250, 'easeInEaseOut', 'scaleXY')
+    );
+    onAddSet?.(exercise.id);
+  }, [exercise.id, onAddSet]);
+
+  const handleDeleteSet = useCallback((setId) => {
+    LayoutAnimation.configureNext(
+      LayoutAnimation.create(200, 'easeInEaseOut', 'opacity')
+    );
+    onDeleteSet?.(exercise.id, setId);
+  }, [exercise.id, onDeleteSet]);
+
+  const handleDeleteExercise = useCallback(() => {
+    LayoutAnimation.configureNext(
+      LayoutAnimation.create(250, 'easeInEaseOut', 'opacity')
+    );
+    onDeleteExercise?.(exercise.id);
+  }, [exercise.id, onDeleteExercise]);
+
+  const handleAddExercise = useCallback(() => {
+    LayoutAnimation.configureNext(
+      LayoutAnimation.create(300, 'easeInEaseOut', 'scaleXY')
+    );
+    onAddExercise?.(exercise.id);
+  }, [exercise.id, onAddExercise]);
 
   // ── Exercise Name ─────────────────────────────────────────
 
   const renderExerciseName = () => {
-    // Editing state: inline TextInput with black underline
     if (editingName) {
       return (
         <View style={[styles.nameEditable, styles.nameEditableActive]}>
@@ -140,7 +172,6 @@ export default function ExerciseCard({
       );
     }
 
-    // Edit mode: tappable with gray underline cue
     if (editMode) {
       return (
         <Pressable
@@ -163,7 +194,6 @@ export default function ExerciseCard({
       );
     }
 
-    // Normal mode: static text
     return (
       <Text variant="exercise" style={styles.exerciseName}>
         {exercise.name}
@@ -171,14 +201,13 @@ export default function ExerciseCard({
     );
   };
 
-  // ── Shared footer for all views ───────────────────────────
+  // ── Footer ────────────────────────────────────────────────
 
-  /** Footer reads rest time from exercise data */
   const renderFooter = () => (
     <SetFooter
       restSeconds={restTimerSeconds}
       unit={unit}
-      onToggleUnit={setUnit}
+      onToggleUnit={handleToggleUnit}
       onRestPress={() => onRestPress?.(exercise.id)}
       onUpdateRest={(seconds) => onUpdateRest?.(exercise.id, seconds)}
       editMode={editMode}
@@ -205,16 +234,18 @@ export default function ExerciseCard({
           unit={unit}
           displayWeight={displayWeight}
           toKg={toKg}
+          weightFadeAnim={weightFadeAnim}
+          justCompleted={justCompletedSetId === set.id}
           editMode={editMode}
           onUpdateSet={(field, value) => onUpdateSet?.(exercise.id, set.id, field, value)}
-          onDelete={() => onDeleteSet?.(exercise.id, set.id)}
+          onDelete={() => handleDeleteSet(set.id)}
         />
       ))}
 
       {editMode && (
         <Pressable
           style={({ pressed }) => [styles.addSetBtn, pressed && styles.addSetBtnPressed]}
-          onPress={() => onAddSet?.(exercise.id)}
+          onPress={handleAddSet}
         >
           <Feather name="plus" size={FONT_SIZE.caption} color={COLORS.textSecondary} />
           <Text variant="caption" style={styles.addSetText}>Add set</Text>
@@ -254,6 +285,7 @@ export default function ExerciseCard({
             reps={set.reps}
             rir={set.rir}
             unit={unit}
+            weightFadeAnim={weightFadeAnim}
           />
         ))}
 
@@ -295,6 +327,7 @@ export default function ExerciseCard({
               nextSet={nextSet}
               unit={unit}
               displayWeight={displayWeight}
+              weightFadeAnim={weightFadeAnim}
               onUpdateNextSet={(field, value) => onUpdateNextSet?.(exercise.id, nextSet.id, field, value)}
             />
           );
@@ -316,7 +349,7 @@ export default function ExerciseCard({
               styles.deleteExerciseBtn,
               pressed && styles.deleteExerciseBtnPressed,
             ]}
-            onPress={() => onDeleteExercise?.(exercise.id)}
+            onPress={handleDeleteExercise}
           >
             <Feather name="x" size={SIZE.iconSm - 4} color={COLORS.error} />
           </Pressable>
@@ -341,7 +374,7 @@ export default function ExerciseCard({
       {editMode && (
         <Pressable
           style={({ pressed }) => [styles.addExerciseBtn, pressed && styles.addExerciseBtnPressed]}
-          onPress={() => onAddExercise?.(exercise.id)}
+          onPress={handleAddExercise}
         >
           <Feather name="plus" size={FONT_SIZE.md} color={COLORS.viewCurrent} />
           <Text variant="caption" style={styles.addExerciseText}>Add exercise</Text>
@@ -370,8 +403,6 @@ const styles = StyleSheet.create({
     marginVertical: SPACING.md,
   },
 
-  // ── Exercise name ─────────────────────────────────────────
-
   exerciseName: {
     color: COLORS.textPrimary,
     flex: 1,
@@ -381,14 +412,12 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.medium,
     fontStyle: 'italic',
   },
-  /** Gray underline cue in edit mode */
   nameEditable: {
     flex: 1,
     borderBottomWidth: 1.5,
     borderBottomColor: COLORS.mediumGray,
     paddingBottom: 2,
   },
-  /** Black underline when actively editing */
   nameEditableActive: {
     borderBottomColor: COLORS.textPrimary,
   },
@@ -404,8 +433,6 @@ const styles = StyleSheet.create({
     minWidth: 120,
   },
 
-  // ── Delete exercise ───────────────────────────────────────
-
   deleteExerciseBtn: {
     width: SIZE.deleteBtn + 4,
     height: SIZE.deleteBtn + 4,
@@ -418,8 +445,6 @@ const styles = StyleSheet.create({
   deleteExerciseBtnPressed: {
     backgroundColor: COLORS.errorPressed,
   },
-
-  // ── Shared ────────────────────────────────────────────────
 
   emptyMessage: {
     textAlign: 'center',

@@ -17,38 +17,26 @@ import TimerPicker from '../components/TimerPicker';
 /**
  * Main workout session screen.
  *
- * Orchestrates the entire workout experience:
- * - Loads and persists current, previous, and next workout data
- * - Handles session rotation (previous → current → next) after 12h
- * - Manages edit mode state for add/delete sets, exercises, and notes
- * - Provides rest timer with configurable duration
- * - Auto-starts rest timer when a set is completed (weight + reps filled)
- * - Scrolls to newly added exercises using onLayout measurement
- *
- * Rest timer flow:
- * - Each exercise has its own restTimerSeconds in its data
- * - Completing a set → auto-starts timer with that exercise's rest duration
- * - Tapping rest badge in normal mode → sets timer to that exercise's rest
- * - Tapping rest badge in edit mode → inline edit rest duration
- *
- * All workout mutations are defined here and passed down via callbacks.
- * Data flows down, events flow up.
+ * Rest timer auto-start flow:
+ * - Completing a set (weight + reps filled) auto-starts the timer
+ * - justCompletedSetId tracks which set just completed for checkmark animation
+ * - The ID is cleared after 2 seconds to reset the animation trigger
  */
 export default function WorkoutScreen() {
   const insets = useSafeAreaInsets();
   const [editMode, setEditMode] = useState(false);
   const [showTimerPicker, setShowTimerPicker] = useState(false);
-
-  /** ID of the most recently created exercise — used to trigger scroll-to */
   const [newExerciseId, setNewExerciseId] = useState(null);
 
-  /** Ref to KeyboardAwareScrollView for programmatic scrolling */
-  const scrollRef = useRef(null);
+  /**
+   * ID of the set that was just completed — triggers checkmark animation.
+   * Cleared after 2s so the animation can re-trigger if needed.
+   */
+  const [justCompletedSetId, setJustCompletedSetId] = useState(null);
 
-  /** Stores { y, height } layout of each exercise card, keyed by exercise ID */
+  const scrollRef = useRef(null);
   const exerciseLayouts = useRef({});
 
-  /** Rest timer hook — manages countdown lifecycle */
   const {
     timerState, timeRemaining, duration,
     playPause, reset, updateDuration, startWithDuration,
@@ -68,7 +56,6 @@ export default function WorkoutScreen() {
 
   const isLoading = workoutLoading || previousLoading || nextLoading;
 
-  /** Automatic session rotation check on mount */
   useSessionRotation({
     workout, setWorkout,
     previousWorkout, setPreviousWorkout,
@@ -78,39 +65,35 @@ export default function WorkoutScreen() {
 
   // ── Helpers ───────────────────────────────────────────────
 
-  /** Find matching exercise in a workout by ID */
   const findExercise = (sourceWorkout, exerciseId) =>
     sourceWorkout.exercises.find((e) => e.id === exerciseId);
 
   /**
    * Check if updating a field would complete a set.
-   * A set is complete when both weight and reps are filled.
+   * Returns true only if this update transitions the set from incomplete → complete.
    */
-  const wouldCompleteSet = (exerciseId, setId, field, value) => {
+  const wouldCompleteSet = (exerciseId, setId, field) => {
     const exercise = workout.exercises.find((e) => e.id === exerciseId);
     if (!exercise) return false;
 
     const set = exercise.sets.find((s) => s.id === setId);
     if (!set) return false;
 
-    // Build the would-be state after this update
     const weightFilled = field === 'weight' ? true : set.weight.state === 'filled';
     const repsFilled = field === 'reps' ? true : set.reps.state === 'filled';
-
-    // Only auto-start if this update is what completes the set (not already complete)
     const wasAlreadyComplete = set.weight.state === 'filled' && set.reps.state === 'filled';
+
     return weightFilled && repsFilled && !wasAlreadyComplete;
   };
 
   // ── Workout mutation handlers ─────────────────────────────
 
   /**
-   * Update a single field (weight/reps/rir) in a set.
-   * If this update completes the set, auto-starts the rest timer.
+   * Update a single field in a set.
+   * If this completes the set: auto-start timer + trigger checkmark animation.
    */
   const handleUpdateSet = (exerciseId, setId, field, value) => {
-    // Check before mutation if this will complete the set
-    const willComplete = wouldCompleteSet(exerciseId, setId, field, value);
+    const willComplete = wouldCompleteSet(exerciseId, setId, field);
     const exercise = workout.exercises.find((e) => e.id === exerciseId);
 
     setWorkout((prev) => ({
@@ -127,13 +110,18 @@ export default function WorkoutScreen() {
       }),
     }));
 
-    // Auto-start timer when a set is just completed
-    if (willComplete && exercise?.restTimerSeconds) {
-      startWithDuration(exercise.restTimerSeconds);
+    if (willComplete) {
+      // Auto-start rest timer
+      if (exercise?.restTimerSeconds) {
+        startWithDuration(exercise.restTimerSeconds);
+      }
+
+      // Trigger checkmark animation, clear after 2s
+      setJustCompletedSetId(setId);
+      setTimeout(() => setJustCompletedSetId(null), 2000);
     }
   };
 
-  /** Update a field in the next workout (marks as user-edited) */
   const handleUpdateNextSet = (exerciseId, setId, field, value) => {
     setNextWorkout((prev) => ({
       ...prev,
@@ -150,7 +138,6 @@ export default function WorkoutScreen() {
     }));
   };
 
-  /** Remove a set from an exercise */
   const handleDeleteSet = (exerciseId, setId) => {
     setWorkout((prev) => ({
       ...prev,
@@ -164,7 +151,6 @@ export default function WorkoutScreen() {
     }));
   };
 
-  /** Append a new empty set to an exercise */
   const handleAddSet = (exerciseId) => {
     setWorkout((prev) => ({
       ...prev,
@@ -186,7 +172,6 @@ export default function WorkoutScreen() {
     }));
   };
 
-  /** Update the note text for an exercise */
   const handleUpdateNote = (exerciseId, note) => {
     setWorkout((prev) => ({
       ...prev,
@@ -197,7 +182,6 @@ export default function WorkoutScreen() {
     }));
   };
 
-  /** Update the name of an exercise */
   const handleUpdateName = (exerciseId, name) => {
     setWorkout((prev) => ({
       ...prev,
@@ -208,7 +192,6 @@ export default function WorkoutScreen() {
     }));
   };
 
-  /** Update the rest timer duration for a specific exercise */
   const handleUpdateRest = (exerciseId, seconds) => {
     setWorkout((prev) => ({
       ...prev,
@@ -219,10 +202,6 @@ export default function WorkoutScreen() {
     }));
   };
 
-  /**
-   * Insert a new exercise after the given exercise with 3 empty sets.
-   * Includes default restTimerSeconds. Sets newExerciseId for scroll-to.
-   */
   const handleAddExercise = (afterExerciseId) => {
     const id = `exercise-${Date.now()}`;
     setWorkout((prev) => {
@@ -245,7 +224,6 @@ export default function WorkoutScreen() {
     setNewExerciseId(id);
   };
 
-  /** Remove an entire exercise from the workout */
   const handleDeleteExercise = (exerciseId) => {
     setWorkout((prev) => ({
       ...prev,
@@ -253,11 +231,6 @@ export default function WorkoutScreen() {
     }));
   };
 
-  /**
-   * Called when each exercise card wrapper measures its layout.
-   * If the card is the newly created exercise, scroll to position it
-   * ~100px below the top of the screen, then clear the trigger.
-   */
   const handleExerciseLayout = (exerciseId, event) => {
     const layout = event.nativeEvent.layout;
     exerciseLayouts.current[exerciseId] = layout;
@@ -271,9 +244,6 @@ export default function WorkoutScreen() {
     }
   };
 
-  /**
-   * Tap rest badge in normal mode → set global timer to that exercise's rest.
-   */
   const handleRestPress = (exerciseId) => {
     const exercise = workout.exercises.find((e) => e.id === exerciseId);
     if (exercise?.restTimerSeconds) {
@@ -348,6 +318,7 @@ export default function WorkoutScreen() {
               onDeleteExercise={handleDeleteExercise}
               onRestPress={handleRestPress}
               onUpdateRest={handleUpdateRest}
+              justCompletedSetId={justCompletedSetId}
               editMode={editMode}
             />
           </View>
