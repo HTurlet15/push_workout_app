@@ -103,11 +103,20 @@ export default function WorkoutScreen() {
     }));
 
     if (willComplete) {
+      // Auto-start rest timer
       if (exercise?.restTimerSeconds) {
         startWithDuration(exercise.restTimerSeconds);
       }
+
+      // Trigger checkmark animation
       setJustCompletedSetId(setId);
       setTimeout(() => setJustCompletedSetId(null), 2000);
+
+      // Update last activity timestamp
+      setWorkout((prev) => ({
+        ...prev,
+        completedAt: new Date().toISOString(),
+      }));
     }
   };
 
