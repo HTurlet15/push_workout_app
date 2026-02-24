@@ -4,10 +4,10 @@ import { useState, useRef, useCallback } from 'react';
 import WorkoutScreen from './WorkoutScreen';
 import BottomBar from '../components/common/BottomBar';
 import TimerPicker from '../components/common/TimerPicker';
-import Text from '../components/common/Text';
+import TabIndicator from '../components/common/TabIndicator';
 import useRestTimer from '../hooks/useRestTimer';
 import MOCK_SESSIONS from '../data/mockSessions';
-import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY } from '../theme/theme';
+import { COLORS } from '../theme/theme';
 
 /**
  * Horizontal pager that holds multiple WorkoutScreens.
@@ -16,11 +16,8 @@ import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY } from '../theme/theme';
  * - Horizontal swipe navigation between séances
  * - Global rest timer shared across all workouts
  * - Global edit mode toggle
- * - Tab indicator with dots + "Workout" label
+ * - Tab indicator via TabIndicator component
  * - TimerPicker modal
- *
- * Each WorkoutScreen manages its own workout state and mutations,
- * but receives timer controls from here.
  */
 export default function WorkoutPager() {
   const insets = useSafeAreaInsets();
@@ -39,7 +36,7 @@ export default function WorkoutPager() {
     playPause, reset, updateDuration, startWithDuration,
   } = useRestTimer(90);
 
-  // ── Session state — each séance has its own current/previous/next ──
+  // ── Session state ─────────────────────────────────────────
 
   const [sessions, setSessions] = useState(
     MOCK_SESSIONS.map((s) => ({
@@ -49,7 +46,6 @@ export default function WorkoutPager() {
     }))
   );
 
-  /** Create a setter for a specific session's current workout */
   const makeSetWorkout = useCallback((index) => {
     return (updater) => {
       setSessions((prev) => {
@@ -64,7 +60,6 @@ export default function WorkoutPager() {
     };
   }, []);
 
-  /** Create a setter for a specific session's next workout */
   const makeSetNextWorkout = useCallback((index) => {
     return (updater) => {
       setSessions((prev) => {
@@ -110,34 +105,14 @@ export default function WorkoutPager() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      {/* Tab indicator: dots + Workout label */}
-      <View style={styles.tabBar}>
-        {/* Left dot — placeholder for WORKOUTS list page */}
-        <View style={styles.dot} />
+      <TabIndicator
+        label="Workout"
+        totalDots={sessions.length}
+        activeIndex={activeIndex}
+        showLeftDot={true}
+        showRightDot={true}
+      />
 
-        {/* Center: Workout label + séance dots */}
-        <View style={styles.tabCenter}>
-          <View style={styles.labelPill}>
-            <Text style={styles.labelText}>Workout</Text>
-          </View>
-          <View style={styles.sessionDots}>
-            {sessions.map((_, i) => (
-              <View
-                key={i}
-                style={[
-                  styles.sessionDot,
-                  i === activeIndex && styles.sessionDotActive,
-                ]}
-              />
-            ))}
-          </View>
-        </View>
-
-        {/* Right dot — placeholder for next section */}
-        <View style={styles.dot} />
-      </View>
-
-      {/* Horizontal pager */}
       <FlatList
         ref={flatListRef}
         data={sessions}
@@ -156,7 +131,6 @@ export default function WorkoutPager() {
         })}
       />
 
-      {/* Global bottom bar */}
       <BottomBar
         timerState={timerState}
         timeRemaining={timeRemaining}
@@ -186,53 +160,5 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: COLORS.screenBackground,
-  },
-
-  // ── Tab bar ───────────────────────────────────────────────
-
-  tabBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: SPACING.sm,
-    gap: SPACING.sm,
-  },
-  tabCenter: {
-    alignItems: 'center',
-    gap: 6,
-  },
-  labelPill: {
-    backgroundColor: COLORS.textPrimary,
-    paddingVertical: 4,
-    paddingHorizontal: SPACING.md + 4,
-    borderRadius: 20,
-  },
-  labelText: {
-    color: COLORS.white,
-    fontSize: FONT_SIZE.sm,
-    fontFamily: FONT_FAMILY.semibold,
-    letterSpacing: 0.5,
-  },
-  sessionDots: {
-    flexDirection: 'row',
-    gap: 5,
-  },
-  sessionDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: COLORS.mediumGray,
-  },
-  sessionDotActive: {
-    backgroundColor: COLORS.textSecondary,
-  },
-
-  // ── Placeholder dots for adjacent pages ───────────────────
-
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: COLORS.mediumGray,
   },
 });
