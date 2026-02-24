@@ -212,6 +212,18 @@ export default function WorkoutScreen() {
       });
     }, 500);
 
+    const ts = Date.now();
+    const currentSets = [
+      { id: `set-${ts}-1`, weight: { value: null, state: 'empty' }, reps: { value: null, state: 'empty' }, rir: { value: null, state: 'empty' } },
+      { id: `set-${ts}-2`, weight: { value: null, state: 'empty' }, reps: { value: null, state: 'empty' }, rir: { value: null, state: 'empty' } },
+      { id: `set-${ts}-3`, weight: { value: null, state: 'empty' }, reps: { value: null, state: 'empty' }, rir: { value: null, state: 'empty' } },
+    ];
+    const nextSets = [
+      { id: `set-${ts}-n1`, weight: null, reps: null },
+      { id: `set-${ts}-n2`, weight: null, reps: null },
+      { id: `set-${ts}-n3`, weight: null, reps: null },
+    ];
+
     setWorkout((prev) => {
       const exerciseIndex = prev.exercises.findIndex((e) => e.id === afterExerciseId);
       const newExercise = {
@@ -219,16 +231,26 @@ export default function WorkoutScreen() {
         name: 'New Exercise',
         note: undefined,
         restTimerSeconds: 90,
-        sets: [
-          { id: `set-${Date.now()}-1`, weight: { value: null, state: 'empty' }, reps: { value: null, state: 'empty' }, rir: { value: null, state: 'empty' } },
-          { id: `set-${Date.now()}-2`, weight: { value: null, state: 'empty' }, reps: { value: null, state: 'empty' }, rir: { value: null, state: 'empty' } },
-          { id: `set-${Date.now()}-3`, weight: { value: null, state: 'empty' }, reps: { value: null, state: 'empty' }, rir: { value: null, state: 'empty' } },
-        ],
+        sets: currentSets,
       };
       const newExercises = [...prev.exercises];
       newExercises.splice(exerciseIndex + 1, 0, newExercise);
       return { ...prev, exercises: newExercises };
     });
+
+    // Also create the exercise in nextWorkout so the Next view is available
+    setNextWorkout((prev) => {
+      const exerciseIndex = prev.exercises.findIndex((e) => e.id === afterExerciseId);
+      const newNextExercise = {
+        id,
+        name: 'New Exercise',
+        sets: nextSets,
+      };
+      const newExercises = [...prev.exercises];
+      newExercises.splice(exerciseIndex + 1, 0, newNextExercise);
+      return { ...prev, exercises: newExercises };
+    });
+
     setNewExerciseId(id);
   };
 
