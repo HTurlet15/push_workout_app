@@ -307,6 +307,19 @@ export default function WorkoutScreen() {
     ).length, 0
   );
 
+  /** Human-readable time since last completed workout */
+  const lastSessionLabel = (() => {
+    if (!previousWorkout?.completedAt) return null;
+    const diff = Date.now() - new Date(previousWorkout.completedAt).getTime();
+    const mins = Math.floor(diff / 60000);
+    const hours = Math.floor(mins / 60);
+    const days = Math.floor(hours / 24);
+    if (days > 0) return `${days}d ago`;
+    if (hours > 0) return `${hours}h ago`;
+    if (mins > 0) return `${mins}m ago`;
+    return 'just now';
+  })();
+
   const totalSets = workout.exercises.reduce(
     (total, exercise) => total + exercise.sets.length, 0
   );
@@ -396,7 +409,9 @@ export default function WorkoutScreen() {
                 {completedSets}/{totalSets} sets done
               </Text>
             </View>
-            <Text variant="caption" style={styles.lastDate}>· 4 days ago</Text>
+            {lastSessionLabel && (
+              <Text variant="caption" style={styles.lastDate}>· {lastSessionLabel}</Text>
+            )}
           </View>
         </View>
 
