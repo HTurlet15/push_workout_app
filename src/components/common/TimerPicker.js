@@ -2,7 +2,7 @@ import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import Text from './Text';
-import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE, SHADOW } from '../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
 
 /**
  * Modal overlay with dual scroll wheel picker for rest timer duration.

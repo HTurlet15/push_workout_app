@@ -1,6 +1,6 @@
 import { View, StyleSheet } from 'react-native';
-import Text from './Text';
-import { COLORS, SPACING, SIZE } from '../theme/theme';
+import Text from '../common/Text';
+import { COLORS, SPACING, SIZE } from '../../theme/theme';
 
 /**
  * Column header row for the Next view set table.

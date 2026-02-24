@@ -1,7 +1,7 @@
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import Text from './Text';
-import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE } from '../theme/theme';
+import Text from '../common/Text';
+import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE } from '../../theme/theme';
 
 /**
  * Navigation control cycling between Previous, Current, and Next views.
@@ -47,7 +47,7 @@ export default function ViewSelector({ activeView, onChangeView }) {
 
   return (
     <View style={styles.container}>
-      {/* Left arrow — navigates to previous view */}
+      {/* Left arrow - navigates to previous view */}
       <TouchableOpacity
         onPress={goLeft}
         activeOpacity={0.6}
@@ -61,14 +61,14 @@ export default function ViewSelector({ activeView, onChangeView }) {
         />
       </TouchableOpacity>
 
-      {/* View label badge — colored by active view */}
+      {/* View label badge - colored by active view */}
       <View style={[styles.badge, { backgroundColor: accentColor }]}>
         <Text variant="caption" style={styles.badgeText}>
           {VIEW_LABELS[activeView]}
         </Text>
       </View>
 
-      {/* Right arrow — navigates to next view */}
+      {/* Right arrow - navigates to next view */}
       <TouchableOpacity
         onPress={goRight}
         activeOpacity={0.6}

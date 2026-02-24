@@ -1,9 +1,9 @@
 import { View, Pressable, Animated, StyleSheet } from 'react-native';
 import { useRef, useEffect, useState } from 'react';
 import { Feather } from '@expo/vector-icons';
-import Text from './Text';
+import Text from '../common/Text';
 import SetInput from './SetInput';
-import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../theme/theme';
+import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../../theme/theme';
 
 /**
  * Editable set row for the Current view.

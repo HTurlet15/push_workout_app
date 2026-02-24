@@ -1,8 +1,8 @@
 import { Pressable, TextInput, StyleSheet } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
-import Text from './Text';
-import { COLORS, FONT_SIZE, FONT_FAMILY, SPACING, RADIUS } from '../theme/theme';
+import Text from '../common/Text';
+import { COLORS, FONT_SIZE, FONT_FAMILY, SPACING, RADIUS } from '../../theme/theme';
 
 /**
  * Tappable badge displaying a single set value (weight, reps, or RIR).

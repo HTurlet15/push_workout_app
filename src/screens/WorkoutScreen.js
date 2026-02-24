@@ -1,75 +1,48 @@
 import { View, Animated, StyleSheet, ActivityIndicator } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import Text from '../components/Text';
-import ExerciseCard from '../components/ExerciseCard';
-import usePersistedState from '../hooks/usePersistedState';
-import useSessionRotation from '../hooks/useSessionRotation';
-import MOCK_WORKOUT from '../data/mockWorkout';
-import MOCK_PREVIOUS_WORKOUT from '../data/mockPreviousWorkout';
-import MOCK_NEXT_WORKOUT from '../data/mockNextWorkout';
+import Text from '../components/common/Text';
+import ExerciseCard from '../components/exercise/ExerciseCard';
 import { COLORS, SPACING, RADIUS, FONT_FAMILY } from '../theme/theme';
-import BottomBar from '../components/BottomBar';
-import useRestTimer from '../hooks/useRestTimer';
-import TimerPicker from '../components/TimerPicker';
 
 /**
- * Main workout session screen.
+ * Single workout session screen.
  *
- * Exercise add/delete animations use Animated API:
- * - New exercises tracked via newExerciseIds for pop-in
- * - Deleted exercises animated out before actual removal
+ * Pure presentation + mutation logic for one workout.
+ * All data and timer controls come from the parent (WorkoutPager).
+ *
+ * @param {Object} workout              - Current workout data.
+ * @param {Function} setWorkout         - State setter for current workout.
+ * @param {Object} previousWorkout      - Previous session data.
+ * @param {Object} nextWorkout          - Next planned data.
+ * @param {Function} setNextWorkout     - State setter for next workout.
+ * @param {boolean} editMode            - Whether edit controls are visible.
+ * @param {Function} startWithDuration  - Start timer with given seconds.
+ * @param {Function} updateDuration     - Update timer duration.
  */
-export default function WorkoutScreen() {
-  const insets = useSafeAreaInsets();
-  const [editMode, setEditMode] = useState(false);
-  const [showTimerPicker, setShowTimerPicker] = useState(false);
+export default function WorkoutScreen({
+  workout,
+  setWorkout,
+  previousWorkout,
+  nextWorkout,
+  setNextWorkout,
+  editMode,
+  startWithDuration,
+  updateDuration,
+}) {
   const [newExerciseId, setNewExerciseId] = useState(null);
   const [justCompletedSetId, setJustCompletedSetId] = useState(null);
-
-  /** Set of exercise IDs that were just added — triggers pop-in */
   const [newExerciseIds, setNewExerciseIds] = useState(new Set());
-
-  /** Exercise IDs currently animating out */
   const [deletingExerciseIds, setDeletingExerciseIds] = useState(new Set());
-
-  /** Animated values for exercises being deleted */
   const exerciseDeleteAnims = useRef({});
 
   const scrollRef = useRef(null);
   const exerciseLayouts = useRef({});
 
-  const {
-    timerState, timeRemaining, duration,
-    playPause, reset, updateDuration, startWithDuration,
-  } = useRestTimer(90);
-
-  // ── Persisted workout data ────────────────────────────────
-
-  const [workout, setWorkout, workoutLoading] = usePersistedState(
-    'push_current_workout', MOCK_WORKOUT
-  );
-  const [previousWorkout, setPreviousWorkout, previousLoading] = usePersistedState(
-    'push_previous_workout', MOCK_PREVIOUS_WORKOUT
-  );
-  const [nextWorkout, setNextWorkout, nextLoading] = usePersistedState(
-    'push_next_workout', MOCK_NEXT_WORKOUT
-  );
-
-  const isLoading = workoutLoading || previousLoading || nextLoading;
-
-  useSessionRotation({
-    workout, setWorkout,
-    previousWorkout, setPreviousWorkout,
-    nextWorkout, setNextWorkout,
-    isLoading,
-  });
-
   // ── Helpers ───────────────────────────────────────────────
 
   const findExercise = (sourceWorkout, exerciseId) =>
-    sourceWorkout.exercises.find((e) => e.id === exerciseId);
+    sourceWorkout?.exercises?.find((e) => e.id === exerciseId);
 
   const wouldCompleteSet = (exerciseId, setId, field) => {
     const exercise = workout.exercises.find((e) => e.id === exerciseId);
@@ -82,7 +55,7 @@ export default function WorkoutScreen() {
     return weightFilled && repsFilled && !wasAlreadyComplete;
   };
 
-  // ── Workout mutation handlers ─────────────────────────────
+  // ── Mutation handlers ─────────────────────────────────────
 
   const handleUpdateSet = (exerciseId, setId, field, value) => {
     const willComplete = wouldCompleteSet(exerciseId, setId, field);
@@ -103,16 +76,11 @@ export default function WorkoutScreen() {
     }));
 
     if (willComplete) {
-      // Auto-start rest timer
       if (exercise?.restTimerSeconds) {
         startWithDuration(exercise.restTimerSeconds);
       }
-
-      // Trigger checkmark animation
       setJustCompletedSetId(setId);
       setTimeout(() => setJustCompletedSetId(null), 2000);
-
-      // Update last activity timestamp
       setWorkout((prev) => ({
         ...prev,
         completedAt: new Date().toISOString(),
@@ -149,10 +117,6 @@ export default function WorkoutScreen() {
     }));
   };
 
-  /**
-   * Add a set with a specific ID (generated by ExerciseCard for animation tracking).
-   * Falls back to generating an ID if none provided.
-   */
   const handleAddSet = (exerciseId, newId) => {
     const id = newId || `set-${Date.now()}`;
     setWorkout((prev) => ({
@@ -205,13 +169,9 @@ export default function WorkoutScreen() {
     }));
   };
 
-  /**
-   * Add exercise with pop-in animation.
-   */
   const handleAddExercise = (afterExerciseId) => {
     const id = `exercise-${Date.now()}`;
 
-    // Track as new for pop-in
     setNewExerciseIds((prev) => new Set(prev).add(id));
     setTimeout(() => {
       setNewExerciseIds((prev) => {
@@ -247,7 +207,6 @@ export default function WorkoutScreen() {
       return { ...prev, exercises: newExercises };
     });
 
-    // Also create the exercise in nextWorkout so the Next view is available
     setNextWorkout((prev) => {
       const exerciseIndex = prev.exercises.findIndex((e) => e.id === afterExerciseId);
       const newNextExercise = {
@@ -263,9 +222,6 @@ export default function WorkoutScreen() {
     setNewExerciseId(id);
   };
 
-  /**
-   * Delete exercise with depop animation.
-   */
   const handleDeleteExercise = (exerciseId) => {
     exerciseDeleteAnims.current[exerciseId] = new Animated.Value(1);
     setDeletingExerciseIds((prev) => new Set(prev).add(exerciseId));
@@ -316,7 +272,10 @@ export default function WorkoutScreen() {
     ).length, 0
   );
 
-  /** Human-readable time since last completed workout */
+  const totalSets = workout.exercises.reduce(
+    (total, exercise) => total + exercise.sets.length, 0
+  );
+
   const lastSessionLabel = (() => {
     if (!previousWorkout?.completedAt) return null;
     const diff = Date.now() - new Date(previousWorkout.completedAt).getTime();
@@ -329,27 +288,12 @@ export default function WorkoutScreen() {
     return 'just now';
   })();
 
-  const totalSets = workout.exercises.reduce(
-    (total, exercise) => total + exercise.sets.length, 0
-  );
-
-  // ── Loading state ─────────────────────────────────────────
-
-  if (isLoading) {
-    return (
-      <View style={[styles.screen, styles.loadingContainer, { paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={COLORS.textSecondary} />
-      </View>
-    );
-  }
-
-  // ── Render exercise with optional animations ──────────────
+  // ── Render exercise ───────────────────────────────────────
 
   const renderExercise = (exercise) => {
     const deleteAnim = exerciseDeleteAnims.current[exercise.id];
     const isNew = newExerciseIds.has(exercise.id);
 
-    // Wrapper for pop-in or depop
     const wrapWithAnim = (children) => {
       if (deleteAnim) {
         const deleteScale = deleteAnim.interpolate({
@@ -399,62 +343,36 @@ export default function WorkoutScreen() {
   // ── Render ────────────────────────────────────────────────
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <KeyboardAwareScrollView
-        ref={scrollRef}
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        enableOnAndroid={true}
-        extraScrollHeight={120}
-      >
-        <View style={styles.header}>
-          <Text variant="caption" style={styles.headerLabel}>WORKOUT</Text>
-          <Text variant="screenTitle">{workout.name || 'Pectoraux'}</Text>
-          <View style={styles.headerMeta}>
-            <View style={styles.progressBadge}>
-              <Text variant="caption" style={styles.progressText}>
-                {completedSets}/{totalSets} sets done
-              </Text>
-            </View>
-            {lastSessionLabel && (
-              <Text variant="caption" style={styles.lastDate}>· {lastSessionLabel}</Text>
-            )}
+    <KeyboardAwareScrollView
+      ref={scrollRef}
+      style={styles.scrollView}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      enableOnAndroid={true}
+      extraScrollHeight={120}
+    >
+      <View style={styles.header}>
+        <Text variant="screenTitle">{workout.name}</Text>
+        <View style={styles.headerMeta}>
+          <View style={styles.progressBadge}>
+            <Text variant="caption" style={styles.progressText}>
+              {completedSets}/{totalSets} sets done
+            </Text>
           </View>
+          {lastSessionLabel && (
+            <Text variant="caption" style={styles.lastDate}>· {lastSessionLabel}</Text>
+          )}
         </View>
+      </View>
 
-        {workout.exercises.map((exercise) => renderExercise(exercise))}
-      </KeyboardAwareScrollView>
-
-      <BottomBar
-        timerState={timerState}
-        timeRemaining={timeRemaining}
-        editMode={editMode}
-        onPlayPause={playPause}
-        onReset={reset}
-        onTimerPress={() => setShowTimerPicker(true)}
-        onEditToggle={() => setEditMode((prev) => !prev)}
-        onLLMPress={() => {}}
-        bottomInset={insets.bottom}
-      />
-
-      <TimerPicker
-        visible={showTimerPicker}
-        currentDuration={duration}
-        onConfirm={(seconds) => {
-          updateDuration(seconds);
-          setShowTimerPicker(false);
-        }}
-        onClose={() => setShowTimerPicker(false)}
-      />
-    </View>
+      {workout.exercises.map((exercise) => renderExercise(exercise))}
+    </KeyboardAwareScrollView>
   );
 }
 
 /**
  * Wrapper that animates a newly added exercise card with pop-in.
- * Mounts with scale 0.9 + opacity 0, springs to 1.
  */
 function AnimatedExerciseWrapper({ children }) {
   const anim = useRef(new Animated.Value(0)).current;
@@ -481,23 +399,16 @@ function AnimatedExerciseWrapper({ children }) {
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  scrollView: {
     flex: 1,
-    backgroundColor: COLORS.screenBackground,
   },
-  loadingContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+  scrollContent: {
+    paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.xxl,
   },
   header: {
     alignItems: 'center',
     paddingVertical: SPACING.lg,
-  },
-  headerLabel: {
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    color: COLORS.textSecondary,
-    marginBottom: SPACING.xs,
   },
   headerMeta: {
     flexDirection: 'row',
@@ -517,12 +428,5 @@ const styles = StyleSheet.create({
   },
   lastDate: {
     color: COLORS.textSecondary,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: SPACING.md,
-    paddingBottom: SPACING.xxl,
   },
 });

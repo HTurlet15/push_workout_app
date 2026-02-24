@@ -1,5 +1,5 @@
 import { Text as RNText } from 'react-native';
-import { COLORS, FONT_SIZE, FONT_FAMILY } from '../theme/theme';
+import { COLORS, FONT_SIZE, FONT_FAMILY } from '../../theme/theme';
 
 /**
  * Design system Text component.

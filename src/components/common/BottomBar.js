@@ -1,17 +1,17 @@
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import Text from './Text';
-import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE, SHADOW } from '../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
 
 /**
  * Persistent bottom navigation bar for the workout session.
  *
  * Contains five interactive elements (left to right):
- * 1. LLM chat — opens AI assistant (future feature)
- * 2. Play/Pause/Check — controls the rest timer lifecycle
- * 3. Timer display — tappable to open duration picker
- * 4. Reset — resets timer to configured duration
- * 5. Edit toggle — switches between workout mode and edit mode
+ * 1. LLM chat - opens AI assistant (future feature)
+ * 2. Play/Pause/Check - controls the rest timer lifecycle
+ * 3. Timer display - tappable to open duration picker
+ * 4. Reset - resets timer to configured duration
+ * 5. Edit toggle - switches between workout mode and edit mode
  *
  * Timer button appearance adapts to timer state:
  * - idle: green play icon on green background
@@ -103,7 +103,7 @@ export default function BottomBar({
         <Feather name={getPlayIcon()} size={SIZE.iconSm} color={getPlayIconColor()} />
       </Pressable>
 
-      {/* Timer display — tap to open duration picker */}
+      {/* Timer display - tap to open duration picker */}
       <Pressable
         style={({ pressed }) => [styles.timerBtn, pressed && styles.timerBtnPressed]}
         onPress={onTimerPress}
@@ -121,7 +121,7 @@ export default function BottomBar({
         <Feather name="rotate-ccw" size={SIZE.iconSm} color={COLORS.textSecondary} />
       </Pressable>
 
-      {/* Edit mode toggle — pencil (normal) / checkmark (active) */}
+      {/* Edit mode toggle - pencil (normal) / checkmark (active) */}
       <Pressable
         style={({ pressed }) => [
           styles.iconBtn,
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   resetBtn: { backgroundColor: COLORS.timerResetBg },
   resetBtnPressed: { backgroundColor: COLORS.timerResetPressedBg },
 
-  /** Edit button — normal mode (black) */
+  /** Edit button - normal mode (black) */
   editBtn: {
     backgroundColor: COLORS.black,
     borderRadius: RADIUS.sm,
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   editBtnPressed: {
     backgroundColor: COLORS.btnDarkPressed,
   },
-  /** Edit button — active mode (blue) */
+  /** Edit button - active mode (blue) */
   editBtnActive: {
     backgroundColor: COLORS.viewCurrent,
     borderRadius: RADIUS.sm,
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.timerResetBg,
   },
 
-  /** Timer text — semibold with fixed minimum width */
+  /** Timer text - semibold with fixed minimum width */
   timerText: {
     fontFamily: FONT_FAMILY.semibold,
     textAlign: 'center',

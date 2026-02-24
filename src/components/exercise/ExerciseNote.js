@@ -1,8 +1,8 @@
 import { View, Pressable, TextInput, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import { Feather } from '@expo/vector-icons';
-import Text from './Text';
-import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../theme/theme';
+import Text from '../common/Text';
+import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../../theme/theme';
 
 /**
  * Exercise annotation strip displayed below the table header.

@@ -1,7 +1,7 @@
 import { View, Animated, StyleSheet } from 'react-native';
-import Text from './Text';
+import Text from '../common/Text';
 import SetInput from './SetInput';
-import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../theme/theme';
+import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../../theme/theme';
 
 /**
  * Set row for the Next view with delta indicators.

@@ -1,7 +1,7 @@
 import { View, Animated, Pressable, TextInput, StyleSheet, useWindowDimensions } from 'react-native';
 import { useState, useRef, useCallback } from 'react';
 import { Feather } from '@expo/vector-icons';
-import Text from './Text';
+import Text from '../common/Text';
 import ViewSelector from './ViewSelector';
 import SetHeader from './SetHeader';
 import NextSetHeader from './NextSetHeader';
@@ -11,8 +11,8 @@ import SetRow from './SetRow';
 import PreviousSetRow from './PreviousSetRow';
 import NextSetRow from './NextSetRow';
 import ExerciseNote from './ExerciseNote';
-import useSlideTransition from '../hooks/useSlideTransition';
-import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../theme/theme';
+import useSlideTransition from '../../hooks/useSlideTransition';
+import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
 
 /** Conversion factor — all data is stored in kg */
 const KG_TO_LBS = 2.20462;

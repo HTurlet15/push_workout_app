@@ -1,7 +1,7 @@
 import { View, Pressable, TextInput, Animated, StyleSheet } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
-import Text from './Text';
-import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY } from '../theme/theme';
+import Text from '../common/Text';
+import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY } from '../../theme/theme';
 
 /** Width of each toggle button — used for slide calculation */
 const TOGGLE_BTN_WIDTH = 32;
