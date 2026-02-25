@@ -1,9 +1,10 @@
-import { View, Animated, StyleSheet } from 'react-native';
+import { View, Pressable, Animated, StyleSheet } from 'react-native';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Feather } from '@expo/vector-icons';
 import Text from '../components/common/Text';
 import ExerciseCard from '../components/exercise/ExerciseCard';
-import { COLORS, SPACING, RADIUS, FONT_FAMILY } from '../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY } from '../theme/theme';
 
 /**
  * Single workout session screen.
@@ -361,6 +362,24 @@ export default function WorkoutScreen({
       </View>
 
       {workout.exercises.map((exercise) => renderExercise(exercise))}
+
+      {/* Add exercise button — visible when empty OR in edit mode */}
+      {(workout.exercises.length === 0 || editMode) && (
+        <Pressable
+          style={({ pressed }) => [
+            styles.addExerciseBtn,
+            pressed && styles.addExerciseBtnPressed,
+          ]}
+          onPress={() => handleAddExercise(
+            workout.exercises.length > 0
+              ? workout.exercises[workout.exercises.length - 1].id
+              : undefined
+          )}
+        >
+          <Feather name="plus" size={18} color={COLORS.textSecondary} />
+          <Text style={styles.addExerciseBtnText}>Add Exercise</Text>
+        </Pressable>
+      )}
     </KeyboardAwareScrollView>
   );
 }
@@ -421,6 +440,29 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.medium,
   },
   lastDate: {
+    color: COLORS.textSecondary,
+  },
+
+  // ── Add exercise button ───────────────────────────────────
+
+  addExerciseBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.sm,
+    paddingVertical: SPACING.md,
+    borderWidth: 1.5,
+    borderColor: COLORS.mediumGray,
+    borderStyle: 'dashed',
+    borderRadius: RADIUS.md,
+    marginTop: SPACING.sm,
+  },
+  addExerciseBtnPressed: {
+    backgroundColor: COLORS.lightGray,
+  },
+  addExerciseBtnText: {
+    fontSize: FONT_SIZE.sm,
+    fontFamily: FONT_FAMILY.medium,
     color: COLORS.textSecondary,
   },
 });
