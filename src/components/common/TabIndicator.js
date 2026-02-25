@@ -24,13 +24,17 @@ export default function TabIndicator({
 }) {
   return (
     <View style={styles.container}>
-      {showLeftDot && <View style={styles.sideDot} />}
-
       <View style={styles.center}>
-        <View style={styles.labelPill}>
-          <Text style={styles.labelText}>{label}</Text>
+        {/* Side dots aligned with pill center */}
+        <View style={styles.labelRow}>
+          {showLeftDot && <View style={styles.sideDot} />}
+          <View style={styles.labelPill}>
+            <Text style={styles.labelText}>{label}</Text>
+          </View>
+          {showRightDot && <View style={styles.sideDot} />}
         </View>
 
+        {/* Session dots below */}
         {totalDots > 1 && (
           <View style={styles.sessionDots}>
             {Array.from({ length: totalDots }, (_, i) => (
@@ -45,8 +49,6 @@ export default function TabIndicator({
           </View>
         )}
       </View>
-
-      {showRightDot && <View style={styles.sideDot} />}
     </View>
   );
 }
@@ -62,6 +64,11 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
     gap: 6,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
   },
   labelPill: {
     backgroundColor: COLORS.textPrimary,
@@ -80,18 +87,18 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   sessionDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: COLORS.mediumGray,
   },
   sessionDotActive: {
     backgroundColor: COLORS.textSecondary,
   },
   sideDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: COLORS.mediumGray,
   },
 });
