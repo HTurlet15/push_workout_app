@@ -8,7 +8,7 @@ import {
 } from '@expo-google-fonts/dm-sans';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ActivityIndicator, View } from 'react-native';
-import WorkoutPager from './src/screens/WorkoutPager';
+import MainScreen from './src/screens/MainScreen';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -29,7 +29,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <WorkoutPager />
+      <MainScreen />
     </SafeAreaProvider>
   );
 }

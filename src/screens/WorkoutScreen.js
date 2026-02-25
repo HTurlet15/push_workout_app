@@ -1,4 +1,4 @@
-import { View, Animated, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Animated, StyleSheet } from 'react-native';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Text from '../components/common/Text';
@@ -10,15 +10,6 @@ import { COLORS, SPACING, RADIUS, FONT_FAMILY } from '../theme/theme';
  *
  * Pure presentation + mutation logic for one workout.
  * All data and timer controls come from the parent (WorkoutPager).
- *
- * @param {Object} workout              - Current workout data.
- * @param {Function} setWorkout         - State setter for current workout.
- * @param {Object} previousWorkout      - Previous session data.
- * @param {Object} nextWorkout          - Next planned data.
- * @param {Function} setNextWorkout     - State setter for next workout.
- * @param {boolean} editMode            - Whether edit controls are visible.
- * @param {Function} startWithDuration  - Start timer with given seconds.
- * @param {Function} updateDuration     - Update timer duration.
  */
 export default function WorkoutScreen({
   workout,
@@ -29,6 +20,7 @@ export default function WorkoutScreen({
   editMode,
   startWithDuration,
   updateDuration,
+  onScroll,
 }) {
   const [newExerciseId, setNewExerciseId] = useState(null);
   const [justCompletedSetId, setJustCompletedSetId] = useState(null);
@@ -351,6 +343,8 @@ export default function WorkoutScreen({
       keyboardShouldPersistTaps="handled"
       enableOnAndroid={true}
       extraScrollHeight={120}
+      onScroll={onScroll}
+      scrollEventThrottle={16}
     >
       <View style={styles.header}>
         <Text variant="screenTitle">{workout.name}</Text>

@@ -1,9 +1,14 @@
 /**
  * Mock data for all workout sessions.
- *
- * Each séance has current / previous / next data.
- * This file exports an array of session configs used by WorkoutPager.
+ * Dates are relative — set close to "now" for realistic display.
  */
+
+// Helper: date X days ago as ISO string
+const daysAgo = (d) => {
+  const date = new Date();
+  date.setDate(date.getDate() - d);
+  return date.toISOString();
+};
 
 const MOCK_SESSIONS = [
   // ── Séance 1: Pectoraux ─────────────────────────────────
@@ -40,7 +45,7 @@ const MOCK_SESSIONS = [
     previous: {
       id: 'w0',
       name: 'Pectoraux',
-      completedAt: '2025-02-20T11:15:00',
+      completedAt: daysAgo(4),
       exercises: [
         {
           id: 'e1',
@@ -122,7 +127,7 @@ const MOCK_SESSIONS = [
     previous: {
       id: 'w2b',
       name: 'Dos',
-      completedAt: '2025-02-19T09:30:00',
+      completedAt: daysAgo(5),
       exercises: [
         {
           id: 'e3',
@@ -204,7 +209,7 @@ const MOCK_SESSIONS = [
     previous: {
       id: 'w4b',
       name: 'Bras',
-      completedAt: '2025-02-18T16:00:00',
+      completedAt: daysAgo(1),
       exercises: [
         {
           id: 'e5',
