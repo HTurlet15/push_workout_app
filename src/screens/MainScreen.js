@@ -20,13 +20,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SHADOW } from '../them
  *  Layer 0: Workouts list
  *  Layer 1: Workout pager (horizontal swipe)
  *
- * Transition forward:
- *  - List scales to 0.95 + fades to 0.4
- *  - Workout fades in from 0 to 1
- *
- * Transition back:
- *  - Workout fades out
- *  - List scales back to 1 + fades to 1
+ * TabIndicator handles both states including the back button.
  */
 export default function MainScreen() {
   const insets = useSafeAreaInsets();
@@ -37,7 +31,7 @@ export default function MainScreen() {
   const [editMode, setEditMode] = useState(false);
   const [showTimerPicker, setShowTimerPicker] = useState(false);
 
-  // 0 = list visible, 1 = workout visible
+  // 0 = list, 1 = workout
   const transitionAnim = useRef(new Animated.Value(0)).current;
 
   const horizontalListRef = useRef(null);
@@ -122,7 +116,6 @@ export default function MainScreen() {
     inputRange: [0, 1],
     outputRange: [1, 0.92],
   });
-
   const listOpacity = transitionAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [1, 0.3],
@@ -214,33 +207,16 @@ export default function MainScreen() {
             },
           ]}
         >
-          {/* Header: tab + back button */}
-          <View style={styles.overlayHeader}>
-            <View style={styles.headerSpacer} />
-            <View style={styles.headerCenter}>
-              <TabIndicator
-                label="Workout"
-                totalDots={sessions.length}
-                activeIndex={activeWorkoutIndex}
-                showLeftDot={true}
-                showRightDot={true}
-              />
-            </View>
-            <Pressable
-              style={({ pressed }) => [
-                styles.backBtn,
-                pressed && styles.backBtnPressed,
-              ]}
-              onPress={navigateToList}
-            >
-              <View style={styles.backBtnInner}>
-                <Feather name="chevron-up" size={14} color={COLORS.textSecondary} />
-                <Text style={styles.backBtnText}>Workouts</Text>
-              </View>
-            </Pressable>
-          </View>
+          <TabIndicator
+            label="Workouts"
+            totalDots={sessions.length}
+            activeIndex={activeWorkoutIndex}
+            showLeftDot={true}
+            showRightDot={true}
+            backLabel="Workouts"
+            onBack={navigateToList}
+          />
 
-          {/* Horizontal workout pager */}
           <FlatList
             ref={horizontalListRef}
             data={sessions}
@@ -418,7 +394,6 @@ function ExpandableCard({
   return (
     <View style={styles.card}>
       <View style={styles.cardMain}>
-        {/* Tap to navigate */}
         <Pressable
           style={({ pressed }) => [
             styles.cardNavArea,
@@ -445,7 +420,6 @@ function ExpandableCard({
           </View>
         </Pressable>
 
-        {/* Tap to expand/collapse */}
         <Pressable
           style={({ pressed }) => [
             styles.chevronHitArea,
@@ -494,38 +468,6 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: COLORS.screenBackground,
-    paddingTop: 0, // will be set inline
-  },
-
-  // ── Overlay header ────────────────────────────────────────
-
-  overlayHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerCenter: {
-    flex: 1,
-  },
-  headerSpacer: {
-    width: SPACING.sm,
-  },
-  backBtn: {
-    paddingHorizontal: SPACING.sm + 2,
-    height: 44,
-    justifyContent: 'center',
-  },
-  backBtnPressed: {
-    opacity: 0.5,
-  },
-  backBtnInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  backBtnText: {
-    fontSize: FONT_SIZE.xs + 1,
-    fontFamily: FONT_FAMILY.medium,
-    color: COLORS.textSecondary,
   },
 
   // ── List ──────────────────────────────────────────────────
