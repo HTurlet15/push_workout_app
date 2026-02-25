@@ -151,7 +151,7 @@ This keeps the interface clean while making all temporal data accessible.
 I chose to consolidate actions into three buttons at the bottom rather than cluttering the main interface:
 
 **Left: ⭐ (Future LLM Assistant)**  
-- Placeholder for AI features (v0.2+)
+- Placeholder for AI features (v2+)
 - Will parse voice/text input to log sets quickly
 
 **Center: ▶️ 01:30 (Integrated Timer)**  
@@ -159,12 +159,12 @@ I chose to consolidate actions into three buttons at the bottom rather than clut
 - Eliminates need to switch to Clock app during workouts
 - Always accessible without leaving the screen
 
-**Right: + (Add)**  
+**Right: 🖊️ (Add)**  
 - Opens menu to add sets, exercises, or notes
 - Deliberately not placed inline to avoid visual clutter
 
 **Why bottom buttons instead of inline controls:**  
-I prioritized a clean main view. Adding "+/−" buttons next to every set or exercise would create visual noise. Consolidating these actions into a single "+" menu keeps the workout table uncluttered while maintaining full functionality.
+I prioritized a clean main view. Adding "+/−" buttons next to every set or exercise would create visual noise. Consolidating these actions into a single "🖊️" menu keeps the workout table uncluttered while maintaining full functionality.
 
 ---
 
@@ -201,8 +201,3 @@ docs/design/
 │   └── figma/ (digital mockups)
 └── [additional design docs as needed]
 ```
-
----
-
-**Status:** ✅ Ready for implementation  
-**Date:** February 2025

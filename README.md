@@ -22,7 +22,7 @@ This app bridges that gap: spreadsheet-level customization with modern mobile UX
 
 ## Current Status
 
-In design phase. Creating wireframes and defining user flows.
+Programmation phase : the mvp is 90% done.
 
 ## Design Process
 
