@@ -2,7 +2,7 @@ import { Pressable, TextInput, StyleSheet } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from '../common/Text';
-import { COLORS, FONT_SIZE, FONT_FAMILY, SPACING, RADIUS } from '../../theme/theme';
+import { COLORS, FONT_SIZE, FONT_FAMILY, SPACING, RADIUS, SIZE } from '../../theme/theme';
 
 /**
  * Tappable badge displaying a single set value (weight, reps, or RIR).
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: COLORS.white,
     borderRadius: RADIUS.sm,
-    borderWidth: 1,
+    borderWidth: SIZE.border,
     borderColor: COLORS.blue,
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,

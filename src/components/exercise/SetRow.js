@@ -118,7 +118,7 @@ export default function SetRow({ index, set, onUpdateSet, editMode = false, onDe
           style={({ pressed }) => [styles.deleteBtn, pressed && styles.deleteBtnPressed]}
           onPress={onDelete}
         >
-          <Feather name="x" size={SIZE.iconSm - 6} color={COLORS.error} />
+          <Feather name="x" size={SIZE.iconTiny} color={COLORS.error} />
         </Pressable>
       )}
 
@@ -145,7 +145,7 @@ export default function SetRow({ index, set, onUpdateSet, editMode = false, onDe
               },
             ]}
           >
-            <Feather name="check" size={FONT_SIZE.caption + 2} color={COLORS.success} />
+            <Feather name="check" size={FONT_SIZE.md} color={COLORS.success} />
           </Animated.View>
         )}
       </View>

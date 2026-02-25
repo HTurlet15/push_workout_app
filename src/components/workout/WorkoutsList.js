@@ -3,19 +3,13 @@ import { useState, useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from '../common/Text';
 import WorkoutCard from './WorkoutCard';
-import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SHADOW } from '../../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
 
 /**
  * Scrollable list of workout cards with:
  * - Expand/collapse exercise preview per card
  * - Edit mode: delete workouts (depop animation), add new workout
  * - Pop-in animation for newly added workouts
- *
- * @param {Array} sessions           - Array of session objects.
- * @param {boolean} editMode         - Whether edit controls are visible.
- * @param {Function} onSelectWorkout - Navigate to a workout by index.
- * @param {Function} onAddWorkout    - Add a new workout.
- * @param {Function} onDeleteWorkout - Delete a workout by index.
  */
 export default function WorkoutsList({
   sessions,
@@ -25,19 +19,12 @@ export default function WorkoutsList({
   onDeleteWorkout,
 }) {
   const [expandedId, setExpandedId] = useState(null);
-
-  /** Set of session indices that were just added — triggers pop-in */
   const [newIndices, setNewIndices] = useState(new Set());
-
-  /** Animated values for sessions being deleted */
   const deleteAnims = useRef({});
 
-  // Collapse expanded cards when entering edit mode
   useEffect(() => {
     if (editMode) setExpandedId(null);
   }, [editMode]);
-
-  // ── Time badge ────────────────────────────────────────────
 
   const getTimeBadge = (completedAt) => {
     if (!completedAt) return { label: 'Never', tier: 'moderate' };
@@ -58,13 +45,9 @@ export default function WorkoutsList({
     return { label, tier };
   };
 
-  // ── Delete animation ──────────────────────────────────────
-
   const handleDelete = (index) => {
     const key = `delete-${index}`;
     deleteAnims.current[key] = new Animated.Value(1);
-
-    // Force re-render to show animation wrapper
     setNewIndices((prev) => new Set(prev));
 
     Animated.timing(deleteAnims.current[key], {
@@ -77,13 +60,9 @@ export default function WorkoutsList({
     });
   };
 
-  // ── Add animation ─────────────────────────────────────────
-
   const handleAdd = () => {
     const newIndex = sessions.length;
     onAddWorkout();
-
-    // Track for pop-in
     setNewIndices((prev) => new Set(prev).add(newIndex));
     setTimeout(() => {
       setNewIndices((prev) => {
@@ -93,8 +72,6 @@ export default function WorkoutsList({
       });
     }, 500);
   };
-
-  // ── Render card with optional animation wrapper ───────────
 
   const renderCard = (session, index) => {
     const deleteKey = `delete-${index}`;
@@ -117,7 +94,6 @@ export default function WorkoutsList({
       />
     );
 
-    // Depop wrapper
     if (deleteAnim) {
       const scale = deleteAnim.interpolate({
         inputRange: [0, 1],
@@ -133,7 +109,6 @@ export default function WorkoutsList({
       );
     }
 
-    // Pop-in wrapper
     if (isNew) {
       return (
         <PopInWrapper key={session.current.id}>
@@ -144,8 +119,6 @@ export default function WorkoutsList({
 
     return <View key={session.current.id}>{card}</View>;
   };
-
-  // ── Render ────────────────────────────────────────────────
 
   return (
     <ScrollView
@@ -159,7 +132,6 @@ export default function WorkoutsList({
 
       {sessions.map((session, index) => renderCard(session, index))}
 
-      {/* Add workout button — edit mode only */}
       {editMode && (
         <Pressable
           style={({ pressed }) => [
@@ -168,7 +140,7 @@ export default function WorkoutsList({
           ]}
           onPress={handleAdd}
         >
-          <Feather name="plus" size={18} color={COLORS.textSecondary} />
+          <Feather name="plus" size={SIZE.iconChevron} color={COLORS.textSecondary} />
           <Text style={styles.addBtnText}>Add Workout</Text>
         </Pressable>
       )}
@@ -176,9 +148,6 @@ export default function WorkoutsList({
   );
 }
 
-/**
- * Pop-in animation wrapper for newly added cards.
- */
 function PopInWrapper({ children }) {
   const anim = useRef(new Animated.Value(0)).current;
 
@@ -215,16 +184,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: SPACING.lg,
   },
-
-  // ── Add button ────────────────────────────────────────────
-
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: SPACING.sm,
     paddingVertical: SPACING.md,
-    borderWidth: 1.5,
+    borderWidth: SIZE.borderAccent,
     borderColor: COLORS.mediumGray,
     borderStyle: 'dashed',
     borderRadius: RADIUS.md,

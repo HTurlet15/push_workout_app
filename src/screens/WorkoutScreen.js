@@ -4,7 +4,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Feather } from '@expo/vector-icons';
 import Text from '../components/common/Text';
 import ExerciseCard from '../components/exercise/ExerciseCard';
-import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY } from '../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE } from '../theme/theme';
 
 /**
  * Single workout session screen.
@@ -376,7 +376,7 @@ export default function WorkoutScreen({
               : undefined
           )}
         >
-          <Feather name="plus" size={18} color={COLORS.textSecondary} />
+          <Feather name="plus" size={SIZE.iconChevron} color={COLORS.textSecondary} />
           <Text style={styles.addExerciseBtnText}>Add Exercise</Text>
         </Pressable>
       )}
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: SPACING.sm,
     paddingVertical: SPACING.md,
-    borderWidth: 1.5,
+    borderWidth: SIZE.borderAccent,
     borderColor: COLORS.mediumGray,
     borderStyle: 'dashed',
     borderRadius: RADIUS.md,

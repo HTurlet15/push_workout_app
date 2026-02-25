@@ -2,7 +2,7 @@ import { View, Pressable, Animated, StyleSheet } from 'react-native';
 import { useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from '../common/Text';
-import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SHADOW } from '../../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
 
 /**
  * Individual workout card with:
@@ -11,16 +11,6 @@ import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SHADOW } from '../../t
  * - Edit mode → show delete button, hide chevron
  * - Animated number badge (gray ↔ black on expand)
  * - Rep range display per exercise
- *
- * @param {number} index            - Position in the list (1-based display).
- * @param {string} name             - Workout name.
- * @param {Array} exercises         - Exercise array from current workout.
- * @param {Object} timeBadge        - { label, tier } from parent.
- * @param {boolean} isExpanded      - Whether exercise list is visible.
- * @param {boolean} editMode        - Whether edit controls are shown.
- * @param {Function} onToggleExpand - Toggle expand callback.
- * @param {Function} onPress        - Navigate to workout callback.
- * @param {Function} onDelete       - Delete this workout callback.
  */
 export default function WorkoutCard({
   index,
@@ -57,8 +47,6 @@ export default function WorkoutCard({
     ]).start();
   }, [isExpanded]);
 
-  // ── Helpers ───────────────────────────────────────────────
-
   const getRepRange = (exercise) => {
     const reps = exercise.sets
       .map((s) => s.reps?.value ?? s.reps)
@@ -70,9 +58,7 @@ export default function WorkoutCard({
     return `${min}-${max} reps`;
   };
 
-  // ── Interpolations ────────────────────────────────────────
-
-  const maxExerciseHeight = exercises.length * 40 + 16;
+  const maxExerciseHeight = exercises.length * SIZE.exerciseRowHeight + SPACING.md;
 
   const animatedHeight = expandAnim.interpolate({
     inputRange: [0, 1],
@@ -99,12 +85,9 @@ export default function WorkoutCard({
     timeBadge.tier === 'overdue' ? COLORS.error :
     COLORS.textSecondary;
 
-  // ── Render ────────────────────────────────────────────────
-
   return (
     <View style={styles.card}>
       <View style={styles.cardMain}>
-        {/* Delete button — edit mode only */}
         {editMode && (
           <Pressable
             style={({ pressed }) => [
@@ -113,11 +96,10 @@ export default function WorkoutCard({
             ]}
             onPress={onDelete}
           >
-            <Feather name="minus-circle" size={20} color={COLORS.error} />
+            <Feather name="minus-circle" size={SIZE.iconMd} color={COLORS.error} />
           </Pressable>
         )}
 
-        {/* Tap to navigate */}
         <Pressable
           style={({ pressed }) => [
             styles.cardNavArea,
@@ -145,7 +127,6 @@ export default function WorkoutCard({
           </View>
         </Pressable>
 
-        {/* Chevron — hidden in edit mode */}
         {!editMode && (
           <Pressable
             style={({ pressed }) => [
@@ -155,13 +136,12 @@ export default function WorkoutCard({
             onPress={onToggleExpand}
           >
             <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
-              <Feather name="chevron-down" size={18} color={COLORS.textMuted} />
+              <Feather name="chevron-down" size={SIZE.iconChevron} color={COLORS.textMuted} />
             </Animated.View>
           </Pressable>
         )}
       </View>
 
-      {/* Expandable exercise list — hidden in edit mode */}
       {!editMode && (
         <Animated.View style={[styles.exercisesContainer, { height: animatedHeight }]}>
           <View style={styles.exercisesInner}>
@@ -193,51 +173,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-
-  // ── Delete button ─────────────────────────────────────────
-
   deleteBtn: {
-    width: 44,
-    height: 56,
+    width: SIZE.touchTarget,
+    height: SIZE.cardRowHeight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   deleteBtnPressed: {
     backgroundColor: COLORS.errorLight,
   },
-
-  // ── Nav area ──────────────────────────────────────────────
-
   cardNavArea: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     padding: SPACING.md,
-    gap: SPACING.sm + 2,
+    gap: SPACING.smd,
   },
   cardNavAreaPressed: {
     backgroundColor: COLORS.lightGray,
   },
-
-  // ── Chevron ───────────────────────────────────────────────
-
   chevronHitArea: {
-    width: 48,
+    width: SIZE.touchTargetLg,
     height: '100%',
-    minHeight: 56,
+    minHeight: SIZE.cardRowHeight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   chevronPressed: {
     backgroundColor: COLORS.lightGray,
   },
-
-  // ── Number badge ──────────────────────────────────────────
-
   cardNumber: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: SIZE.numberBadge,
+    height: SIZE.numberBadge,
+    borderRadius: RADIUS.smd,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -245,50 +213,44 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZE.md,
     fontFamily: FONT_FAMILY.bold,
   },
-
-  // ── Body ──────────────────────────────────────────────────
-
   cardBody: {
     flex: 1,
     minWidth: 0,
   },
   cardName: {
-    fontSize: FONT_SIZE.md + 1,
+    fontSize: FONT_SIZE.md,
     fontFamily: FONT_FAMILY.bold,
     color: COLORS.textPrimary,
-    marginBottom: 2,
+    marginBottom: SPACING.xxs,
   },
   cardMeta: {
     flexDirection: 'row',
   },
   cardMetaText: {
-    fontSize: FONT_SIZE.xs + 1,
+    fontSize: FONT_SIZE.sm,
     fontFamily: FONT_FAMILY.medium,
     color: COLORS.textSecondary,
   },
-
-  // ── Exercise list ─────────────────────────────────────────
-
   exercisesContainer: {
     overflow: 'hidden',
   },
   exercisesInner: {
     paddingHorizontal: SPACING.md,
-    paddingBottom: SPACING.sm + 2,
-    paddingLeft: SPACING.md + 36 + SPACING.sm + 2,
+    paddingBottom: SPACING.smd,
+    paddingLeft: SPACING.md + SIZE.numberBadge + SPACING.smd,
   },
   exerciseRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 9,
+    paddingVertical: SPACING.smd,
     gap: SPACING.sm,
-    borderTopWidth: 1,
+    borderTopWidth: SIZE.border,
     borderTopColor: COLORS.lightGray,
   },
   exerciseDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    width: SIZE.dotSm,
+    height: SIZE.dotSm,
+    borderRadius: SIZE.dotSm / 2,
     backgroundColor: COLORS.textMuted,
   },
   exerciseName: {

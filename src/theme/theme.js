@@ -60,7 +60,7 @@ export const COLORS = {
   timerActivePressedBg: '#FFE0B2',
   timerDonePressedBg: '#C8E6C9',
   timerResetPressedBg: '#EAEAEA',
-  
+
   // Button states
   btnDarkPressed: '#333333',          // Dark button pressed feedback
   editBtnActivePressed: '#0066DD',    // Edit mode check button pressed
@@ -77,14 +77,10 @@ export const COLORS = {
   nextBadge: '#F8F8F8',            // Same gray as other views
   nextBadgeText: '#8E8E93',        // Secondary text like Previous view
   nextBadgeBorder: '#E8E8E8',      // Subtle gray border
-  nextEdited: '#1A1A1A',           // User-edited values become primary (black)
-  //nextBadge: '#FFF3E0',          // Orange-tinted badge background
-  //nextBadgeText: '#C4956A',      // Default (inherited) next value text
-  //nextBadgeBorder: '#FFE8CC',    // Badge separator border
-  nextEdited: '#E65100',         // User-edited next value text
-  deltaUp: '#2E7D32',            // Positive change indicator (↑)
-  deltaDown: '#C62828',          // Negative change indicator (↓)
-  deltaSame: '#C0C0C0',          // No change indicator (=)
+  nextEdited: '#E65100',           // User-edited next value text
+  deltaUp: '#2E7D32',              // Positive change indicator (↑)
+  deltaDown: '#C62828',            // Negative change indicator (↓)
+  deltaSame: '#C0C0C0',           // No change indicator (=)
 
   // Note system (ExerciseNote component)
   noteBackground: '#FFFDE7',          // Warm yellow strip background
@@ -95,7 +91,6 @@ export const COLORS = {
 
   // Edit mode
   addExercisePressed: '#EBF3FF',      // Touch feedback on add Exercise button
-  
 
   // Shadow base color (used in SHADOW presets)
   shadow: '#000000',
@@ -105,9 +100,14 @@ export const COLORS = {
 // 4px base unit. Use multiples for consistent rhythm.
 
 export const SPACING = {
+  xxs: 1,   // Hairline: underline offsets, minimal margins
   xs: 4,    // Tight gaps: icon margins, inline spacing
+  xsm: 6,  // Small comfortable gaps: footer padding, dot gaps
   sm: 8,    // Badge padding, row gaps, small margins
+  smd: 10,  // Card inner gaps, exercise row vertical rhythm
+  smm: 12,  // Comfortable padding: footer insets, note padding
   md: 16,   // Card padding, section margins, input padding
+  mdl: 20,  // Pill horizontal padding, comfortable insets
   lg: 24,   // Section spacing, modal padding
   xl: 32,   // Screen-edge horizontal padding (BottomBar)
   xxl: 48,  // Scroll content bottom padding (above BottomBar)
@@ -117,11 +117,11 @@ export const SPACING = {
 // Mapped to specific component roles for clarity.
 
 export const FONT_SIZE = {
-  xs: 11,        // Delta indicators (↑3, ↓1.5, =)
-  sm: 12,       // Table column headers (Set, Weight, Reps, RIR)
-  caption: 13,  // Set numbers, note text, view selector badge, edit buttons
+  xs: 11,       // Delta indicators (↑3, ↓1.5, =)
+  sm: 12,       // Table column headers, toggle labels, rest text, meta text
+  caption: 13,  // Set numbers, note text, view selector badge, rest icon
   body: 14,     // Badge values, row content, default text
-  md: 15,       // Subtitle text, secondary labels
+  md: 15,       // Subtitle text, secondary labels, check icon size
   lg: 17,       // Exercise names in card headers
   title: 20,    // Timer display, section titles
   xl: 34,       // Screen title (workout name)
@@ -155,8 +155,10 @@ export const FONT_FAMILY = {
 export const RADIUS = {
   xs: 6,      // Small badges, inline elements
   sm: 8,      // Input fields, buttons, table headers
+  smd: 10,    // Number badges, compact cards
   md: 12,     // Cards, view selector badge, progress badge
   lg: 16,     // Modal containers, dashed action buttons
+  pill: 20,   // Tab indicator pill, toggle indicator inner
   full: 999,  // Fully round (pills, circular buttons)
 };
 
@@ -164,17 +166,37 @@ export const RADIUS = {
 // Fixed pixel dimensions for interactive elements and layout alignment.
 
 export const SIZE = {
+  // Touch targets
+  touchTarget: 44,     // Minimum recommended touch target (Apple HIG)
+  touchTargetLg: 48,   // Larger touch target for primary actions
+  cardRowHeight: 56,   // Standard card row height
+
   // BottomBar buttons
   iconBtn: 40,         // Square touch target for icon buttons
   roundBtn: 36,        // Circular play/reset buttons
   timerMinWidth: 56,   // Timer display minimum width for alignment
+
+  // Icon sizes (progressive scale)
+  iconTiny: 10,        // Smallest icons (set row delete X)
+  iconXxs: 12,         // Tiny icons (exercise card delete X)
+  iconXs: 14,          // Extra small icons (back chevrons)
   iconSm: 16,          // Small icons (play, reset, delete X)
-  iconMd: 20,          // Medium icons (edit pencil/check)
+  iconChevron: 18,     // Chevron arrows, add buttons
+  iconMd: 20,          // Medium icons (edit pencil/check, card delete)
   iconLg: 22,          // Large icons (LLM chat bubble)
+
+  // Dot indicators
+  dotSm: 4,            // Exercise list bullet dots
+  dotMd: 6,            // Session indicator dots
+  dotLg: 8,            // Side navigation dots
+
+  // Number badge (workout card)
+  numberBadge: 36,     // Width/height of numbered badge
 
   // Set table layout
   tableHeaderHeight: 32,  // Reserved for future fixed header height
   deleteBtn: 20,          // Red delete circle diameter
+  deleteBtnOuter: 24,     // Delete button outer touch area
   deltaBox: 32,           // Fixed-width delta indicator column
 
   // View selector
@@ -189,6 +211,13 @@ export const SIZE = {
   // Card structure
   tableBorderLeft: 3,      // Colored left border on exercise cards
   noteBorderLeft: 3,       // Yellow left border on note strips
+
+  // Border widths
+  border: 1,               // Standard border (inputs, separators)
+  borderAccent: 1.5,       // Accent borders (dashed add buttons, edit underlines)
+
+  // Layout
+  exerciseRowHeight: 40,   // Height per exercise row in workout card preview
 };
 
 // ─── SHADOWS ───────────────────────────────────────────────

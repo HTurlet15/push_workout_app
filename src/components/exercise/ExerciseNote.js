@@ -50,6 +50,7 @@ export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
           placeholderTextColor={COLORS.mediumGray}
           multiline
           textAlignVertical="top"
+          blurOnSubmit
           autoFocus
           onSubmitEditing={() => setEditing(false)}
           onBlur={() => setEditing(false)}
@@ -76,8 +77,8 @@ const styles = StyleSheet.create({
     borderLeftWidth: SIZE.noteBorderLeft,
     borderLeftColor: COLORS.noteBorder,
     paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.sm + SPACING.xs,
-    minHeight: 36,
+    paddingHorizontal: SPACING.smm,
+    minHeight: SIZE.roundBtn,
     justifyContent: 'center',
   },
   noteStripPressed: {
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: SIZE.noteBorderLeft,
     borderLeftColor: COLORS.noteBorder,
     paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.sm + SPACING.xs,
+    paddingHorizontal: SPACING.smm,
   },
   addNoteBtnPressed: {
     backgroundColor: COLORS.noteBackgroundPressed,

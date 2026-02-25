@@ -412,7 +412,7 @@ export default function ExerciseCard({
             ]}
             onPress={handleDeleteExercise}
           >
-            <Feather name="x" size={SIZE.iconSm - 4} color={COLORS.error} />
+            <Feather name="x" size={SIZE.iconXxs} color={COLORS.error} />
           </Pressable>
         )}
 
@@ -475,9 +475,9 @@ const styles = StyleSheet.create({
   },
   nameEditable: {
     flex: 1,
-    borderBottomWidth: 1.5,
+    borderBottomWidth: SIZE.borderAccent,
     borderBottomColor: COLORS.mediumGray,
-    paddingBottom: 2,
+    paddingBottom: SPACING.xxs,
   },
   nameEditableActive: {
     borderBottomColor: COLORS.textPrimary,
@@ -491,13 +491,13 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     padding: 0,
     margin: 0,
-    minWidth: 120,
+    minWidth: SIZE.viewSelectorWidth,
   },
 
   deleteExerciseBtn: {
-    width: SIZE.deleteBtn + 4,
-    height: SIZE.deleteBtn + 4,
-    borderRadius: (SIZE.deleteBtn + 4) / 2,
+    width: SIZE.deleteBtnOuter,
+    height: SIZE.deleteBtnOuter,
+    borderRadius: (SIZE.deleteBtnOuter) / 2,
     backgroundColor: COLORS.errorLight,
     alignItems: 'center',
     justifyContent: 'center',
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,
     borderRadius: RADIUS.lg,
-    borderWidth: 1.5,
+    borderWidth: SIZE.borderAccent,
     borderStyle: 'dashed',
     borderColor: COLORS.mediumGray,
     marginVertical: SPACING.sm,
@@ -537,9 +537,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: SPACING.sm,
-    paddingVertical: SPACING.sm + SPACING.xs,
+    paddingVertical: SPACING.smm,
     borderRadius: RADIUS.md,
-    borderWidth: 1.5,
+    borderWidth: SIZE.borderAccent,
     borderStyle: 'dashed',
     borderColor: COLORS.viewCurrent,
     marginTop: SPACING.sm,

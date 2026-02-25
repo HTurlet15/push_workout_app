@@ -1,7 +1,7 @@
 import { View, Pressable, TextInput, Animated, StyleSheet } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import Text from '../common/Text';
-import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY } from '../../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE } from '../../theme/theme';
 
 /** Width of each toggle button — used for slide calculation */
 const TOGGLE_BTN_WIDTH = 32;
@@ -191,8 +191,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: SPACING.xs + 2,
-    paddingHorizontal: SPACING.sm + SPACING.xs,
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.smm,
     backgroundColor: COLORS.lightGray,
     borderBottomLeftRadius: RADIUS.sm,
     borderBottomRightRadius: RADIUS.sm,
@@ -206,13 +206,13 @@ const styles = StyleSheet.create({
   restBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: SPACING.xs,
   },
   restBadgePressed: {
     opacity: 0.5,
   },
   restIcon: {
-    fontSize: FONT_SIZE.sm + 1,
+    fontSize: FONT_SIZE.caption,
   },
   restText: {
     fontSize: FONT_SIZE.sm,
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZE.sm,
     fontFamily: FONT_FAMILY.medium,
     color: COLORS.textSecondary,
-    marginLeft: 1,
+    marginLeft: SPACING.xxs,
   },
 
   // ── Rest editable ───────────────────────────────────────
@@ -231,13 +231,13 @@ const styles = StyleSheet.create({
   restEditRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: SPACING.xs,
   },
   restEditable: {
-    borderBottomWidth: 1.5,
+    borderBottomWidth: SIZE.borderAccent,
     borderBottomColor: COLORS.mediumGray,
-    paddingBottom: 1,
-    minWidth: 24,
+    paddingBottom: SPACING.xxs,
+    minWidth: SIZE.deleteBtnOuter,
     alignItems: 'center',
   },
   restEditableActive: {
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     padding: 0,
     margin: 0,
-    minWidth: 24,
+    minWidth: SIZE.deleteBtnOuter,
     textAlign: 'center',
   },
 
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     width: TOGGLE_BTN_WIDTH,
     height: '100%',
     backgroundColor: COLORS.white,
-    borderRadius: RADIUS.xs - 1,
+    borderRadius: RADIUS.xs,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
@@ -281,13 +281,13 @@ const styles = StyleSheet.create({
   /** Toggle button — transparent, text only (indicator slides behind) */
   toggleBtn: {
     width: TOGGLE_BTN_WIDTH,
-    paddingVertical: 2,
+    paddingVertical: SPACING.xxs,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
   },
   toggleText: {
-    fontSize: FONT_SIZE.xs + 1,
+    fontSize: FONT_SIZE.sm,
     fontFamily: FONT_FAMILY.bold,
     color: COLORS.textSecondary,
     letterSpacing: 0.3,
