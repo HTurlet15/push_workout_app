@@ -27,9 +27,13 @@ export default function TabIndicator({
   backLabel,
   onBack,
 }) {
-  // Dots: position 0 = none left, 2 right. Position 1+ = 1 left, 1 right.
-  const leftDots = tabPosition === 0 ? 0 : 1;
-  const rightDots = tabPosition === 0 ? 2 : 1;
+  // Dots based on position in 3-tab layout:
+  // 0 (Programs):  PILL • •   (0 left, 2 right)
+  // 1 (Workouts):  • PILL •   (1 left, 1 right)
+  // 2 (Graphs):    • • PILL   (2 left, 0 right)
+  // 3+ (deep/detail): • • PILL (same as 2, with session dots)
+  const leftDots = Math.min(tabPosition, 2);
+  const rightDots = Math.max(0, 2 - tabPosition);
 
   return (
     <View style={styles.container}>

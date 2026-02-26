@@ -4,6 +4,8 @@ import { useState, useRef, useCallback } from 'react';
 import ProgramsList from '../components/program/ProgramsList';
 import WorkoutsList from '../components/workout/WorkoutsList';
 import WorkoutPager from '../components/workout/WorkoutPager';
+import GraphsList from '../components/graph/GraphsList';
+import GraphDetail from '../components/graph/GraphDetail';
 import BottomBar from '../components/common/BottomBar';
 import TimerPicker from '../components/common/TimerPicker';
 import TabIndicator from '../components/common/TabIndicator';
@@ -36,7 +38,7 @@ export default function MainScreen() {
 
   const [activeTab, setActiveTab] = useState(1); // 0 = Programs, 1 = Workouts
   const tabPagerRef = useRef(null);
-  const TAB_LABELS = ['Programs', 'Workouts'];
+  const TAB_LABELS = ['Programs', 'Workouts', 'Graphs'];
 
   const onTabViewableItemsChanged = useRef(({ viewableItems }) => {
     if (viewableItems.length > 0) {
@@ -58,6 +60,12 @@ export default function MainScreen() {
   // 0 = list, 1 = workout
   const transitionAnim = useRef(new Animated.Value(0)).current;
   const pagerRef = useRef(null);
+
+  // ── Graph detail overlay state ────────────────────────────
+
+  const [graphDetailIndex, setGraphDetailIndex] = useState(null);
+  const [graphDetailVisible, setGraphDetailVisible] = useState(false);
+  const graphTransitionAnim = useRef(new Animated.Value(0)).current;
 
   // ── Global timer ──────────────────────────────────────────
 
@@ -213,6 +221,29 @@ export default function MainScreen() {
     });
   };
 
+  // ── Graph detail transitions ──────────────────────────────
+
+  const navigateToGraphDetail = (sessionIndex) => {
+    setGraphDetailIndex(sessionIndex);
+    setGraphDetailVisible(true);
+
+    Animated.timing(graphTransitionAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const navigateToGraphsList = () => {
+    Animated.timing(graphTransitionAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => {
+      setGraphDetailVisible(false);
+    });
+  };
+
   // List: scales down + fades
   const listScale = transitionAnim.interpolate({
     inputRange: [0, 1],
@@ -229,9 +260,15 @@ export default function MainScreen() {
     outputRange: [0, 0.5, 1],
   });
 
+  // Graph detail: same pattern
+  const graphDetailOpacity = graphTransitionAnim.interpolate({
+    inputRange: [0, 0.3, 1],
+    outputRange: [0, 0.5, 1],
+  });
+
   // ── Tab pages ─────────────────────────────────────────────
 
-  const tabPages = [{ key: 'programs' }, { key: 'workouts' }];
+  const tabPages = [{ key: 'programs' }, { key: 'workouts' }, { key: 'graphs' }];
 
   const renderTabPage = ({ item }) => (
     <View style={{ width, flex: 1 }}>
@@ -246,13 +283,18 @@ export default function MainScreen() {
           onUpdateProgramNote={handleUpdateProgramNote}
           onUpdateProgramFrequency={handleUpdateProgramFrequency}
         />
-      ) : (
+      ) : item.key === 'workouts' ? (
         <WorkoutsList
           sessions={sessions}
           editMode={editMode}
           onSelectWorkout={navigateToWorkout}
           onAddWorkout={handleAddWorkout}
           onDeleteWorkout={handleDeleteWorkout}
+        />
+      ) : (
+        <GraphsList
+          sessions={sessions}
+          onSelectGraph={navigateToGraphDetail}
         />
       )}
     </View>
@@ -272,7 +314,7 @@ export default function MainScreen() {
             transform: [{ scale: listScale }],
           },
         ]}
-        pointerEvents={workoutVisible ? 'none' : 'auto'}
+        pointerEvents={workoutVisible || graphDetailVisible ? 'none' : 'auto'}
       >
         <TabIndicator
           label={TAB_LABELS[activeTab]}
@@ -326,7 +368,7 @@ export default function MainScreen() {
         >
           <TabIndicator
             label="Workout"
-            tabPosition={2}
+            tabPosition={1}
             totalDots={sessions.length}
             activeIndex={activeWorkoutIndex}
             backLabel="Workouts"
@@ -343,6 +385,40 @@ export default function MainScreen() {
             updateDuration={updateDuration}
             onPageChange={setActiveWorkoutIndex}
           />
+
+          <BottomBar
+            timerState={timerState}
+            timeRemaining={timeRemaining}
+            editMode={editMode}
+            onPlayPause={playPause}
+            onReset={reset}
+            onTimerPress={() => setShowTimerPicker(true)}
+            onEditToggle={() => setEditMode((prev) => !prev)}
+            onLLMPress={() => {}}
+            bottomInset={insets.bottom}
+          />
+        </Animated.View>
+      )}
+
+      {/* ── Layer 2: Graph detail overlay ── */}
+      {graphDetailVisible && graphDetailIndex !== null && (
+        <Animated.View
+          style={[
+            styles.overlay,
+            {
+              opacity: graphDetailOpacity,
+              paddingTop: insets.top,
+            },
+          ]}
+        >
+          <TabIndicator
+            label="Detail"
+            tabPosition={2}
+            backLabel="Graphs"
+            onBack={navigateToGraphsList}
+          />
+
+          <GraphDetail session={sessions[graphDetailIndex]} />
 
           <BottomBar
             timerState={timerState}
