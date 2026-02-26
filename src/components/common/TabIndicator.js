@@ -4,20 +4,33 @@ import Text from './Text';
 import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, RADIUS, SIZE } from '../../theme/theme';
 
 /**
- * Tab indicator with a center-aligned pill, session dots, and optional back button.
+ * Tab indicator with a center-aligned pill, navigation dots, and optional back button.
  *
- * The pill + dots are always perfectly centered using absolute positioning.
- * The back button (optional) sits on the left edge.
+ * The pill is always perfectly centered using absolute positioning.
+ * Dots indicate position in the horizontal tab navigation:
+ * - tabPosition 0 (first tab):  PILL • •   (dots right of pill)
+ * - tabPosition 1 (middle tab): • PILL •   (dots both sides)
+ * - tabPosition 2+ (deeper):    • PILL •   (same, with session dots below)
+ *
+ * @param {string} label            - Text inside the center pill.
+ * @param {number} tabPosition      - 0-based position in tab hierarchy (0=Programs, 1=Workouts, 2=Workout detail).
+ * @param {number} totalDots        - Number of session dots below the pill (for pager views).
+ * @param {number} activeIndex      - Which session dot is active (0-based).
+ * @param {string} backLabel        - If set, shows a "↑ backLabel" button on the left.
+ * @param {Function} onBack         - Callback when back button is pressed.
  */
 export default function TabIndicator({
   label,
+  tabPosition = 1,
   totalDots = 0,
   activeIndex = 0,
-  showLeftDot = true,
-  showRightDot = true,
   backLabel,
   onBack,
 }) {
+  // Dots: position 0 = none left, 2 right. Position 1+ = 1 left, 1 right.
+  const leftDots = tabPosition === 0 ? 0 : 1;
+  const rightDots = tabPosition === 0 ? 2 : 1;
+
   return (
     <View style={styles.container}>
       {backLabel && onBack ? (
@@ -38,11 +51,15 @@ export default function TabIndicator({
       <View style={styles.centerAbsolute}>
         <View style={styles.centerContent}>
           <View style={styles.labelRow}>
-            {showLeftDot && <View style={styles.sideDot} />}
+            {Array.from({ length: leftDots }, (_, i) => (
+              <View key={`l-${i}`} style={styles.sideDot} />
+            ))}
             <View style={styles.labelPill}>
               <Text style={styles.labelText}>{label}</Text>
             </View>
-            {showRightDot && <View style={styles.sideDot} />}
+            {Array.from({ length: rightDots }, (_, i) => (
+              <View key={`r-${i}`} style={styles.sideDot} />
+            ))}
           </View>
 
           {totalDots > 1 && (

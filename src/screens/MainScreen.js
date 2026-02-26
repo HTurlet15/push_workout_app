@@ -1,6 +1,7 @@
-import { View, Animated, StyleSheet } from 'react-native';
+import { View, FlatList, Animated, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useRef, useCallback } from 'react';
+import ProgramsList from '../components/program/ProgramsList';
 import WorkoutsList from '../components/workout/WorkoutsList';
 import WorkoutPager from '../components/workout/WorkoutPager';
 import BottomBar from '../components/common/BottomBar';
@@ -8,24 +9,47 @@ import TimerPicker from '../components/common/TimerPicker';
 import TabIndicator from '../components/common/TabIndicator';
 import useRestTimer from '../hooks/useRestTimer';
 import MOCK_SESSIONS from '../data/mockSessions';
+import MOCK_PROGRAMS from '../data/mockPrograms';
 import { COLORS } from '../theme/theme';
 
 /**
  * MainScreen — top-level orchestrator.
  *
  * Manages:
+ * - Horizontal tab pager: Programs (page 0) ↔ Workouts (page 1)
  * - Sessions state (shared between list and pager)
+ * - Programs state (list, selection)
  * - Zoom-through transition between list and workout views
  * - Global rest timer
- * - Edit mode (shared between list and workout views)
+ * - Edit mode (shared between all views)
  * - TimerPicker modal
  *
  * Delegates rendering to:
- * - WorkoutsList (layer 0)
- * - WorkoutPager (layer 1 overlay)
+ * - ProgramsList (tab page 0)
+ * - WorkoutsList (tab page 1)
+ * - WorkoutPager (layer 1 overlay via zoom-through)
  */
 export default function MainScreen() {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+
+  // ── Horizontal tab pager (Programs ↔ Workouts) ────────────
+
+  const [activeTab, setActiveTab] = useState(1); // 0 = Programs, 1 = Workouts
+  const tabPagerRef = useRef(null);
+  const TAB_LABELS = ['Programs', 'Workouts'];
+
+  const onTabViewableItemsChanged = useRef(({ viewableItems }) => {
+    if (viewableItems.length > 0) {
+      setActiveTab(viewableItems[0].index);
+    }
+  }).current;
+
+  const tabViewabilityConfig = useRef({
+    viewAreaCoveragePercentThreshold: 50,
+  }).current;
+
+  // ── Workout overlay state ─────────────────────────────────
 
   const [activeWorkoutIndex, setActiveWorkoutIndex] = useState(0);
   const [workoutVisible, setWorkoutVisible] = useState(false);
@@ -42,6 +66,40 @@ export default function MainScreen() {
     timerState, timeRemaining, duration,
     playPause, reset, updateDuration, startWithDuration,
   } = useRestTimer(90);
+
+  // ── Programs state ────────────────────────────────────────
+
+  const [programs, setPrograms] = useState(MOCK_PROGRAMS);
+  const [selectedProgramId, setSelectedProgramId] = useState(MOCK_PROGRAMS[0]?.id);
+
+  const handleSelectProgram = useCallback((programId) => {
+    setSelectedProgramId(programId);
+    // Navigate to Workouts tab after selection
+    setTimeout(() => {
+      tabPagerRef.current?.scrollToIndex({ index: 1, animated: true });
+    }, 200);
+  }, []);
+
+  const handleAddProgram = useCallback(() => {
+    const ts = Date.now();
+    setPrograms((prev) => [...prev, {
+      id: `prog-${ts}`,
+      name: 'New Program',
+      note: null,
+      frequency: null,
+      workouts: [],
+    }]);
+  }, []);
+
+  const handleDeleteProgram = useCallback((index) => {
+    setPrograms((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      if (prev[index]?.id === selectedProgramId && next.length > 0) {
+        setSelectedProgramId(next[0].id);
+      }
+      return next;
+    });
+  }, [selectedProgramId]);
 
   // ── Sessions state ────────────────────────────────────────
 
@@ -152,12 +210,39 @@ export default function MainScreen() {
     outputRange: [0, 0.5, 1],
   });
 
+  // ── Tab pages ─────────────────────────────────────────────
+
+  const tabPages = [{ key: 'programs' }, { key: 'workouts' }];
+
+  const renderTabPage = ({ item }) => (
+    <View style={{ width, flex: 1 }}>
+      {item.key === 'programs' ? (
+        <ProgramsList
+          programs={programs}
+          selectedProgramId={selectedProgramId}
+          editMode={editMode}
+          onSelectProgram={handleSelectProgram}
+          onAddProgram={handleAddProgram}
+          onDeleteProgram={handleDeleteProgram}
+        />
+      ) : (
+        <WorkoutsList
+          sessions={sessions}
+          editMode={editMode}
+          onSelectWorkout={navigateToWorkout}
+          onAddWorkout={handleAddWorkout}
+          onDeleteWorkout={handleDeleteWorkout}
+        />
+      )}
+    </View>
+  );
+
   // ── Render ────────────────────────────────────────────────
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
 
-      {/* ── Layer 0: List ── */}
+      {/* ── Layer 0: Tab pager (Programs ↔ Workouts) ── */}
       <Animated.View
         style={[
           styles.layer,
@@ -169,17 +254,29 @@ export default function MainScreen() {
         pointerEvents={workoutVisible ? 'none' : 'auto'}
       >
         <TabIndicator
-          label="Workouts"
-          showLeftDot={true}
-          showRightDot={true}
+          label={TAB_LABELS[activeTab]}
+          tabPosition={activeTab}
         />
 
-        <WorkoutsList
-          sessions={sessions}
-          editMode={editMode}
-          onSelectWorkout={navigateToWorkout}
-          onAddWorkout={handleAddWorkout}
-          onDeleteWorkout={handleDeleteWorkout}
+        <FlatList
+          ref={tabPagerRef}
+          data={tabPages}
+          renderItem={renderTabPage}
+          keyExtractor={(item) => item.key}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          bounces={false}
+          scrollEnabled={!editMode}
+          onViewableItemsChanged={onTabViewableItemsChanged}
+          viewabilityConfig={tabViewabilityConfig}
+          initialScrollIndex={1}
+          getItemLayout={(_, index) => ({
+            length: width,
+            offset: width * index,
+            index,
+          })}
+          style={styles.tabPager}
         />
 
         <BottomBar
@@ -207,11 +304,10 @@ export default function MainScreen() {
           ]}
         >
           <TabIndicator
-            label="Workouts"
+            label="Workout"
+            tabPosition={2}
             totalDots={sessions.length}
             activeIndex={activeWorkoutIndex}
-            showLeftDot={true}
-            showRightDot={true}
             backLabel="Workouts"
             onBack={navigateToList}
           />
@@ -260,6 +356,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.screenBackground,
   },
   layer: {
+    flex: 1,
+  },
+  tabPager: {
     flex: 1,
   },
   overlay: {
