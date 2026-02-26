@@ -66,30 +66,32 @@ export default function MainScreen() {
     playPause, reset, updateDuration, startWithDuration,
   } = useRestTimer(90);
 
-  // ── Programs state ────────────────────────────────────────
+  // ── Programs state (single source of truth) ────────────────
 
   const [programs, setPrograms] = useState(MOCK_PROGRAMS);
   const [selectedProgramId, setSelectedProgramId] = useState(MOCK_PROGRAMS[0]?.id);
 
-  /** Get sessions array from a program by ID */
-  const getSessionsForProgram = useCallback((programId) => {
-    const program = programs.find((p) => p.id === programId);
-    if (!program?.sessions) return [];
-    return program.sessions.map((s) => ({
-      current: s.current,
-      previous: s.previous,
-      next: s.next,
+  /** Derived sessions from the selected program */
+  const selectedProgram = programs.find((p) => p.id === selectedProgramId);
+  const sessions = selectedProgram?.sessions ?? [];
+
+  /** Update sessions inside the selected program */
+  const updateSelectedSessions = useCallback((updater) => {
+    setPrograms((prev) => prev.map((p) => {
+      if (p.id !== selectedProgramId) return p;
+      return {
+        ...p,
+        sessions: typeof updater === 'function' ? updater(p.sessions) : updater,
+      };
     }));
-  }, [programs]);
+  }, [selectedProgramId]);
 
   const handleSelectProgram = useCallback((programId) => {
     setSelectedProgramId(programId);
-    setSessions(getSessionsForProgram(programId));
-    // Navigate to Workouts tab after selection
     setTimeout(() => {
       tabPagerRef.current?.scrollToIndex({ index: 1, animated: true });
     }, 200);
-  }, [getSessionsForProgram]);
+  }, []);
 
   const handleAddProgram = useCallback(() => {
     const ts = Date.now();
@@ -107,21 +109,16 @@ export default function MainScreen() {
       const next = prev.filter((_, i) => i !== index);
       if (prev[index]?.id === selectedProgramId && next.length > 0) {
         setSelectedProgramId(next[0].id);
-        setSessions(getSessionsForProgram(next[0].id));
       }
       return next;
     });
-  }, [selectedProgramId, getSessionsForProgram]);
+  }, [selectedProgramId]);
 
-  // ── Sessions state (loaded from selected program) ─────────
-
-  const [sessions, setSessions] = useState(() =>
-    getSessionsForProgram(MOCK_PROGRAMS[0]?.id)
-  );
+  // ── Session mutations (write through to programs) ─────────
 
   const makeSetWorkout = useCallback((index) => {
     return (updater) => {
-      setSessions((prev) => {
+      updateSelectedSessions((prev) => {
         const next = [...prev];
         const current = next[index].current;
         next[index] = {
@@ -131,11 +128,11 @@ export default function MainScreen() {
         return next;
       });
     };
-  }, []);
+  }, [updateSelectedSessions]);
 
   const makeSetNextWorkout = useCallback((index) => {
     return (updater) => {
-      setSessions((prev) => {
+      updateSelectedSessions((prev) => {
         const next = [...prev];
         const nextWk = next[index].next;
         next[index] = {
@@ -145,7 +142,7 @@ export default function MainScreen() {
         return next;
       });
     };
-  }, []);
+  }, [updateSelectedSessions]);
 
   // ── Add / Delete workouts ─────────────────────────────────
 
@@ -166,11 +163,11 @@ export default function MainScreen() {
         exercises: [],
       },
     };
-    setSessions((prev) => [...prev, newSession]);
+    updateSelectedSessions((prev) => [...prev, newSession]);
   };
 
   const handleDeleteWorkout = (index) => {
-    setSessions((prev) => prev.filter((_, i) => i !== index));
+    updateSelectedSessions((prev) => prev.filter((_, i) => i !== index));
   };
 
   // ── Zoom-through transitions ──────────────────────────────
