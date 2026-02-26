@@ -50,7 +50,8 @@ export default function ProgramCard({
 
   // Note adds ~40px, each workout row ~40px, plus padding
   const noteHeight = program.note ? SIZE.exerciseRowHeight : 0;
-  const maxContentHeight = program.workouts.length * SIZE.exerciseRowHeight + noteHeight + SPACING.md;
+  const workouts = program.sessions || [];
+  const maxContentHeight = workouts.length * SIZE.exerciseRowHeight + noteHeight + SPACING.md;
 
   const animatedHeight = expandAnim.interpolate({
     inputRange: [0, 1],
@@ -98,7 +99,7 @@ export default function ProgramCard({
         >
           <Text style={styles.cardName}>{program.name}</Text>
           <Text style={styles.cardMeta}>
-            {program.workouts.length} workout{program.workouts.length !== 1 ? 's' : ''}
+            {workouts.length} workout{workouts.length !== 1 ? 's' : ''}
             {program.frequency ? ` · ${program.frequency}` : ''}
           </Text>
         </Pressable>
@@ -131,12 +132,12 @@ export default function ProgramCard({
           )}
 
           {/* Workout rows */}
-          {program.workouts.map((workout) => (
-            <View key={workout.id} style={styles.workoutRow}>
+          {workouts.map((session) => (
+            <View key={session.current.id} style={styles.workoutRow}>
               <View style={styles.workoutDot} />
-              <Text style={styles.workoutName}>{workout.name}</Text>
+              <Text style={styles.workoutName}>{session.current.name}</Text>
               <Text style={styles.workoutDetail}>
-                {workout.exerciseCount} exercise{workout.exerciseCount !== 1 ? 's' : ''}
+                {session.current.exercises.length} exercise{session.current.exercises.length !== 1 ? 's' : ''}
               </Text>
             </View>
           ))}

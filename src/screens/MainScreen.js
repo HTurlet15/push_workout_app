@@ -8,7 +8,6 @@ import BottomBar from '../components/common/BottomBar';
 import TimerPicker from '../components/common/TimerPicker';
 import TabIndicator from '../components/common/TabIndicator';
 import useRestTimer from '../hooks/useRestTimer';
-import MOCK_SESSIONS from '../data/mockSessions';
 import MOCK_PROGRAMS from '../data/mockPrograms';
 import { COLORS } from '../theme/theme';
 
@@ -72,13 +71,25 @@ export default function MainScreen() {
   const [programs, setPrograms] = useState(MOCK_PROGRAMS);
   const [selectedProgramId, setSelectedProgramId] = useState(MOCK_PROGRAMS[0]?.id);
 
+  /** Get sessions array from a program by ID */
+  const getSessionsForProgram = useCallback((programId) => {
+    const program = programs.find((p) => p.id === programId);
+    if (!program?.sessions) return [];
+    return program.sessions.map((s) => ({
+      current: s.current,
+      previous: s.previous,
+      next: s.next,
+    }));
+  }, [programs]);
+
   const handleSelectProgram = useCallback((programId) => {
     setSelectedProgramId(programId);
+    setSessions(getSessionsForProgram(programId));
     // Navigate to Workouts tab after selection
     setTimeout(() => {
       tabPagerRef.current?.scrollToIndex({ index: 1, animated: true });
     }, 200);
-  }, []);
+  }, [getSessionsForProgram]);
 
   const handleAddProgram = useCallback(() => {
     const ts = Date.now();
@@ -87,7 +98,7 @@ export default function MainScreen() {
       name: 'New Program',
       note: null,
       frequency: null,
-      workouts: [],
+      sessions: [],
     }]);
   }, []);
 
@@ -96,19 +107,16 @@ export default function MainScreen() {
       const next = prev.filter((_, i) => i !== index);
       if (prev[index]?.id === selectedProgramId && next.length > 0) {
         setSelectedProgramId(next[0].id);
+        setSessions(getSessionsForProgram(next[0].id));
       }
       return next;
     });
-  }, [selectedProgramId]);
+  }, [selectedProgramId, getSessionsForProgram]);
 
-  // ── Sessions state ────────────────────────────────────────
+  // ── Sessions state (loaded from selected program) ─────────
 
-  const [sessions, setSessions] = useState(
-    MOCK_SESSIONS.map((s) => ({
-      current: s.current,
-      previous: s.previous,
-      next: s.next,
-    }))
+  const [sessions, setSessions] = useState(() =>
+    getSessionsForProgram(MOCK_PROGRAMS[0]?.id)
   );
 
   const makeSetWorkout = useCallback((index) => {
