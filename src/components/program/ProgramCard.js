@@ -1,4 +1,4 @@
-import { View, Pressable, Animated, StyleSheet } from 'react-native';
+import { View, Pressable, TextInput, Animated, StyleSheet } from 'react-native';
 import { useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from '../common/Text';
@@ -20,6 +20,8 @@ import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '.
  * @param {Function} onSelect    - Select this program.
  * @param {Function} onToggleExpand - Toggle workout preview.
  * @param {Function} onDelete    - Delete this program.
+ * @param {Function} onUpdateNote - Update the program note text.
+ * @param {Function} onUpdateFrequency - Update the program frequency text.
  */
 export default function ProgramCard({
   program,
@@ -29,6 +31,8 @@ export default function ProgramCard({
   onSelect,
   onToggleExpand,
   onDelete,
+  onUpdateNote,
+  onUpdateFrequency,
 }) {
   const expandAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
   const chevronAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
@@ -88,7 +92,7 @@ export default function ProgramCard({
           </Pressable>
         )}
 
-        {/* Body — tap to select */}
+        {/* Body */}
         <Pressable
           style={({ pressed }) => [
             styles.cardBody,
@@ -98,10 +102,28 @@ export default function ProgramCard({
           disabled={editMode}
         >
           <Text style={styles.cardName}>{program.name}</Text>
-          <Text style={styles.cardMeta}>
-            {workouts.length} workout{workouts.length !== 1 ? 's' : ''}
-            {program.frequency ? ` · ${program.frequency}` : ''}
-          </Text>
+          <View style={styles.cardMeta}>
+            <Text style={styles.cardMetaText}>
+              {workouts.length} workout{workouts.length !== 1 ? 's' : ''}
+            </Text>
+            {editMode ? (
+              <View style={styles.frequencyEditable}>
+                <Text style={styles.cardMetaText}> · </Text>
+                <TextInput
+                  style={styles.frequencyInput}
+                  value={program.frequency || ''}
+                  onChangeText={(text) => onUpdateFrequency?.(text || null)}
+                  placeholder="e.g. 4d/week"
+                  placeholderTextColor={COLORS.textMuted}
+                  returnKeyType="done"
+                />
+              </View>
+            ) : (
+              program.frequency ? (
+                <Text style={styles.cardMetaText}> · {program.frequency}</Text>
+              ) : null
+            )}
+          </View>
         </Pressable>
 
         {/* Chevron — hidden in edit mode */}
@@ -120,10 +142,25 @@ export default function ProgramCard({
         )}
       </View>
 
+      {/* Editable note — edit mode only, always visible */}
+      {editMode && (
+        <View style={styles.noteStripEditable}>
+          <View style={styles.noteBorder} />
+          <TextInput
+            style={styles.noteInput}
+            value={program.note || ''}
+            onChangeText={(text) => onUpdateNote?.(text || null)}
+            placeholder="add note..."
+            placeholderTextColor={COLORS.notePlaceholder}
+            multiline
+          />
+        </View>
+      )}
+
       {/* Expandable content — hidden in edit mode */}
       {!editMode && (
         <Animated.View style={[styles.expandContainer, { height: animatedHeight }]}>
-          {/* Optional note */}
+          {/* Read-only note */}
           {program.note && (
             <View style={styles.noteStrip}>
               <View style={styles.noteBorder} />
@@ -221,9 +258,28 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.xxs,
   },
   cardMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cardMetaText: {
     fontSize: FONT_SIZE.sm,
     fontFamily: FONT_FAMILY.medium,
     color: COLORS.textSecondary,
+  },
+  frequencyEditable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  frequencyInput: {
+    fontSize: FONT_SIZE.sm,
+    fontFamily: FONT_FAMILY.medium,
+    color: COLORS.textSecondary,
+    borderBottomWidth: SIZE.borderAccent,
+    borderBottomColor: COLORS.mediumGray,
+    paddingVertical: 0,
+    paddingHorizontal: SPACING.xs,
+    margin: 0,
+    minWidth: 70,
   },
 
   // ── Chevron ───────────────────────────────────────────────
@@ -267,6 +323,23 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZE.sm,
     fontFamily: FONT_FAMILY.italic,
     color: COLORS.noteText,
+  },
+  noteStripEditable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    paddingLeft: SIZE.touchTarget,
+    backgroundColor: COLORS.noteBackground,
+    gap: SPACING.xsm,
+  },
+  noteInput: {
+    flex: 1,
+    fontSize: FONT_SIZE.sm,
+    fontFamily: FONT_FAMILY.italic,
+    color: COLORS.noteText,
+    padding: 0,
+    margin: 0,
   },
 
   // ── Workout rows ──────────────────────────────────────────

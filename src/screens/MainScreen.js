@@ -114,6 +114,20 @@ export default function MainScreen() {
     });
   }, [selectedProgramId]);
 
+  const handleUpdateProgramNote = useCallback((index, note) => {
+    setPrograms((prev) => prev.map((p, i) => {
+      if (i !== index) return p;
+      return { ...p, note };
+    }));
+  }, []);
+
+  const handleUpdateProgramFrequency = useCallback((index, frequency) => {
+    setPrograms((prev) => prev.map((p, i) => {
+      if (i !== index) return p;
+      return { ...p, frequency };
+    }));
+  }, []);
+
   // ── Session mutations (write through to programs) ─────────
 
   const makeSetWorkout = useCallback((index) => {
@@ -229,6 +243,8 @@ export default function MainScreen() {
           onSelectProgram={handleSelectProgram}
           onAddProgram={handleAddProgram}
           onDeleteProgram={handleDeleteProgram}
+          onUpdateProgramNote={handleUpdateProgramNote}
+          onUpdateProgramFrequency={handleUpdateProgramFrequency}
         />
       ) : (
         <WorkoutsList
