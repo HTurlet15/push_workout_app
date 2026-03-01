@@ -94,16 +94,9 @@ export default function ProgramCard({
           </Pressable>
         )}
 
-        {/* Body */}
-        <Pressable
-          style={({ pressed }) => [
-            styles.cardBody,
-            pressed && !editMode && styles.cardBodyPressed,
-          ]}
-          onPress={editMode ? undefined : onSelect}
-          disabled={editMode}
-        >
-          {editMode ? (
+        {/* Body — Pressable in normal mode, View in edit mode */}
+        {editMode ? (
+          <View style={styles.cardBody}>
             <TextInput
               style={styles.cardNameInput}
               value={program.name}
@@ -112,14 +105,10 @@ export default function ProgramCard({
               placeholderTextColor={COLORS.textMuted}
               returnKeyType="done"
             />
-          ) : (
-            <Text style={styles.cardName}>{program.name}</Text>
-          )}
-          <View style={styles.cardMeta}>
-            <Text style={styles.cardMetaText}>
-              {workouts.length} workout{workouts.length !== 1 ? 's' : ''}
-            </Text>
-            {editMode ? (
+            <View style={styles.cardMeta}>
+              <Text style={styles.cardMetaText}>
+                {workouts.length} workout{workouts.length !== 1 ? 's' : ''}
+              </Text>
               <View style={styles.frequencyEditable}>
                 <Text style={styles.cardMetaText}> · </Text>
                 <TextInput
@@ -131,13 +120,27 @@ export default function ProgramCard({
                   returnKeyType="done"
                 />
               </View>
-            ) : (
-              program.frequency ? (
-                <Text style={styles.cardMetaText}> · {program.frequency}</Text>
-              ) : null
-            )}
+            </View>
           </View>
-        </Pressable>
+        ) : (
+          <Pressable
+            style={({ pressed }) => [
+              styles.cardBody,
+              pressed && styles.cardBodyPressed,
+            ]}
+            onPress={onSelect}
+          >
+            <Text style={styles.cardName}>{program.name}</Text>
+            <View style={styles.cardMeta}>
+              <Text style={styles.cardMetaText}>
+                {workouts.length} workout{workouts.length !== 1 ? 's' : ''}
+              </Text>
+              {program.frequency ? (
+                <Text style={styles.cardMetaText}> · {program.frequency}</Text>
+              ) : null}
+            </View>
+          </Pressable>
+        )}
 
         {/* Chevron — hidden in edit mode */}
         {!editMode && (

@@ -48,6 +48,7 @@ export const COLORS = {
   // Badge system (SetInput component)
   badgeBackground: '#F8F8F8', // Default badge fill
   badgePressed: '#ECECEC',    // Badge touch feedback
+  badgeTextPreFill : '#b1b1b1',
 
   // Timer states (BottomBar + TimerPicker)
   timerIdle: '#C0C0C0',
@@ -75,9 +76,10 @@ export const COLORS = {
 
   // Next view delta system
   nextBadge: '#F8F8F8',            // Same gray as other views
-  nextBadgeText: '#8E8E93',        // Secondary text like Previous view
+  nextBadgeEdited : '#ffe6d9',
+  nextBadgeText: '#b1b1b1',        // Secondary text like Previous view
   nextBadgeBorder: '#E8E8E8',      // Subtle gray border
-  nextEdited: '#E65100',           // User-edited next value text
+  nextEdited: '#1A1A1A',           // User-edited next value text
   deltaUp: '#2E7D32',              // Positive change indicator (↑)
   deltaDown: '#C62828',            // Negative change indicator (↓)
   deltaSame: '#C0C0C0',           // No change indicator (=)

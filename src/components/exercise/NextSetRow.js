@@ -65,7 +65,7 @@ export default function NextSetRow({ index, currentSet, nextSet, unit = 'kg', di
               unit={unit}
               state={nextWeight.state}
               onChangeValue={(val) => onUpdateNextSet?.('weight', val)}
-              badgeColor={COLORS.nextBadge}
+              badgeColor={nextWeight.edited ? COLORS.nextBadgeEdited: COLORS.nextBadge}
               textColor={nextWeight.edited ? COLORS.nextEdited : COLORS.nextBadgeText}
             />
           </Animated.View>
@@ -85,7 +85,7 @@ export default function NextSetRow({ index, currentSet, nextSet, unit = 'kg', di
               value={nextReps.value}
               state={nextReps.state}
               onChangeValue={(val) => onUpdateNextSet?.('reps', val)}
-              badgeColor={COLORS.nextBadge}
+              badgeColor={nextReps.edited ? COLORS.nextBadgeEdited: COLORS.nextBadge}
               textColor={nextReps.edited ? COLORS.nextEdited : COLORS.nextBadgeText}
             />
           </View>

@@ -1,6 +1,6 @@
-import { View, FlatList, Animated, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, FlatList, Animated, StyleSheet, useWindowDimensions, BackHandler } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import ProgramsList from '../components/program/ProgramsList';
 import WorkoutsList from '../components/workout/WorkoutsList';
 import WorkoutPager from '../components/workout/WorkoutPager';
@@ -272,6 +272,27 @@ export default function MainScreen() {
     inputRange: [0, 0.3, 1],
     outputRange: [0, 0.5, 1],
   });
+
+  // ── Hardware back button ──────────────────────────────────
+
+  useEffect(() => {
+    const handler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (graphDetailVisible) {
+        navigateToGraphsList();
+        return true;
+      }
+      if (workoutVisible) {
+        navigateToList();
+        return true;
+      }
+      if (editMode) {
+        setEditMode(false);
+        return true;
+      }
+      return false; // Let default behavior happen (exit app)
+    });
+    return () => handler.remove();
+  }, [graphDetailVisible, workoutVisible, editMode]);
 
   // ── Tab pages ─────────────────────────────────────────────
 

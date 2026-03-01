@@ -86,6 +86,7 @@ export default function SetInput({ value, unit, state = 'empty', onChangeValue, 
         onBlur={handleSubmit}
         keyboardType="numeric"
         returnKeyType="done"
+        autoFocus
       />
     );
   }
@@ -166,7 +167,7 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.medium,
   },
   inactiveText: {
-    color: COLORS.textSecondary,
+    color: COLORS.badgeTextPreFill,
     fontFamily: FONT_FAMILY.medium,
   },
 });
