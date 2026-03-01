@@ -367,7 +367,7 @@ export default function MainScreen() {
           ]}
         >
           <TabIndicator
-            label="Workout"
+            label="Workouts"
             tabPosition={1}
             totalDots={sessions.length}
             activeIndex={activeWorkoutIndex}

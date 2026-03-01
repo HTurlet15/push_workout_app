@@ -26,6 +26,9 @@ const LINE_COLORS = [
   '#2E7D32', // green
   '#E65100', // orange
   '#C62828', // red
+  '#7B1FA2', // purple
+  '#00838F', // teal
+  '#F9A825', // amber
 ];
 
 const formatTonnage = (v) => {
@@ -58,10 +61,15 @@ export default function GraphDetail({ session }) {
     );
   }
 
-  // Get exercise names from first history entry
-  const exerciseNames = history[0].exercises.map((e) => e.name);
+  // Get exercise names from current workout (live structure, reflects additions/removals)
+  const currentExercises = session.current?.exercises || [];
+  const exerciseNames = currentExercises.map((e) => e.name);
 
-  // Compute min/max across all exercises
+  // Also include any exercises that exist in history but were removed from current
+  const historyExerciseNames = new Set(history.flatMap((h) => h.exercises.map((e) => e.name)));
+  const allExerciseNames = [...new Set([...exerciseNames, ...historyExerciseNames])];
+
+  // Compute min/max across all exercises (current + historical)
   const allTonnages = history.flatMap((h) => h.exercises.map((e) => e.tonnage));
   const minT = Math.min(...allTonnages);
   const maxT = Math.max(...allTonnages);
@@ -112,7 +120,7 @@ export default function GraphDetail({ session }) {
 
         {/* Legend */}
         <View style={styles.legend}>
-          {exerciseNames.map((exName, idx) => (
+          {allExerciseNames.map((exName, idx) => (
             <View key={exName} style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: LINE_COLORS[idx % LINE_COLORS.length] }]} />
               <Text style={styles.legendText}>{exName}</Text>
@@ -132,12 +140,16 @@ export default function GraphDetail({ session }) {
               </SvgText>
             ))}
 
-            {exerciseNames.map((exName, exIdx) => {
+            {allExerciseNames.map((exName, exIdx) => {
               const color = LINE_COLORS[exIdx % LINE_COLORS.length];
-              const pts = history.map((h, i) => {
-                const ex = h.exercises.find((e) => e.name === exName);
-                return { x: toX(i), y: toY(ex?.tonnage ?? 0) };
-              });
+              // Only plot points where this exercise exists in history
+              const pts = history
+                .map((h, i) => {
+                  const ex = h.exercises.find((e) => e.name === exName);
+                  return ex ? { x: toX(i), y: toY(ex.tonnage), has: true } : null;
+                })
+                .filter(Boolean);
+              if (pts.length < 2) return null; // Not enough data for a line
               const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
               return (
                 <View key={exName}>
