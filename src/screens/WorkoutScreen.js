@@ -51,6 +51,33 @@ export default function WorkoutScreen({
   // ── Mutation handlers ─────────────────────────────────────
 
   const handleUpdateSet = (exerciseId, setId, field, value) => {
+    // Null value = user cleared the field → revert to previous or empty
+    if (value === null) {
+      const prevExercise = findExercise(previousWorkout, exerciseId);
+      const prevSet = prevExercise?.sets?.find((s) => s.id === setId);
+      const prevValue = prevSet?.[field];
+
+      setWorkout((prev) => ({
+        ...prev,
+        exercises: prev.exercises.map((ex) => {
+          if (ex.id !== exerciseId) return ex;
+          return {
+            ...ex,
+            sets: ex.sets.map((set) => {
+              if (set.id !== setId) return set;
+              return {
+                ...set,
+                [field]: prevValue != null
+                  ? { value: prevValue, state: 'previous' }
+                  : { value: null, state: 'empty' },
+              };
+            }),
+          };
+        }),
+      }));
+      return;
+    }
+
     const willComplete = wouldCompleteSet(exerciseId, setId, field);
     const exercise = workout.exercises.find((e) => e.id === exerciseId);
 
@@ -82,6 +109,24 @@ export default function WorkoutScreen({
   };
 
   const handleUpdateNextSet = (exerciseId, setId, field, value) => {
+    // Null value = user cleared the field → revert to unedited state
+    if (value === null) {
+      setNextWorkout((prev) => ({
+        ...prev,
+        exercises: prev.exercises.map((exercise) => {
+          if (exercise.id !== exerciseId) return exercise;
+          return {
+            ...exercise,
+            sets: exercise.sets.map((set) => {
+              if (set.id !== setId) return set;
+              return { ...set, [field]: null };
+            }),
+          };
+        }),
+      }));
+      return;
+    }
+
     setNextWorkout((prev) => ({
       ...prev,
       exercises: prev.exercises.map((exercise) => {

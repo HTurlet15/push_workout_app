@@ -65,11 +65,17 @@ export default function SetInput({ value, unit, state = 'empty', onChangeValue, 
     }
   };
 
-  /** Confirm edit: parse to number, notify parent, exit edit mode */
+  /** Confirm edit: parse to number, notify parent, exit edit mode.
+   *  Empty draft → sends null (revert to previous/empty state). */
   const handleSubmit = () => {
     setIsEditing(false);
+    if (!onChangeValue) return;
+    if (draft.trim() === '') {
+      onChangeValue(null);
+      return;
+    }
     const parsed = parseFloat(draft);
-    if (!isNaN(parsed) && onChangeValue) {
+    if (!isNaN(parsed)) {
       onChangeValue(parsed);
     }
   };
