@@ -22,6 +22,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '.
  * @param {Function} onDelete    - Delete this program.
  * @param {Function} onUpdateNote - Update the program note text.
  * @param {Function} onUpdateFrequency - Update the program frequency text.
+ * @param {Function} onUpdateName - Update the program name.
  */
 export default function ProgramCard({
   program,
@@ -33,6 +34,7 @@ export default function ProgramCard({
   onDelete,
   onUpdateNote,
   onUpdateFrequency,
+  onUpdateName,
 }) {
   const expandAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
   const chevronAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
@@ -101,7 +103,18 @@ export default function ProgramCard({
           onPress={editMode ? undefined : onSelect}
           disabled={editMode}
         >
-          <Text style={styles.cardName}>{program.name}</Text>
+          {editMode ? (
+            <TextInput
+              style={styles.cardNameInput}
+              value={program.name}
+              onChangeText={(text) => onUpdateName?.(text)}
+              placeholder="Program name"
+              placeholderTextColor={COLORS.textMuted}
+              returnKeyType="done"
+            />
+          ) : (
+            <Text style={styles.cardName}>{program.name}</Text>
+          )}
           <View style={styles.cardMeta}>
             <Text style={styles.cardMetaText}>
               {workouts.length} workout{workouts.length !== 1 ? 's' : ''}
@@ -256,6 +269,16 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.bold,
     color: COLORS.textPrimary,
     marginBottom: SPACING.xxs,
+  },
+  cardNameInput: {
+    fontSize: FONT_SIZE.md,
+    fontFamily: FONT_FAMILY.bold,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.xxs,
+    borderBottomWidth: SIZE.borderAccent,
+    borderBottomColor: COLORS.mediumGray,
+    paddingVertical: 0,
+    margin: 0,
   },
   cardMeta: {
     flexDirection: 'row',

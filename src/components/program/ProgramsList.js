@@ -20,6 +20,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE } from '../../the
  * @param {Function} onDeleteProgram  - Delete a program by index.
  * @param {Function} onUpdateProgramNote - Update a program's note by index.
  * @param {Function} onUpdateProgramFrequency - Update a program's frequency by index.
+ * @param {Function} onUpdateProgramName - Update a program's name by index.
  */
 export default function ProgramsList({
   programs,
@@ -30,6 +31,7 @@ export default function ProgramsList({
   onDeleteProgram,
   onUpdateProgramNote,
   onUpdateProgramFrequency,
+  onUpdateProgramName,
 }) {
   const [expandedId, setExpandedId] = useState(null);
   const [newIndices, setNewIndices] = useState(new Set());
@@ -92,6 +94,7 @@ export default function ProgramsList({
         onDelete={() => handleDelete(index)}
         onUpdateNote={(text) => onUpdateProgramNote?.(index, text)}
         onUpdateFrequency={(text) => onUpdateProgramFrequency?.(index, text)}
+        onUpdateName={(text) => onUpdateProgramName?.(index, text)}
       />
     );
 

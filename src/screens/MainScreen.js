@@ -136,6 +136,13 @@ export default function MainScreen() {
     }));
   }, []);
 
+  const handleUpdateProgramName = useCallback((index, name) => {
+    setPrograms((prev) => prev.map((p, i) => {
+      if (i !== index) return p;
+      return { ...p, name };
+    }));
+  }, []);
+
   // ── Session mutations (write through to programs) ─────────
 
   const makeSetWorkout = useCallback((index) => {
@@ -282,6 +289,7 @@ export default function MainScreen() {
           onDeleteProgram={handleDeleteProgram}
           onUpdateProgramNote={handleUpdateProgramNote}
           onUpdateProgramFrequency={handleUpdateProgramFrequency}
+          onUpdateProgramName={handleUpdateProgramName}
         />
       ) : item.key === 'workouts' ? (
         <WorkoutsList
@@ -367,7 +375,7 @@ export default function MainScreen() {
           ]}
         >
           <TabIndicator
-            label="Workouts"
+            label="Workout"
             tabPosition={1}
             totalDots={sessions.length}
             activeIndex={activeWorkoutIndex}
