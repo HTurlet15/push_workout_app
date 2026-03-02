@@ -339,7 +339,7 @@ export default function WorkoutScreen({
 
   // ── Render exercise ───────────────────────────────────────
 
-  const renderExercise = (exercise) => {
+  const renderExercise = (exercise, exerciseIndex) => {
     const deleteAnim = exerciseDeleteAnims.current[exercise.id];
     const isNew = newExerciseIds.has(exercise.id);
 
@@ -384,6 +384,7 @@ export default function WorkoutScreen({
             onUpdateRepRange={handleUpdateRepRange}
             justCompletedSetId={justCompletedSetId}
             editMode={editMode}
+            isFirst={exerciseIndex === 0}
           />
         )}
       </View>
@@ -418,7 +419,7 @@ export default function WorkoutScreen({
         </View>
       </View>
 
-      {workout.exercises.map((exercise) => renderExercise(exercise))}
+      {workout.exercises.map((exercise, index) => renderExercise(exercise, index))}
 
       {/* Add exercise button — visible when empty OR in edit mode */}
       {(workout.exercises.length === 0 || editMode) && (

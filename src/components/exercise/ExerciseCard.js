@@ -2,7 +2,7 @@ import { View, Animated, Pressable, TextInput, StyleSheet, useWindowDimensions }
 import { useState, useRef, useCallback } from 'react';
 import { Feather } from '@expo/vector-icons';
 import { CopilotStep, walkthroughable } from 'react-native-copilot';
-import Text from './Text';
+import Text from '../common/Text';
 import ViewSelector from './ViewSelector';
 
 const WalkthroughView = walkthroughable(View);
