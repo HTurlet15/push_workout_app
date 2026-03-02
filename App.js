@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   useFonts,
   DMSans_400Regular,
@@ -8,9 +9,12 @@ import {
 } from '@expo-google-fonts/dm-sans';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ActivityIndicator, View } from 'react-native';
+import SplashScreen from './src/components/common/SplashScreen';
 import MainScreen from './src/screens/MainScreen';
 
 export default function App() {
+  const [splashDone, setSplashDone] = useState(false);
+
   const [fontsLoaded] = useFonts({
     'DMSans-Regular': DMSans_400Regular,
     'DMSans-Italic': DMSans_400Regular_Italic,
@@ -25,6 +29,10 @@ export default function App() {
         <ActivityIndicator size="large" />
       </View>
     );
+  }
+
+  if (!splashDone) {
+    return <SplashScreen onFinish={() => setSplashDone(true)} />;
   }
 
   return (
