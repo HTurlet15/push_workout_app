@@ -9,8 +9,10 @@ import GraphDetail from '../components/graph/GraphDetail';
 import BottomBar from '../components/common/BottomBar';
 import TimerPicker from '../components/common/TimerPicker';
 import TabIndicator from '../components/common/TabIndicator';
+import TutorialOverlay from '../components/common/TutorialOverlay';
 import useRestTimer from '../hooks/useRestTimer';
 import MOCK_PROGRAMS from '../data/mockPrograms';
+import TUTORIAL_STEPS from '../data/tutorialSteps';
 import { COLORS } from '../theme/theme';
 
 /**
@@ -294,6 +296,73 @@ export default function MainScreen() {
     return () => handler.remove();
   }, [graphDetailVisible, workoutVisible, editMode]);
 
+  // ── Tutorial state ──────────────────────────────────────
+
+  const [tutorialActive, setTutorialActive] = useState(true);
+  const [tutorialStep, setTutorialStep] = useState(0);
+
+  const executeTutorialAction = useCallback((action) => {
+    if (!action) return Promise.resolve();
+
+    return new Promise((resolve) => {
+      if (action.startsWith('goToTab:')) {
+        const tabIndex = parseInt(action.split(':')[1], 10);
+        tabPagerRef.current?.scrollToIndex({ index: tabIndex, animated: true });
+        setTimeout(resolve, 400);
+      } else if (action.startsWith('openWorkout:')) {
+        const workoutIndex = parseInt(action.split(':')[1], 10);
+        navigateToWorkout(workoutIndex);
+        setTimeout(resolve, 400);
+      } else if (action === 'goBack') {
+        if (workoutVisible) {
+          navigateToList();
+          setTimeout(resolve, 350);
+        } else {
+          resolve();
+        }
+      } else {
+        resolve();
+      }
+    });
+  }, [workoutVisible]);
+
+  const handleTutorialNext = useCallback(async () => {
+    const nextIndex = tutorialStep + 1;
+
+    if (nextIndex >= TUTORIAL_STEPS.length) {
+      setTutorialActive(false);
+      return;
+    }
+
+    const nextStep = TUTORIAL_STEPS[nextIndex];
+
+    // Execute primary action
+    if (nextStep.action) {
+      await executeTutorialAction(nextStep.action);
+    }
+
+    // Execute secondary action (e.g., goBack then goToTab)
+    if (nextStep.secondaryAction) {
+      await executeTutorialAction(nextStep.secondaryAction);
+    }
+
+    setTutorialStep(nextIndex);
+  }, [tutorialStep, executeTutorialAction]);
+
+  const handleTutorialSkip = useCallback(() => {
+    // Return to workouts tab if in a deep view
+    if (workoutVisible) {
+      navigateToList();
+    }
+    if (graphDetailVisible) {
+      navigateToGraphsList();
+    }
+    setTimeout(() => {
+      tabPagerRef.current?.scrollToIndex({ index: 1, animated: false });
+      setTutorialActive(false);
+    }, 300);
+  }, [workoutVisible, graphDetailVisible]);
+
   // ── Tab pages ─────────────────────────────────────────────
 
   const tabPages = [{ key: 'programs' }, { key: 'workouts' }, { key: 'graphs' }];
@@ -472,6 +541,16 @@ export default function MainScreen() {
         }}
         onClose={() => setShowTimerPicker(false)}
       />
+
+      {/* ── Tutorial overlay ── */}
+      {tutorialActive && (
+        <TutorialOverlay
+          stepIndex={tutorialStep}
+          highlightLayout={null}
+          onNext={handleTutorialNext}
+          onSkip={handleTutorialSkip}
+        />
+      )}
     </View>
   );
 }
