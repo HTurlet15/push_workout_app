@@ -59,12 +59,12 @@ const MOCK_PROGRAMS = [
           { name: 'Machine Press', base: 4100, growth: 1115 },
         ], 12, 48, 4),
         current: { id: 'w1', name: 'Pectoraux', completedAt: null, exercises: [
-          { id: 'e1', name: 'Bench Press', note: undefined, restTimerSeconds: 90, sets: [
+          { id: 'e1', name: 'Bench Press', note: undefined, restTimerSeconds: 90, repRange: '3-5', sets: [
             { id: 's1-1', weight: { value: 120.5, state: 'filled' }, reps: { value: 5, state: 'filled' }, rir: { value: 2, state: 'filled' } },
             { id: 's1-2', weight: { value: 120.5, state: 'filled' }, reps: { value: 3, state: 'filled' }, rir: { value: 1, state: 'previous' } },
             { id: 's1-3', weight: { value: 120.5, state: 'previous' }, reps: { value: 1, state: 'previous' }, rir: { value: 0, state: 'previous' } },
           ]},
-          { id: 'e2', name: 'Machine Press', note: undefined, restTimerSeconds: 60, sets: [
+          { id: 'e2', name: 'Machine Press', note: undefined, restTimerSeconds: 60, repRange: '10-12', sets: [
             { id: 's2-1', weight: { value: 161.5, state: 'filled' }, reps: { value: 11, state: 'filled' }, rir: { value: null, state: 'empty' } },
             { id: 's2-2', weight: { value: 161.5, state: 'previous' }, reps: { value: 12, state: 'previous' }, rir: { value: null, state: 'empty' } },
             { id: 's2-3', weight: { value: 161.5, state: 'previous' }, reps: { value: 12, state: 'previous' }, rir: { value: null, state: 'empty' } },
@@ -85,12 +85,12 @@ const MOCK_PROGRAMS = [
           { name: 'Lat Pulldown', base: 4800, growth: 900 },
         ], 12, 49, 4),
         current: { id: 'w3', name: 'Dos', completedAt: null, exercises: [
-          { id: 'e3', name: 'Deadlift', note: undefined, restTimerSeconds: 120, sets: [
+          { id: 'e3', name: 'Deadlift', note: undefined, restTimerSeconds: 120, repRange: '3-5', sets: [
             { id: 's3-1', weight: { value: 180, state: 'previous' }, reps: { value: 5, state: 'previous' }, rir: { value: 2, state: 'previous' } },
             { id: 's3-2', weight: { value: 180, state: 'previous' }, reps: { value: 4, state: 'previous' }, rir: { value: 1, state: 'previous' } },
             { id: 's3-3', weight: { value: 180, state: 'previous' }, reps: { value: 3, state: 'previous' }, rir: { value: 0, state: 'previous' } },
           ]},
-          { id: 'e4', name: 'Lat Pulldown', note: undefined, restTimerSeconds: 60, sets: [
+          { id: 'e4', name: 'Lat Pulldown', note: undefined, restTimerSeconds: 60, repRange: '10-12', sets: [
             { id: 's4-1', weight: { value: 70, state: 'previous' }, reps: { value: 12, state: 'previous' }, rir: { value: null, state: 'empty' } },
             { id: 's4-2', weight: { value: 70, state: 'previous' }, reps: { value: 11, state: 'previous' }, rir: { value: null, state: 'empty' } },
             { id: 's4-3', weight: { value: 70, state: 'previous' }, reps: { value: 10, state: 'previous' }, rir: { value: null, state: 'empty' } },
@@ -111,12 +111,12 @@ const MOCK_PROGRAMS = [
           { name: 'Tricep Pushdown', base: 2100, growth: -150 },
         ], 11, 44, 4),
         current: { id: 'w5', name: 'Bras', completedAt: null, exercises: [
-          { id: 'e5', name: 'Barbell Curl', note: undefined, restTimerSeconds: 60, sets: [
+          { id: 'e5', name: 'Barbell Curl', note: undefined, restTimerSeconds: 60, repRange: '8-12', sets: [
             { id: 's5-1', weight: { value: 30, state: 'previous' }, reps: { value: 12, state: 'previous' }, rir: { value: 2, state: 'previous' } },
             { id: 's5-2', weight: { value: 30, state: 'previous' }, reps: { value: 10, state: 'previous' }, rir: { value: 1, state: 'previous' } },
             { id: 's5-3', weight: { value: 30, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 0, state: 'previous' } },
           ]},
-          { id: 'e6', name: 'Tricep Pushdown', note: undefined, restTimerSeconds: 60, sets: [
+          { id: 'e6', name: 'Tricep Pushdown', note: undefined, restTimerSeconds: 60, repRange: '12-15', sets: [
             { id: 's6-1', weight: { value: 25, state: 'previous' }, reps: { value: 15, state: 'previous' }, rir: { value: null, state: 'empty' } },
             { id: 's6-2', weight: { value: 25, state: 'previous' }, reps: { value: 13, state: 'previous' }, rir: { value: null, state: 'empty' } },
             { id: 's6-3', weight: { value: 25, state: 'previous' }, reps: { value: 12, state: 'previous' }, rir: { value: null, state: 'empty' } },
@@ -142,12 +142,12 @@ const MOCK_PROGRAMS = [
           { name: 'Barbell Row', base: 4400, growth: 700 },
         ], 10, 40, 4),
         current: { id: 'ul-w1', name: 'Upper A', completedAt: null, exercises: [
-          { id: 'ul-e1', name: 'Overhead Press', note: undefined, restTimerSeconds: 90, sets: [
+          { id: 'ul-e1', name: 'Overhead Press', note: undefined, restTimerSeconds: 90, repRange: '6-8', sets: [
             { id: 'ul-s1', weight: { value: 60, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 2, state: 'previous' } },
             { id: 'ul-s2', weight: { value: 60, state: 'previous' }, reps: { value: 7, state: 'previous' }, rir: { value: 1, state: 'previous' } },
             { id: 'ul-s3', weight: { value: 60, state: 'previous' }, reps: { value: 6, state: 'previous' }, rir: { value: 0, state: 'previous' } },
           ]},
-          { id: 'ul-e2', name: 'Barbell Row', note: undefined, restTimerSeconds: 90, sets: [
+          { id: 'ul-e2', name: 'Barbell Row', note: undefined, restTimerSeconds: 90, repRange: '6-8', sets: [
             { id: 'ul-s4', weight: { value: 80, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 2, state: 'previous' } },
             { id: 'ul-s5', weight: { value: 80, state: 'previous' }, reps: { value: 7, state: 'previous' }, rir: { value: 1, state: 'previous' } },
             { id: 'ul-s6', weight: { value: 80, state: 'previous' }, reps: { value: 6, state: 'previous' }, rir: { value: 0, state: 'previous' } },
@@ -168,12 +168,12 @@ const MOCK_PROGRAMS = [
           { name: 'Romanian Deadlift', base: 5200, growth: 750 },
         ], 10, 38, 4),
         current: { id: 'ul-w3', name: 'Lower A', completedAt: null, exercises: [
-          { id: 'ul-e3', name: 'Squat', note: undefined, restTimerSeconds: 120, sets: [
+          { id: 'ul-e3', name: 'Squat', note: undefined, restTimerSeconds: 120, repRange: '4-5', sets: [
             { id: 'ul-s7', weight: { value: 140, state: 'previous' }, reps: { value: 5, state: 'previous' }, rir: { value: 2, state: 'previous' } },
             { id: 'ul-s8', weight: { value: 140, state: 'previous' }, reps: { value: 5, state: 'previous' }, rir: { value: 1, state: 'previous' } },
             { id: 'ul-s9', weight: { value: 140, state: 'previous' }, reps: { value: 4, state: 'previous' }, rir: { value: 0, state: 'previous' } },
           ]},
-          { id: 'ul-e4', name: 'Romanian Deadlift', note: undefined, restTimerSeconds: 90, sets: [
+          { id: 'ul-e4', name: 'Romanian Deadlift', note: undefined, restTimerSeconds: 90, repRange: '8-10', sets: [
             { id: 'ul-s10', weight: { value: 100, state: 'previous' }, reps: { value: 10, state: 'previous' }, rir: { value: 2, state: 'previous' } },
             { id: 'ul-s11', weight: { value: 100, state: 'previous' }, reps: { value: 9, state: 'previous' }, rir: { value: 1, state: 'previous' } },
             { id: 'ul-s12', weight: { value: 100, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 0, state: 'previous' } },
@@ -200,17 +200,17 @@ const MOCK_PROGRAMS = [
         { name: 'Barbell Row', base: 3000, growth: 450 },
       ], 8, 42, 5),
       current: { id: 'fb-w1', name: 'Full Body A', completedAt: null, exercises: [
-        { id: 'fb-e1', name: 'Squat', note: undefined, restTimerSeconds: 120, sets: [
+        { id: 'fb-e1', name: 'Squat', note: undefined, restTimerSeconds: 120, repRange: '6-8', sets: [
           { id: 'fb-s1', weight: { value: 100, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 2, state: 'previous' } },
           { id: 'fb-s2', weight: { value: 100, state: 'previous' }, reps: { value: 7, state: 'previous' }, rir: { value: 1, state: 'previous' } },
           { id: 'fb-s3', weight: { value: 100, state: 'previous' }, reps: { value: 6, state: 'previous' }, rir: { value: 0, state: 'previous' } },
         ]},
-        { id: 'fb-e2', name: 'Bench Press', note: undefined, restTimerSeconds: 90, sets: [
+        { id: 'fb-e2', name: 'Bench Press', note: undefined, restTimerSeconds: 90, repRange: '6-8', sets: [
           { id: 'fb-s4', weight: { value: 80, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 2, state: 'previous' } },
           { id: 'fb-s5', weight: { value: 80, state: 'previous' }, reps: { value: 7, state: 'previous' }, rir: { value: 1, state: 'previous' } },
           { id: 'fb-s6', weight: { value: 80, state: 'previous' }, reps: { value: 6, state: 'previous' }, rir: { value: 0, state: 'previous' } },
         ]},
-        { id: 'fb-e3', name: 'Barbell Row', note: undefined, restTimerSeconds: 90, sets: [
+        { id: 'fb-e3', name: 'Barbell Row', note: undefined, restTimerSeconds: 90, repRange: '6-8', sets: [
           { id: 'fb-s7', weight: { value: 70, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 2, state: 'previous' } },
           { id: 'fb-s8', weight: { value: 70, state: 'previous' }, reps: { value: 7, state: 'previous' }, rir: { value: 1, state: 'previous' } },
           { id: 'fb-s9', weight: { value: 70, state: 'previous' }, reps: { value: 6, state: 'previous' }, rir: { value: 0, state: 'previous' } },

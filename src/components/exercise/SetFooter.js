@@ -23,6 +23,8 @@ const TOGGLE_PADDING = 1.5;
  * @param {Function} onToggleUnit    - Callback: (newUnit) when pill is tapped.
  * @param {Function} onRestPress     - Callback: tap rest badge in normal mode.
  * @param {Function} onUpdateRest    - Callback: (newSeconds) to save edited rest time.
+ * @param {string} repRange         - Rep range string (e.g. "8-12").
+ * @param {Function} onUpdateRepRange - Callback: (newRange) to save edited rep range.
  * @param {boolean} editMode         - Whether edit controls are visible.
  */
 export default function SetFooter({
@@ -31,11 +33,16 @@ export default function SetFooter({
   onToggleUnit,
   onRestPress,
   onUpdateRest,
+  repRange,
+  onUpdateRepRange,
   editMode = false,
 }) {
   const [editingRest, setEditingRest] = useState(false);
   const [draft, setDraft] = useState('');
+  const [editingRepRange, setEditingRepRange] = useState(false);
+  const [repDraft, setRepDraft] = useState('');
   const inputRef = useRef(null);
+  const repInputRef = useRef(null);
 
   /** Animated value for pill slider position: 0 = kg, 1 = lbs */
   const slideAnim = useRef(new Animated.Value(unit === 'lbs' ? 1 : 0)).current;
@@ -76,6 +83,28 @@ export default function SetFooter({
   const handleChangeText = (text) => {
     if (/^\d*$/.test(text)) {
       setDraft(text);
+    }
+  };
+
+  // ── Rep range editing ─────────────────────────────────────
+
+  const handleStartRepEdit = () => {
+    setRepDraft(repRange || '');
+    setEditingRepRange(true);
+    setTimeout(() => repInputRef.current?.focus(), 50);
+  };
+
+  const handleSubmitRepRange = () => {
+    setEditingRepRange(false);
+    if (onUpdateRepRange) {
+      onUpdateRepRange(repDraft.trim() || null);
+    }
+  };
+
+  /** Allow digits and dash only (e.g. "8-12") */
+  const handleRepChangeText = (text) => {
+    if (/^[\d-]*$/.test(text)) {
+      setRepDraft(text);
     }
   };
 
@@ -132,6 +161,55 @@ export default function SetFooter({
     );
   };
 
+  // ── Rep range rendering ─────────────────────────────────
+
+  const renderRepRange = () => {
+    if (editingRepRange) {
+      return (
+        <View style={styles.repRangeRow}>
+          <View style={[styles.restEditable, styles.restEditableActive]}>
+            <TextInput
+              ref={repInputRef}
+              style={styles.restInput}
+              value={repDraft}
+              onChangeText={handleRepChangeText}
+              onSubmitEditing={handleSubmitRepRange}
+              onBlur={handleSubmitRepRange}
+              returnKeyType="done"
+              autoFocus
+              selectTextOnFocus
+              placeholder="8-12"
+              placeholderTextColor={COLORS.textMuted}
+            />
+          </View>
+          <Text style={styles.restUnit}>reps</Text>
+        </View>
+      );
+    }
+
+    if (editMode) {
+      return (
+        <Pressable
+          style={({ pressed }) => [styles.repRangeRow, pressed && styles.restBadgePressed]}
+          onPress={handleStartRepEdit}
+        >
+          <View style={styles.restEditable}>
+            <Text style={styles.restText}>{repRange || '—'}</Text>
+          </View>
+          <Text style={styles.restUnit}>reps</Text>
+        </Pressable>
+      );
+    }
+
+    if (!repRange) return null;
+
+    return (
+      <View style={styles.repRangeRow}>
+        <Text style={styles.restText}>{repRange} reps</Text>
+      </View>
+    );
+  };
+
   // ── Pill slider translateX ────────────────────────────────
 
   const pillTranslateX = slideAnim.interpolate({
@@ -142,6 +220,8 @@ export default function SetFooter({
   return (
     <View style={styles.container}>
       {renderRestBadge()}
+
+      {renderRepRange()}
 
       <View style={styles.spacer} />
 
@@ -232,6 +312,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.xs,
+  },
+  repRangeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+    marginLeft: SPACING.smd,
   },
   restEditable: {
     borderBottomWidth: SIZE.borderAccent,

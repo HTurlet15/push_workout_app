@@ -207,6 +207,16 @@ export default function WorkoutScreen({
     }));
   };
 
+  const handleUpdateRepRange = (exerciseId, repRange) => {
+    setWorkout((prev) => ({
+      ...prev,
+      exercises: prev.exercises.map((exercise) => {
+        if (exercise.id !== exerciseId) return exercise;
+        return { ...exercise, repRange };
+      }),
+    }));
+  };
+
   const handleAddExercise = (afterExerciseId) => {
     const id = `exercise-${Date.now()}`;
 
@@ -238,6 +248,7 @@ export default function WorkoutScreen({
         name: 'New Exercise',
         note: undefined,
         restTimerSeconds: 90,
+        repRange: null,
         sets: currentSets,
       };
       const newExercises = [...prev.exercises];
@@ -370,6 +381,7 @@ export default function WorkoutScreen({
             onDeleteExercise={handleDeleteExercise}
             onRestPress={handleRestPress}
             onUpdateRest={handleUpdateRest}
+            onUpdateRepRange={handleUpdateRepRange}
             justCompletedSetId={justCompletedSetId}
             editMode={editMode}
           />

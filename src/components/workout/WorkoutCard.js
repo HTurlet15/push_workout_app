@@ -48,14 +48,8 @@ export default function WorkoutCard({
   }, [isExpanded]);
 
   const getRepRange = (exercise) => {
-    const reps = exercise.sets
-      .map((s) => s.reps?.value ?? s.reps)
-      .filter((r) => r != null);
-    if (reps.length === 0) return '';
-    const min = Math.min(...reps);
-    const max = Math.max(...reps);
-    if (min === max) return `${min} reps`;
-    return `${min}-${max} reps`;
+    if (exercise.repRange) return `${exercise.repRange} reps`;
+    return '';
   };
 
   const maxExerciseHeight = exercises.length * SIZE.exerciseRowHeight + SPACING.md;

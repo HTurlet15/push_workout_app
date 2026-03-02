@@ -47,6 +47,7 @@ export default function ExerciseCard({
   onDeleteExercise,
   onRestPress,
   onUpdateRest,
+  onUpdateRepRange,
   justCompletedSetId,
   editMode = false,
 }) {
@@ -231,6 +232,8 @@ export default function ExerciseCard({
       onToggleUnit={handleToggleUnit}
       onRestPress={() => onRestPress?.(exercise.id)}
       onUpdateRest={(seconds) => onUpdateRest?.(exercise.id, seconds)}
+      repRange={exercise.repRange}
+      onUpdateRepRange={(range) => onUpdateRepRange?.(exercise.id, range)}
       editMode={editMode}
     />
   );
