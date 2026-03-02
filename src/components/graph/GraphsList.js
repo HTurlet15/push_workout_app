@@ -25,6 +25,7 @@ export default function GraphsList({ sessions, onSelectGraph }) {
           key={session.current?.id || index}
           session={session}
           onPress={() => onSelectGraph(index)}
+          isFirst={index === 0}
         />
       ))}
     </ScrollView>

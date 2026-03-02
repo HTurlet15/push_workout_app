@@ -1,17 +1,19 @@
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { CopilotStep, walkthroughable } from 'react-native-copilot';
 import Text from './Text';
 import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
 
+const WalkthroughView = walkthroughable(View);
 /**
  * Persistent bottom navigation bar for the workout session.
  *
  * Contains five interactive elements (left to right):
- * 1. LLM chat - opens AI assistant (future feature)
- * 2. Play/Pause/Check - controls the rest timer lifecycle
- * 3. Timer display - tappable to open duration picker
- * 4. Reset - resets timer to configured duration
- * 5. Edit toggle - switches between workout mode and edit mode
+ * 1. LLM chat — opens AI assistant (future feature)
+ * 2. Play/Pause/Check — controls the rest timer lifecycle
+ * 3. Timer display — tappable to open duration picker
+ * 4. Reset — resets timer to configured duration
+ * 5. Edit toggle — switches between workout mode and edit mode
  *
  * Timer button appearance adapts to timer state:
  * - idle: green play icon on green background
@@ -42,6 +44,7 @@ export default function BottomBar({
   onEditToggle,
   onLLMPress,
   bottomInset = 0,
+  showTutorialEdit = false,
 }) {
   /** Format seconds into M:SS display string */
   const formatTime = (seconds) => {
@@ -122,20 +125,41 @@ export default function BottomBar({
       </Pressable>
 
       {/* Edit mode toggle - pencil (normal) / checkmark (active) */}
-      <Pressable
-        style={({ pressed }) => [
-          styles.iconBtn,
-          editMode ? styles.editBtnActive : styles.editBtn,
-          pressed && (editMode ? styles.editBtnActivePressed : styles.editBtnPressed),
-        ]}
-        onPress={onEditToggle}
-      >
-        <Feather
-          name={editMode ? 'check' : 'edit-2'}
-          size={SIZE.iconMd}
-          color={COLORS.white}
-        />
-      </Pressable>
+      {showTutorialEdit ? (
+        <CopilotStep text="" name="edit-button" order={8}>
+          <WalkthroughView>
+            <Pressable
+              style={({ pressed }) => [
+                styles.iconBtn,
+                editMode ? styles.editBtnActive : styles.editBtn,
+                pressed && (editMode ? styles.editBtnActivePressed : styles.editBtnPressed),
+              ]}
+              onPress={onEditToggle}
+            >
+              <Feather
+                name={editMode ? 'check' : 'edit-2'}
+                size={SIZE.iconMd}
+                color={COLORS.white}
+              />
+            </Pressable>
+          </WalkthroughView>
+        </CopilotStep>
+      ) : (
+        <Pressable
+          style={({ pressed }) => [
+            styles.iconBtn,
+            editMode ? styles.editBtnActive : styles.editBtn,
+            pressed && (editMode ? styles.editBtnActivePressed : styles.editBtnPressed),
+          ]}
+          onPress={onEditToggle}
+        >
+          <Feather
+            name={editMode ? 'check' : 'edit-2'}
+            size={SIZE.iconMd}
+            color={COLORS.white}
+          />
+        </Pressable>
+      )}
     </View>
   );
 }

@@ -1,8 +1,11 @@
 import { View, Pressable, Animated, StyleSheet } from 'react-native';
 import { useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
+import { CopilotStep, walkthroughable } from 'react-native-copilot';
 import Text from '../common/Text';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
+
+const WalkthroughView = walkthroughable(View);
 
 /**
  * Individual workout card with:
@@ -22,6 +25,7 @@ export default function WorkoutCard({
   onToggleExpand,
   onPress,
   onDelete,
+  isFirst = false,
 }) {
   const expandAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
   const chevronAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
@@ -79,7 +83,7 @@ export default function WorkoutCard({
     timeBadge.tier === 'overdue' ? COLORS.error :
     COLORS.textSecondary;
 
-  return (
+  const card = (
     <View style={styles.card}>
       <View style={styles.cardMain}>
         {editMode && (
@@ -153,6 +157,18 @@ export default function WorkoutCard({
       )}
     </View>
   );
+
+  if (isFirst) {
+    return (
+      <CopilotStep text="" name="workout-card" order={4}>
+        <WalkthroughView>
+          {card}
+        </WalkthroughView>
+      </CopilotStep>
+    );
+  }
+
+  return card;
 }
 
 const styles = StyleSheet.create({

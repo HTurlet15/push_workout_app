@@ -1,7 +1,10 @@
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { CopilotStep, walkthroughable } from 'react-native-copilot';
 import Text from './Text';
 import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, RADIUS, SIZE } from '../../theme/theme';
+
+const WalkthroughView = walkthroughable(View);
 
 /**
  * Tab indicator with a center-aligned pill, navigation dots, and optional back button.
@@ -26,6 +29,7 @@ export default function TabIndicator({
   activeIndex = 0,
   backLabel,
   onBack,
+  showTutorialBack = false,
 }) {
   // Dots based on position in 3-tab layout:
   // 0 (Programs):  PILL • •   (0 left, 2 right)
@@ -38,16 +42,33 @@ export default function TabIndicator({
   return (
     <View style={styles.container}>
       {backLabel && onBack ? (
-        <Pressable
-          style={({ pressed }) => [
-            styles.backBtn,
-            pressed && styles.backBtnPressed,
-          ]}
-          onPress={onBack}
-        >
-          <Feather name="chevron-up" size={SIZE.iconXs} color={COLORS.textSecondary} />
-          <Text style={styles.backBtnText}>{backLabel}</Text>
-        </Pressable>
+        showTutorialBack ? (
+          <CopilotStep text="" name="back-button" order={9}>
+            <WalkthroughView>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.backBtn,
+                  pressed && styles.backBtnPressed,
+                ]}
+                onPress={onBack}
+              >
+                <Feather name="chevron-up" size={SIZE.iconXs} color={COLORS.textSecondary} />
+                <Text style={styles.backBtnText}>{backLabel}</Text>
+              </Pressable>
+            </WalkthroughView>
+          </CopilotStep>
+        ) : (
+          <Pressable
+            style={({ pressed }) => [
+              styles.backBtn,
+              pressed && styles.backBtnPressed,
+            ]}
+            onPress={onBack}
+          >
+            <Feather name="chevron-up" size={SIZE.iconXs} color={COLORS.textSecondary} />
+            <Text style={styles.backBtnText}>{backLabel}</Text>
+          </Pressable>
+        )
       ) : (
         <View style={styles.backPlaceholder} />
       )}

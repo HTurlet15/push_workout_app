@@ -1,7 +1,10 @@
 import { View, Pressable, StyleSheet } from 'react-native';
 import Svg, { Path, Circle, Line, Text as SvgText } from 'react-native-svg';
+import { CopilotStep, walkthroughable } from 'react-native-copilot';
 import Text from '../common/Text';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
+
+const WalkthroughView = walkthroughable(View);
 
 /**
  * GraphCard — displays a single workout's tonnage progression.
@@ -30,7 +33,7 @@ const formatDate = (iso) => {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
-export default function GraphCard({ session, onPress }) {
+export default function GraphCard({ session, onPress, isFirst = false }) {
   const history = session.history || [];
   const name = session.current?.name || 'Workout';
 
@@ -76,7 +79,7 @@ export default function GraphCard({ session, onPress }) {
 
   const lastPoint = points[points.length - 1];
 
-  return (
+  const card = (
     <Pressable
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={onPress}
@@ -130,6 +133,18 @@ export default function GraphCard({ session, onPress }) {
       </View>
     </Pressable>
   );
+
+  if (isFirst) {
+    return (
+      <CopilotStep text="" name="graph-card" order={10}>
+        <WalkthroughView>
+          {card}
+        </WalkthroughView>
+      </CopilotStep>
+    );
+  }
+
+  return card;
 }
 
 const styles = StyleSheet.create({

@@ -91,6 +91,7 @@ export default function WorkoutsList({
         }
         onPress={() => onSelectWorkout(index)}
         onDelete={() => handleDelete(index)}
+        isFirst={index === 0}
       />
     );
 

@@ -9,10 +9,10 @@ import GraphDetail from '../components/graph/GraphDetail';
 import BottomBar from '../components/common/BottomBar';
 import TimerPicker from '../components/common/TimerPicker';
 import TabIndicator from '../components/common/TabIndicator';
-import TutorialOverlay from '../components/common/TutorialOverlay';
 import useRestTimer from '../hooks/useRestTimer';
+import { useCopilot } from 'react-native-copilot';
 import MOCK_PROGRAMS from '../data/mockPrograms';
-import TUTORIAL_STEPS from '../data/tutorialSteps';
+import { TUTORIAL_STEP_ORDER } from '../data/tutorialConfig';
 import { COLORS } from '../theme/theme';
 
 /**
@@ -34,7 +34,7 @@ import { COLORS } from '../theme/theme';
  */
 export default function MainScreen() {
   const insets = useSafeAreaInsets();
-  const { width, height: screenHeight } = useWindowDimensions();
+  const { width } = useWindowDimensions();
 
   // ── Horizontal tab pager (Programs ↔ Workouts) ────────────
 
@@ -296,72 +296,94 @@ export default function MainScreen() {
     return () => handler.remove();
   }, [graphDetailVisible, workoutVisible, editMode]);
 
-  // ── Tutorial state ──────────────────────────────────────
+  // ── Tutorial (react-native-copilot) ────────────────────────
 
-  const [tutorialActive, setTutorialActive] = useState(true);
-  const [tutorialStep, setTutorialStep] = useState(0);
+  const { start, copilotEvents, visible: copilotVisible } = useCopilot();
+  const [tutorialStarted, setTutorialStarted] = useState(false);
+  const tutorialStepRef = useRef(0);
 
   const executeTutorialAction = useCallback((action) => {
-    if (!action) return Promise.resolve();
-
     return new Promise((resolve) => {
+      if (!action) { resolve(); return; }
+
       if (action.startsWith('goToTab:')) {
         const tabIndex = parseInt(action.split(':')[1], 10);
         tabPagerRef.current?.scrollToIndex({ index: tabIndex, animated: true });
-        setTimeout(resolve, 400);
+        setTimeout(resolve, 500);
       } else if (action.startsWith('openWorkout:')) {
-        const workoutIndex = parseInt(action.split(':')[1], 10);
-        navigateToWorkout(workoutIndex);
-        setTimeout(resolve, 400);
+        const idx = parseInt(action.split(':')[1], 10);
+        navigateToWorkout(idx);
+        setTimeout(resolve, 500);
       } else if (action === 'goBack') {
         if (workoutVisible) {
           navigateToList();
-          setTimeout(resolve, 350);
-        } else {
+          setTimeout(resolve, 400);
+        } else { resolve(); }
+      } else if (action.includes('+')) {
+        // Compound: "goBack+goToTab:2"
+        const parts = action.split('+');
+        const runParts = async () => {
+          for (const part of parts) {
+            await new Promise((r) => {
+              if (part === 'goBack' && workoutVisible) {
+                navigateToList();
+                setTimeout(r, 400);
+              } else if (part.startsWith('goToTab:')) {
+                const ti = parseInt(part.split(':')[1], 10);
+                tabPagerRef.current?.scrollToIndex({ index: ti, animated: true });
+                setTimeout(r, 500);
+              } else { r(); }
+            });
+          }
           resolve();
-        }
-      } else {
-        resolve();
-      }
+        };
+        runParts();
+      } else { resolve(); }
     });
   }, [workoutVisible]);
 
-  const handleTutorialNext = useCallback(async () => {
-    const nextIndex = tutorialStep + 1;
+  // Listen for step changes to execute navigation actions
+  useEffect(() => {
+    const handleStepChange = async (step) => {
+      const stepIndex = TUTORIAL_STEP_ORDER.findIndex((s) => s.name === step.name);
+      if (stepIndex >= 0 && stepIndex !== tutorialStepRef.current) {
+        const stepConfig = TUTORIAL_STEP_ORDER[stepIndex];
+        if (stepConfig.action) {
+          await executeTutorialAction(stepConfig.action);
+        }
+        tutorialStepRef.current = stepIndex;
+      }
+    };
 
-    if (nextIndex >= TUTORIAL_STEPS.length) {
-      setTutorialActive(false);
-      return;
+    const handleStop = () => {
+      // Return to workouts when tutorial ends
+      if (workoutVisible) navigateToList();
+      if (graphDetailVisible) navigateToGraphsList();
+      setTimeout(() => {
+        tabPagerRef.current?.scrollToIndex({ index: 1, animated: false });
+      }, 300);
+    };
+
+    copilotEvents.on('stepChange', handleStepChange);
+    copilotEvents.on('stop', handleStop);
+
+    return () => {
+      copilotEvents.off('stepChange', handleStepChange);
+      copilotEvents.off('stop', handleStop);
+    };
+  }, [copilotEvents, executeTutorialAction, workoutVisible, graphDetailVisible]);
+
+  // Start tutorial after first render
+  useEffect(() => {
+    if (!tutorialStarted) {
+      setTutorialStarted(true);
+      // Navigate to programs tab first, then start
+      tabPagerRef.current?.scrollToIndex({ index: 0, animated: false });
+      setTimeout(() => {
+        start();
+      }, 800);
     }
-
-    const nextStep = TUTORIAL_STEPS[nextIndex];
-
-    // Execute primary action
-    if (nextStep.action) {
-      await executeTutorialAction(nextStep.action);
-    }
-
-    // Execute secondary action (e.g., goBack then goToTab)
-    if (nextStep.secondaryAction) {
-      await executeTutorialAction(nextStep.secondaryAction);
-    }
-
-    setTutorialStep(nextIndex);
-  }, [tutorialStep, executeTutorialAction]);
-
-  const handleTutorialSkip = useCallback(() => {
-    // Return to workouts tab if in a deep view
-    if (workoutVisible) {
-      navigateToList();
-    }
-    if (graphDetailVisible) {
-      navigateToGraphsList();
-    }
-    setTimeout(() => {
-      tabPagerRef.current?.scrollToIndex({ index: 1, animated: false });
-      setTutorialActive(false);
-    }, 300);
-  }, [workoutVisible, graphDetailVisible]);
+  }, [tutorialStarted]);
 
   // ── Tab pages ─────────────────────────────────────────────
 
@@ -471,6 +493,7 @@ export default function MainScreen() {
             activeIndex={activeWorkoutIndex}
             backLabel="Workouts"
             onBack={navigateToList}
+            showTutorialBack
           />
 
           <WorkoutPager
@@ -494,6 +517,7 @@ export default function MainScreen() {
             onEditToggle={() => setEditMode((prev) => !prev)}
             onLLMPress={() => {}}
             bottomInset={insets.bottom}
+            showTutorialEdit
           />
         </Animated.View>
       )}
@@ -541,20 +565,6 @@ export default function MainScreen() {
         }}
         onClose={() => setShowTimerPicker(false)}
       />
-
-      {/* ── Tutorial overlay ── */}
-      {tutorialActive && (
-        <TutorialOverlay
-          stepIndex={tutorialStep}
-          highlightLayout={
-            TUTORIAL_STEPS[tutorialStep]?.getHighlight
-              ? TUTORIAL_STEPS[tutorialStep].getHighlight(width, screenHeight, insets)
-              : null
-          }
-          onNext={handleTutorialNext}
-          onSkip={handleTutorialSkip}
-        />
-      )}
     </View>
   );
 }
