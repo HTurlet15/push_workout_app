@@ -95,6 +95,7 @@ export default function ProgramsList({
         onUpdateNote={(text) => onUpdateProgramNote?.(index, text)}
         onUpdateFrequency={(text) => onUpdateProgramFrequency?.(index, text)}
         onUpdateName={(text) => onUpdateProgramName?.(index, text)}
+        isFirst={index === 0}
       />
     );
 
