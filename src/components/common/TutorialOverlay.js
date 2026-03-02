@@ -5,26 +5,20 @@ import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY } from '../../theme/the
 import TUTORIAL_STEPS from '../../data/tutorialSteps';
 
 /**
- * Full-screen tutorial overlay.
- *
- * Displays step-by-step guide with:
- * - Semi-transparent dark overlay
- * - Highlighted zone (cutout) for the current element
- * - Tooltip with title, text, step counter, and Next/Skip buttons
+ * Full-screen tutorial overlay with FR/EN toggle.
  *
  * @param {number} stepIndex          - Current tutorial step (0-based).
- * @param {Object} highlightLayout    - { x, y, width, height } of the highlighted element (null for center).
+ * @param {Object} highlightLayout    - { x, y, width, height } of highlighted element.
  * @param {Function} onNext           - Advance to next step.
  * @param {Function} onSkip           - Skip/exit tutorial.
  */
 export default function TutorialOverlay({ stepIndex, highlightLayout, onNext, onSkip }) {
   const { width, height } = useWindowDimensions();
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const [visible, setVisible] = useState(true);
+  const [lang, setLang] = useState('en');
 
   const step = TUTORIAL_STEPS[stepIndex];
   const isLast = stepIndex === TUTORIAL_STEPS.length - 1;
-  const isFirst = stepIndex === 0;
   const totalSteps = TUTORIAL_STEPS.length;
 
   useEffect(() => {
@@ -36,11 +30,11 @@ export default function TutorialOverlay({ stepIndex, highlightLayout, onNext, on
     }).start();
   }, [stepIndex]);
 
-  if (!step || !visible) return null;
+  if (!step) return null;
 
+  const t = step[lang] || step.en;
   const isCentered = step.position === 'center' || !highlightLayout;
 
-  // Highlight cutout padding
   const PAD = 8;
   const hl = highlightLayout ? {
     x: highlightLayout.x - PAD,
@@ -49,77 +43,68 @@ export default function TutorialOverlay({ stepIndex, highlightLayout, onNext, on
     height: highlightLayout.height + PAD * 2,
   } : null;
 
-  // Tooltip positioning
   const getTooltipStyle = () => {
     if (isCentered) {
-      return {
-        top: height * 0.35,
-        left: SPACING.lg,
-        right: SPACING.lg,
-      };
+      return { top: height * 0.32, left: SPACING.lg, right: SPACING.lg };
     }
-
     if (step.position === 'bottom') {
-      return {
-        top: hl.y + hl.height + SPACING.md,
-        left: SPACING.lg,
-        right: SPACING.lg,
-      };
+      return { top: hl.y + hl.height + SPACING.md, left: SPACING.lg, right: SPACING.lg };
     }
-
-    // position === 'top'
-    return {
-      bottom: height - hl.y + SPACING.md,
-      left: SPACING.lg,
-      right: SPACING.lg,
-    };
+    return { bottom: height - hl.y + SPACING.md, left: SPACING.lg, right: SPACING.lg };
   };
 
-  const renderOverlayWithCutout = () => {
+  const renderOverlay = () => {
     if (isCentered || !hl) {
       return <View style={[styles.dimFull, { width, height }]} />;
     }
-
-    // 4 rectangles around the highlight cutout
     return (
       <>
-        {/* Top */}
         <View style={[styles.dim, { top: 0, left: 0, right: 0, height: hl.y }]} />
-        {/* Bottom */}
         <View style={[styles.dim, { top: hl.y + hl.height, left: 0, right: 0, bottom: 0 }]} />
-        {/* Left */}
         <View style={[styles.dim, { top: hl.y, left: 0, width: hl.x, height: hl.height }]} />
-        {/* Right */}
         <View style={[styles.dim, { top: hl.y, left: hl.x + hl.width, right: 0, height: hl.height }]} />
-        {/* Highlight border */}
-        <View style={[styles.highlightBorder, {
-          top: hl.y,
-          left: hl.x,
-          width: hl.width,
-          height: hl.height,
-        }]} />
+        <View style={[styles.highlightBorder, { top: hl.y, left: hl.x, width: hl.width, height: hl.height }]} />
       </>
     );
   };
 
+  const confirmText = step.confirmLabel
+    ? (typeof step.confirmLabel === 'string' ? step.confirmLabel : step.confirmLabel[lang] || step.confirmLabel.en)
+    : (isLast ? (lang === 'fr' ? 'Terminer' : 'Finish') : (lang === 'fr' ? 'Suivant' : 'Next'));
+
+  const skipText = lang === 'fr' ? 'Passer' : 'Skip';
+
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]} pointerEvents="box-none">
-      {/* Overlay dim + cutout */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        {renderOverlayWithCutout()}
+        {renderOverlay()}
       </View>
 
-      {/* Full-screen touch catcher — tap anywhere to advance */}
       <Pressable style={StyleSheet.absoluteFill} onPress={onNext}>
-        {/* Tooltip */}
         <View style={[styles.tooltip, getTooltipStyle()]} pointerEvents="box-none">
-          {/* Step counter */}
-          <Text style={styles.stepCounter}>
-            {stepIndex + 1} / {totalSteps}
-          </Text>
 
-          <Text style={styles.tooltipTitle}>{step.title}</Text>
-          <Text style={styles.tooltipText}>{step.text}</Text>
+          {/* Top row: step counter + language toggle */}
+          <View style={styles.topRow}>
+            <Text style={styles.stepCounter}>{stepIndex + 1} / {totalSteps}</Text>
+
+            <View style={styles.langToggle}>
+              <Pressable
+                style={[styles.langBtn, lang === 'en' && styles.langBtnActive]}
+                onPress={() => setLang('en')}
+              >
+                <Text style={[styles.langText, lang === 'en' && styles.langTextActive]}>EN</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.langBtn, lang === 'fr' && styles.langBtnActive]}
+                onPress={() => setLang('fr')}
+              >
+                <Text style={[styles.langText, lang === 'fr' && styles.langTextActive]}>FR</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          <Text style={styles.tooltipTitle}>{t.title}</Text>
+          <Text style={styles.tooltipText}>{t.text}</Text>
 
           <View style={styles.buttonRow}>
             {!isLast && (
@@ -127,17 +112,14 @@ export default function TutorialOverlay({ stepIndex, highlightLayout, onNext, on
                 style={({ pressed }) => [styles.skipBtn, pressed && styles.skipBtnPressed]}
                 onPress={onSkip}
               >
-                <Text style={styles.skipText}>Skip</Text>
+                <Text style={styles.skipBtnText}>{skipText}</Text>
               </Pressable>
             )}
-
             <Pressable
               style={({ pressed }) => [styles.nextBtn, pressed && styles.nextBtnPressed]}
               onPress={onNext}
             >
-              <Text style={styles.nextText}>
-                {step.confirmLabel || (isLast ? 'Finish' : 'Next')}
-              </Text>
+              <Text style={styles.nextBtnText}>{confirmText}</Text>
             </Pressable>
           </View>
         </View>
@@ -177,13 +159,48 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
     elevation: 10,
   },
+
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.smd,
+  },
   stepCounter: {
     fontSize: FONT_SIZE.xs,
     fontFamily: FONT_FAMILY.bold,
     color: COLORS.textMuted,
     letterSpacing: 1,
-    marginBottom: SPACING.sm,
   },
+  langToggle: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.lightGray,
+    borderRadius: RADIUS.xs,
+    padding: 1.5,
+  },
+  langBtn: {
+    paddingVertical: SPACING.xxs,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: RADIUS.xs,
+  },
+  langBtnActive: {
+    backgroundColor: COLORS.white,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  langText: {
+    fontSize: FONT_SIZE.xs,
+    fontFamily: FONT_FAMILY.bold,
+    color: COLORS.textMuted,
+    letterSpacing: 0.3,
+  },
+  langTextActive: {
+    color: COLORS.textPrimary,
+  },
+
   tooltipTitle: {
     fontSize: FONT_SIZE.lg,
     fontFamily: FONT_FAMILY.bold,
@@ -210,7 +227,7 @@ const styles = StyleSheet.create({
   skipBtnPressed: {
     opacity: 0.5,
   },
-  skipText: {
+  skipBtnText: {
     fontSize: FONT_SIZE.sm,
     fontFamily: FONT_FAMILY.medium,
     color: COLORS.textMuted,
@@ -224,7 +241,7 @@ const styles = StyleSheet.create({
   nextBtnPressed: {
     opacity: 0.85,
   },
-  nextText: {
+  nextBtnText: {
     fontSize: FONT_SIZE.sm,
     fontFamily: FONT_FAMILY.bold,
     color: COLORS.white,
