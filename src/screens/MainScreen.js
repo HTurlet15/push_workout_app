@@ -34,7 +34,7 @@ import { COLORS } from '../theme/theme';
  */
 export default function MainScreen() {
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
+  const { width, height: screenHeight } = useWindowDimensions();
 
   // ── Horizontal tab pager (Programs ↔ Workouts) ────────────
 
@@ -546,7 +546,11 @@ export default function MainScreen() {
       {tutorialActive && (
         <TutorialOverlay
           stepIndex={tutorialStep}
-          highlightLayout={null}
+          highlightLayout={
+            TUTORIAL_STEPS[tutorialStep]?.getHighlight
+              ? TUTORIAL_STEPS[tutorialStep].getHighlight(width, screenHeight, insets)
+              : null
+          }
           onNext={handleTutorialNext}
           onSkip={handleTutorialSkip}
         />
