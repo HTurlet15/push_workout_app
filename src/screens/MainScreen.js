@@ -12,7 +12,7 @@ import TimerPicker from '../components/common/TimerPicker';
 import TabIndicator from '../components/common/TabIndicator';
 import HelpModal from '../components/common/HelpModal';
 import useRestTimer from '../hooks/useRestTimer';
-import MOCK_PROGRAMS from '../data/mockPrograms';
+import { useData } from '../context/DataContext';
 import { COLORS } from '../theme/theme';
 
 /**
@@ -76,74 +76,51 @@ export default function MainScreen() {
     playPause, reset, updateDuration, startWithDuration,
   } = useRestTimer(90);
 
-  // ── Programs state (single source of truth) ────────────────
+  // ── Data (persisted via DataContext) ──────────────────────
 
-  const [programs, setPrograms] = useState(MOCK_PROGRAMS);
-  const [selectedProgramId, setSelectedProgramId] = useState(MOCK_PROGRAMS[0]?.id);
-
-  /** Derived sessions from the selected program */
-  const selectedProgram = programs.find((p) => p.id === selectedProgramId);
-  const sessions = selectedProgram?.sessions ?? [];
-
-  /** Update sessions inside the selected program */
-  const updateSelectedSessions = useCallback((updater) => {
-    setPrograms((prev) => prev.map((p) => {
-      if (p.id !== selectedProgramId) return p;
-      return {
-        ...p,
-        sessions: typeof updater === 'function' ? updater(p.sessions) : updater,
-      };
-    }));
-  }, [selectedProgramId]);
+  const {
+    programs,
+    selectedProgramId,
+    selectedProgram,
+    sessions,
+    selectProgram,
+    addProgram,
+    deleteProgram,
+    updateProgramName,
+    updateProgramNote,
+    updateProgramFrequency,
+    updateSelectedSessions,
+    addWorkout: dataAddWorkout,
+    deleteWorkout: dataDeleteWorkout,
+    loading,
+  } = useData();
 
   const handleSelectProgram = useCallback((programId) => {
-    setSelectedProgramId(programId);
+    selectProgram(programId);
     setTimeout(() => {
       tabPagerRef.current?.scrollToIndex({ index: 1, animated: true });
     }, 200);
-  }, []);
+  }, [selectProgram]);
 
   const handleAddProgram = useCallback(() => {
-    const ts = Date.now();
-    setPrograms((prev) => [...prev, {
-      id: `prog-${ts}`,
-      name: 'New Program',
-      note: null,
-      frequency: null,
-      sessions: [],
-    }]);
-  }, []);
+    addProgram();
+  }, [addProgram]);
 
   const handleDeleteProgram = useCallback((index) => {
-    setPrograms((prev) => {
-      const next = prev.filter((_, i) => i !== index);
-      if (prev[index]?.id === selectedProgramId && next.length > 0) {
-        setSelectedProgramId(next[0].id);
-      }
-      return next;
-    });
-  }, [selectedProgramId]);
+    deleteProgram(index);
+  }, [deleteProgram]);
 
   const handleUpdateProgramNote = useCallback((index, note) => {
-    setPrograms((prev) => prev.map((p, i) => {
-      if (i !== index) return p;
-      return { ...p, note };
-    }));
-  }, []);
+    updateProgramNote(index, note);
+  }, [updateProgramNote]);
 
   const handleUpdateProgramFrequency = useCallback((index, frequency) => {
-    setPrograms((prev) => prev.map((p, i) => {
-      if (i !== index) return p;
-      return { ...p, frequency };
-    }));
-  }, []);
+    updateProgramFrequency(index, frequency);
+  }, [updateProgramFrequency]);
 
   const handleUpdateProgramName = useCallback((index, name) => {
-    setPrograms((prev) => prev.map((p, i) => {
-      if (i !== index) return p;
-      return { ...p, name };
-    }));
-  }, []);
+    updateProgramName(index, name);
+  }, [updateProgramName]);
 
   // ── Session mutations (write through to programs) ─────────
 
@@ -177,29 +154,13 @@ export default function MainScreen() {
 
   // ── Add / Delete workouts ─────────────────────────────────
 
-  const handleAddWorkout = () => {
-    const ts = Date.now();
-    const id = `w-${ts}`;
-    const newSession = {
-      current: {
-        id,
-        name: 'New Workout',
-        completedAt: null,
-        exercises: [],
-      },
-      previous: null,
-      next: {
-        id: `${id}-next`,
-        name: 'New Workout',
-        exercises: [],
-      },
-    };
-    updateSelectedSessions((prev) => [...prev, newSession]);
-  };
+  const handleAddWorkout = useCallback(() => {
+    dataAddWorkout();
+  }, [dataAddWorkout]);
 
-  const handleDeleteWorkout = (index) => {
-    updateSelectedSessions((prev) => prev.filter((_, i) => i !== index));
-  };
+  const handleDeleteWorkout = useCallback((index) => {
+    dataDeleteWorkout(index);
+  }, [dataDeleteWorkout]);
 
   // ── Zoom-through transitions ──────────────────────────────
 
@@ -345,6 +306,8 @@ export default function MainScreen() {
   );
 
   // ── Render ────────────────────────────────────────────────
+
+  if (loading) return null;
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>

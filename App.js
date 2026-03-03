@@ -10,6 +10,7 @@ import {
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ActivityIndicator, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DataProvider } from './src/context/DataContext';
 import SplashScreen from './src/components/common/SplashScreen';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import MainScreen from './src/screens/MainScreen';
@@ -29,7 +30,9 @@ export default function App() {
     'DMSans-Bold': DMSans_700Bold,
   });
 
-  // Check if onboarding was already completed
+  // AsyncStorage.removeItem('@push_onboarding_done'); // Remove comment to run tutorial on each launch of the app
+AsyncStorage.clear();
+
   useEffect(() => {
     const check = async () => {
       try {
@@ -68,7 +71,9 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <MainScreen />
+      <DataProvider>
+        <MainScreen />
+      </DataProvider>
     </SafeAreaProvider>
   );
 }
