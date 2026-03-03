@@ -31,7 +31,7 @@ export default function App() {
   });
 
   // AsyncStorage.removeItem('@push_onboarding_done'); // Remove comment to run tutorial on each launch of the app
-  // AsyncStorage.clear();
+  AsyncStorage.clear();
 
   useEffect(() => {
     const check = async () => {

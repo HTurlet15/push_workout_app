@@ -18,8 +18,13 @@ import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../../theme/theme
  * @param {Function} onUpdateNextSet        - Callback: (field, value).
  */
 export default function NextSetRow({ index, currentSet, nextSet, unit = 'kg', displayWeight, weightFadeAnim, onUpdateNextSet }) {
-  const resolveNextField = (field) => {
+  const resolveNextField = (field, currentField) => {
     if (field === null || field === undefined) {
+      // Fallback: show current filled value as pre-fill suggestion
+      const currentValue = currentField?.value ?? currentField;
+      if (currentValue != null && currentField?.state === 'filled') {
+        return { value: currentValue, edited: false, state: 'previous' };
+      }
       return { value: null, edited: false, state: 'empty' };
     }
     if (typeof field === 'object') {
@@ -42,8 +47,8 @@ export default function NextSetRow({ index, currentSet, nextSet, unit = 'kg', di
     return { label: '=', style: styles.deltaSame };
   };
 
-  const nextWeight = resolveNextField(nextSet.weight);
-  const nextReps = resolveNextField(nextSet.reps);
+  const nextWeight = resolveNextField(nextSet.weight, currentSet.weight);
+  const nextReps = resolveNextField(nextSet.reps, currentSet.reps);
 
   const weightDelta = getDelta(nextWeight.value, currentSet.weight.value);
   const repsDelta = getDelta(nextReps.value, currentSet.reps.value);
@@ -65,7 +70,7 @@ export default function NextSetRow({ index, currentSet, nextSet, unit = 'kg', di
               unit={unit}
               state={nextWeight.state}
               onChangeValue={(val) => onUpdateNextSet?.('weight', val)}
-              badgeColor={nextWeight.edited ? COLORS.nextBadgeEdited: COLORS.nextBadge}
+              badgeColor={COLORS.nextBadge}
               textColor={nextWeight.edited ? COLORS.nextEdited : COLORS.nextBadgeText}
             />
           </Animated.View>
@@ -85,7 +90,7 @@ export default function NextSetRow({ index, currentSet, nextSet, unit = 'kg', di
               value={nextReps.value}
               state={nextReps.state}
               onChangeValue={(val) => onUpdateNextSet?.('reps', val)}
-              badgeColor={nextReps.edited ? COLORS.nextBadgeEdited: COLORS.nextBadge}
+              badgeColor={COLORS.nextBadge}
               textColor={nextReps.edited ? COLORS.nextEdited : COLORS.nextBadgeText}
             />
           </View>

@@ -57,14 +57,14 @@ const STARTER_PROGRAM = {
         id: 'wk-push', name: 'Push', completedAt: null,
         exercises: [
           { id: 'ex-bench', name: 'Bench Press', note: undefined, restTimerSeconds: 90, repRange: '6-8', sets: [
-            { id: 's-b1', weight: { value: 80, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 2, state: 'previous' } },
-            { id: 's-b2', weight: { value: 80, state: 'previous' }, reps: { value: 7, state: 'previous' }, rir: { value: 1, state: 'previous' } },
-            { id: 's-b3', weight: { value: 80, state: 'previous' }, reps: { value: 6, state: 'previous' }, rir: { value: 0, state: 'previous' } },
+            { id: 's-b1', weight: { value: 77.5, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 2, state: 'previous' } },
+            { id: 's-b2', weight: { value: 77.5, state: 'previous' }, reps: { value: 7, state: 'previous' }, rir: { value: 1, state: 'previous' } },
+            { id: 's-b3', weight: { value: 77.5, state: 'planned' }, reps: { value: 7, state: 'planned' }, rir: { value: 0, state: 'previous' } },
           ]},
           { id: 'ex-ohp', name: 'Overhead Press', note: undefined, restTimerSeconds: 90, repRange: '8-10', sets: [
-            { id: 's-o1', weight: { value: 45, state: 'previous' }, reps: { value: 10, state: 'previous' }, rir: { value: 2, state: 'previous' } },
-            { id: 's-o2', weight: { value: 45, state: 'previous' }, reps: { value: 9, state: 'previous' }, rir: { value: 1, state: 'previous' } },
-            { id: 's-o3', weight: { value: 45, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 0, state: 'previous' } },
+            { id: 's-o1', weight: { value: 42.5, state: 'previous' }, reps: { value: 10, state: 'previous' }, rir: { value: 2, state: 'previous' } },
+            { id: 's-o2', weight: { value: 42.5, state: 'previous' }, reps: { value: 9, state: 'previous' }, rir: { value: 1, state: 'previous' } },
+            { id: 's-o3', weight: { value: 42.5, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 0, state: 'previous' } },
           ]},
         ],
       },
@@ -94,14 +94,14 @@ const STARTER_PROGRAM = {
         id: 'wk-pull', name: 'Pull', completedAt: null,
         exercises: [
           { id: 'ex-dl', name: 'Deadlift', note: undefined, restTimerSeconds: 120, repRange: '3-5', sets: [
-            { id: 's-d1', weight: { value: 140, state: 'previous' }, reps: { value: 5, state: 'previous' }, rir: { value: 2, state: 'previous' } },
-            { id: 's-d2', weight: { value: 140, state: 'previous' }, reps: { value: 4, state: 'previous' }, rir: { value: 1, state: 'previous' } },
-            { id: 's-d3', weight: { value: 140, state: 'previous' }, reps: { value: 3, state: 'previous' }, rir: { value: 0, state: 'previous' } },
+            { id: 's-d1', weight: { value: 135, state: 'previous' }, reps: { value: 5, state: 'previous' }, rir: { value: 2, state: 'previous' } },
+            { id: 's-d2', weight: { value: 135, state: 'previous' }, reps: { value: 4, state: 'previous' }, rir: { value: 1, state: 'previous' } },
+            { id: 's-d3', weight: { value: 135, state: 'previous' }, reps: { value: 3, state: 'previous' }, rir: { value: 0, state: 'previous' } },
           ]},
           { id: 'ex-row', name: 'Barbell Row', note: undefined, restTimerSeconds: 90, repRange: '8-10', sets: [
-            { id: 's-r1', weight: { value: 70, state: 'previous' }, reps: { value: 10, state: 'previous' }, rir: { value: 2, state: 'previous' } },
-            { id: 's-r2', weight: { value: 70, state: 'previous' }, reps: { value: 9, state: 'previous' }, rir: { value: 1, state: 'previous' } },
-            { id: 's-r3', weight: { value: 70, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 0, state: 'previous' } },
+            { id: 's-r1', weight: { value: 67.5, state: 'previous' }, reps: { value: 10, state: 'previous' }, rir: { value: 2, state: 'previous' } },
+            { id: 's-r2', weight: { value: 67.5, state: 'previous' }, reps: { value: 9, state: 'previous' }, rir: { value: 1, state: 'previous' } },
+            { id: 's-r3', weight: { value: 67.5, state: 'planned' }, reps: { value: 10, state: 'planned' }, rir: { value: 0, state: 'previous' } },
           ]},
         ],
       },
@@ -131,14 +131,14 @@ const STARTER_PROGRAM = {
         id: 'wk-legs', name: 'Legs', completedAt: null,
         exercises: [
           { id: 'ex-sq', name: 'Squat', note: undefined, restTimerSeconds: 120, repRange: '4-6', sets: [
-            { id: 's-sq1', weight: { value: 120, state: 'previous' }, reps: { value: 6, state: 'previous' }, rir: { value: 2, state: 'previous' } },
-            { id: 's-sq2', weight: { value: 120, state: 'previous' }, reps: { value: 5, state: 'previous' }, rir: { value: 1, state: 'previous' } },
-            { id: 's-sq3', weight: { value: 120, state: 'previous' }, reps: { value: 4, state: 'previous' }, rir: { value: 0, state: 'previous' } },
+            { id: 's-sq1', weight: { value: 115, state: 'previous' }, reps: { value: 6, state: 'previous' }, rir: { value: 2, state: 'previous' } },
+            { id: 's-sq2', weight: { value: 115, state: 'previous' }, reps: { value: 5, state: 'previous' }, rir: { value: 1, state: 'previous' } },
+            { id: 's-sq3', weight: { value: 115, state: 'planned' }, reps: { value: 5, state: 'planned' }, rir: { value: 0, state: 'previous' } },
           ]},
           { id: 'ex-rdl', name: 'Romanian Deadlift', note: undefined, restTimerSeconds: 90, repRange: '8-10', sets: [
-            { id: 's-rdl1', weight: { value: 80, state: 'previous' }, reps: { value: 10, state: 'previous' }, rir: { value: 2, state: 'previous' } },
-            { id: 's-rdl2', weight: { value: 80, state: 'previous' }, reps: { value: 9, state: 'previous' }, rir: { value: 1, state: 'previous' } },
-            { id: 's-rdl3', weight: { value: 80, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 0, state: 'previous' } },
+            { id: 's-rdl1', weight: { value: 77.5, state: 'previous' }, reps: { value: 10, state: 'previous' }, rir: { value: 2, state: 'previous' } },
+            { id: 's-rdl2', weight: { value: 77.5, state: 'previous' }, reps: { value: 9, state: 'previous' }, rir: { value: 1, state: 'previous' } },
+            { id: 's-rdl3', weight: { value: 77.5, state: 'previous' }, reps: { value: 8, state: 'previous' }, rir: { value: 0, state: 'previous' } },
           ]},
         ],
       },
