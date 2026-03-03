@@ -109,9 +109,29 @@ export default function WorkoutScreen({
   };
 
   const handleUpdateNextSet = (exerciseId, setId, field, value) => {
-    // Null value = user cleared the field → revert to unedited state
     if (value === null) {
-      setNextWorkout((prev) => ({
+      setNextWorkout((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          exercises: prev.exercises.map((exercise) => {
+            if (exercise.id !== exerciseId) return exercise;
+            return {
+              ...exercise,
+              sets: exercise.sets.map((set) => {
+                if (set.id !== setId) return set;
+                return { ...set, [field]: null };
+              }),
+            };
+          }),
+        };
+      });
+      return;
+    }
+
+    setNextWorkout((prev) => {
+      if (!prev) return prev;
+      return {
         ...prev,
         exercises: prev.exercises.map((exercise) => {
           if (exercise.id !== exerciseId) return exercise;
@@ -119,27 +139,12 @@ export default function WorkoutScreen({
             ...exercise,
             sets: exercise.sets.map((set) => {
               if (set.id !== setId) return set;
-              return { ...set, [field]: null };
+              return { ...set, [field]: { value, edited: true } };
             }),
           };
         }),
-      }));
-      return;
-    }
-
-    setNextWorkout((prev) => ({
-      ...prev,
-      exercises: prev.exercises.map((exercise) => {
-        if (exercise.id !== exerciseId) return exercise;
-        return {
-          ...exercise,
-          sets: exercise.sets.map((set) => {
-            if (set.id !== setId) return set;
-            return { ...set, [field]: { value, edited: true } };
-          }),
-        };
-      }),
-    }));
+      };
+    });
   };
 
   const handleDeleteSet = (exerciseId, setId) => {
@@ -257,6 +262,7 @@ export default function WorkoutScreen({
     });
 
     setNextWorkout((prev) => {
+      if (!prev) return prev;
       const exerciseIndex = prev.exercises.findIndex((e) => e.id === afterExerciseId);
       const newNextExercise = {
         id,
