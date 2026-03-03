@@ -301,6 +301,7 @@ export default function MainScreen() {
   const [helpLang, setHelpLang] = useState('en');
 
   const getHelpScreen = () => {
+    if (graphDetailVisible) return 'graphDetail';
     if (workoutVisible) return 'workout';
     if (activeTab === 0) return 'programs';
     if (activeTab === 2) return 'graphs';
@@ -460,6 +461,7 @@ export default function MainScreen() {
             tabPosition={2}
             backLabel="Graphs"
             onBack={navigateToGraphsList}
+            onHelp={() => setHelpVisible(true)}
           />
 
           <GraphDetail session={sessions[graphDetailIndex]} />

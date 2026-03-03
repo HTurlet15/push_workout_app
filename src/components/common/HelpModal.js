@@ -121,7 +121,7 @@ const HELP_CONTENT = {
         {
           icon: 'grid',
           title: 'Fill in your sets',
-          text: 'Tap any cell to enter weight, reps, or RIR. A completed set turns green and start the exercice rest time automatically.',
+          text: 'Tap any cell to enter weight, reps, or RIR. A completed set turns green.',
         },
         {
           icon: 'chevrons-right',
@@ -156,7 +156,7 @@ const HELP_CONTENT = {
         {
           icon: 'grid',
           title: 'Remplir vos séries',
-          text: "Appuyez sur une cellule pour entrer le poids, les reps ou le RIR. Une série complétée passe en vert et active le temps de repos de l'exercice automatiquement.",
+          text: "Appuyez sur une cellule pour entrer le poids, les reps ou le RIR. Une série complétée passe en vert.",
         },
         {
           icon: 'chevrons-right',
@@ -196,14 +196,14 @@ const HELP_CONTENT = {
           text: 'Each card shows the total tonnage (weight × reps) trend for a workout over time.',
         },
         {
-          icon: 'bar-chart-2',
-          title: 'Detailed breakdown',
-          text: 'Tap a card to see the tonnage breakdown per exercise, with individual trends.',
-        },
-        {
           icon: 'arrow-up',
           title: 'Percentage badge',
-          text: 'The green/red badge shows your progression compared to your previous session.',
+          text: 'The green/red badge shows your overall progression between your first and most recent session.',
+        },
+        {
+          icon: 'bar-chart-2',
+          title: 'Detailed breakdown',
+          text: 'Tap a card to see the tonnage breakdown per exercise, with session-by-session trends.',
         },
       ],
     },
@@ -216,14 +216,56 @@ const HELP_CONTENT = {
           text: "Chaque carte montre l'évolution du tonnage total (poids × reps) par séance.",
         },
         {
+          icon: 'arrow-up',
+          title: 'Badge de progression',
+          text: "Le badge vert/rouge montre votre progression globale entre votre première et votre dernière séance.",
+        },
+        {
           icon: 'bar-chart-2',
           title: 'Détail par exercice',
-          text: "Appuyez sur une carte pour voir le tonnage détaillé par exercice, avec les tendances individuelles.",
+          text: "Appuyez sur une carte pour voir le tonnage détaillé par exercice, avec les tendances séance par séance.",
+        },
+      ],
+    },
+  },
+  graphDetail: {
+    en: {
+      screenTitle: 'Graph Detail',
+      sections: [
+        {
+          icon: 'trending-up',
+          title: 'Overall trend',
+          text: 'The top chart shows your total tonnage progression across all exercises for this workout.',
+        },
+        {
+          icon: 'list',
+          title: 'Per-exercise breakdown',
+          text: 'Each exercise has its own mini chart showing how your tonnage evolved session by session.',
         },
         {
           icon: 'arrow-up',
-          title: 'Badge de progression',
-          text: "Le badge vert/rouge montre votre progression par rapport à la séance précédente.",
+          title: 'Session-by-session badges',
+          text: 'The percentage badges here compare each session to the previous one, so you can track your progress over time.',
+        },
+      ],
+    },
+    fr: {
+      screenTitle: 'Détail du graphique',
+      sections: [
+        {
+          icon: 'trending-up',
+          title: 'Tendance globale',
+          text: "Le graphique principal montre l'évolution de votre tonnage total pour cette séance.",
+        },
+        {
+          icon: 'list',
+          title: 'Détail par exercice',
+          text: "Chaque exercice a son propre mini graphique montrant l'évolution du tonnage séance par séance.",
+        },
+        {
+          icon: 'arrow-up',
+          title: 'Badges séance par séance',
+          text: "Les badges ici comparent chaque séance à la précédente, pour suivre votre progression dans le temps.",
         },
       ],
     },
