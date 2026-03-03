@@ -9,10 +9,9 @@ import GraphDetail from '../components/graph/GraphDetail';
 import BottomBar from '../components/common/BottomBar';
 import TimerPicker from '../components/common/TimerPicker';
 import TabIndicator from '../components/common/TabIndicator';
+import HelpModal from '../components/common/HelpModal';
 import useRestTimer from '../hooks/useRestTimer';
-import { useCopilot } from 'react-native-copilot';
 import MOCK_PROGRAMS from '../data/mockPrograms';
-import { TUTORIAL_STEP_ORDER } from '../data/tutorialConfig';
 import { COLORS } from '../theme/theme';
 
 /**
@@ -296,94 +295,17 @@ export default function MainScreen() {
     return () => handler.remove();
   }, [graphDetailVisible, workoutVisible, editMode]);
 
-  // ── Tutorial (react-native-copilot) ────────────────────────
+  // ── Help modal ─────────────────────────────────────────
 
-  const { start, copilotEvents, visible: copilotVisible } = useCopilot();
-  const [tutorialStarted, setTutorialStarted] = useState(false);
-  const tutorialStepRef = useRef(0);
+  const [helpVisible, setHelpVisible] = useState(false);
+  const [helpLang, setHelpLang] = useState('en');
 
-  const executeTutorialAction = useCallback((action) => {
-    return new Promise((resolve) => {
-      if (!action) { resolve(); return; }
-
-      if (action.startsWith('goToTab:')) {
-        const tabIndex = parseInt(action.split(':')[1], 10);
-        tabPagerRef.current?.scrollToIndex({ index: tabIndex, animated: true });
-        setTimeout(resolve, 500);
-      } else if (action.startsWith('openWorkout:')) {
-        const idx = parseInt(action.split(':')[1], 10);
-        navigateToWorkout(idx);
-        setTimeout(resolve, 500);
-      } else if (action === 'goBack') {
-        if (workoutVisible) {
-          navigateToList();
-          setTimeout(resolve, 400);
-        } else { resolve(); }
-      } else if (action.includes('+')) {
-        // Compound: "goBack+goToTab:2"
-        const parts = action.split('+');
-        const runParts = async () => {
-          for (const part of parts) {
-            await new Promise((r) => {
-              if (part === 'goBack' && workoutVisible) {
-                navigateToList();
-                setTimeout(r, 400);
-              } else if (part.startsWith('goToTab:')) {
-                const ti = parseInt(part.split(':')[1], 10);
-                tabPagerRef.current?.scrollToIndex({ index: ti, animated: true });
-                setTimeout(r, 500);
-              } else { r(); }
-            });
-          }
-          resolve();
-        };
-        runParts();
-      } else { resolve(); }
-    });
-  }, [workoutVisible]);
-
-  // Listen for step changes to execute navigation actions
-  useEffect(() => {
-    const handleStepChange = async (step) => {
-      const stepIndex = TUTORIAL_STEP_ORDER.findIndex((s) => s.name === step.name);
-      if (stepIndex >= 0 && stepIndex !== tutorialStepRef.current) {
-        const stepConfig = TUTORIAL_STEP_ORDER[stepIndex];
-        if (stepConfig.action) {
-          await executeTutorialAction(stepConfig.action);
-        }
-        tutorialStepRef.current = stepIndex;
-      }
-    };
-
-    const handleStop = () => {
-      // Return to workouts when tutorial ends
-      if (workoutVisible) navigateToList();
-      if (graphDetailVisible) navigateToGraphsList();
-      setTimeout(() => {
-        tabPagerRef.current?.scrollToIndex({ index: 1, animated: false });
-      }, 300);
-    };
-
-    copilotEvents.on('stepChange', handleStepChange);
-    copilotEvents.on('stop', handleStop);
-
-    return () => {
-      copilotEvents.off('stepChange', handleStepChange);
-      copilotEvents.off('stop', handleStop);
-    };
-  }, [copilotEvents, executeTutorialAction, workoutVisible, graphDetailVisible]);
-
-  // Start tutorial after first render
-  useEffect(() => {
-    if (!tutorialStarted) {
-      setTutorialStarted(true);
-      // Navigate to programs tab first, then start
-      tabPagerRef.current?.scrollToIndex({ index: 0, animated: false });
-      setTimeout(() => {
-        start();
-      }, 800);
-    }
-  }, [tutorialStarted]);
+  const getHelpScreen = () => {
+    if (workoutVisible) return 'workout';
+    if (activeTab === 0) return 'programs';
+    if (activeTab === 2) return 'graphs';
+    return 'workouts';
+  };
 
   // ── Tab pages ─────────────────────────────────────────────
 
@@ -439,6 +361,7 @@ export default function MainScreen() {
         <TabIndicator
           label={TAB_LABELS[activeTab]}
           tabPosition={activeTab}
+          onHelp={() => setHelpVisible(true)}
         />
 
         <FlatList
@@ -493,7 +416,7 @@ export default function MainScreen() {
             activeIndex={activeWorkoutIndex}
             backLabel="Workouts"
             onBack={navigateToList}
-            showTutorialBack
+            onHelp={() => setHelpVisible(true)}
           />
 
           <WorkoutPager
@@ -517,7 +440,6 @@ export default function MainScreen() {
             onEditToggle={() => setEditMode((prev) => !prev)}
             onLLMPress={() => {}}
             bottomInset={insets.bottom}
-            showTutorialEdit
           />
         </Animated.View>
       )}
@@ -564,6 +486,14 @@ export default function MainScreen() {
           setShowTimerPicker(false);
         }}
         onClose={() => setShowTimerPicker(false)}
+      />
+
+      <HelpModal
+        visible={helpVisible}
+        onClose={() => setHelpVisible(false)}
+        screen={getHelpScreen()}
+        lang={helpLang}
+        onToggleLang={() => setHelpLang((l) => l === 'en' ? 'fr' : 'en')}
       />
     </View>
   );

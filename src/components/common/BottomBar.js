@@ -1,10 +1,8 @@
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { CopilotStep, walkthroughable } from 'react-native-copilot';
 import Text from './Text';
 import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
 
-const WalkthroughView = walkthroughable(View);
 /**
  * Persistent bottom navigation bar for the workout session.
  *
@@ -44,7 +42,6 @@ export default function BottomBar({
   onEditToggle,
   onLLMPress,
   bottomInset = 0,
-  showTutorialEdit = false,
 }) {
   /** Format seconds into M:SS display string */
   const formatTime = (seconds) => {
@@ -106,7 +103,7 @@ export default function BottomBar({
         <Feather name={getPlayIcon()} size={SIZE.iconSm} color={getPlayIconColor()} />
       </Pressable>
 
-      {/* Timer display - tap to open duration picker */}
+      {/* Timer display — tap to open duration picker */}
       <Pressable
         style={({ pressed }) => [styles.timerBtn, pressed && styles.timerBtnPressed]}
         onPress={onTimerPress}
@@ -124,42 +121,21 @@ export default function BottomBar({
         <Feather name="rotate-ccw" size={SIZE.iconSm} color={COLORS.textSecondary} />
       </Pressable>
 
-      {/* Edit mode toggle - pencil (normal) / checkmark (active) */}
-      {showTutorialEdit ? (
-        <CopilotStep text="" name="edit-button" order={8}>
-          <WalkthroughView>
-            <Pressable
-              style={({ pressed }) => [
-                styles.iconBtn,
-                editMode ? styles.editBtnActive : styles.editBtn,
-                pressed && (editMode ? styles.editBtnActivePressed : styles.editBtnPressed),
-              ]}
-              onPress={onEditToggle}
-            >
-              <Feather
-                name={editMode ? 'check' : 'edit-2'}
-                size={SIZE.iconMd}
-                color={COLORS.white}
-              />
-            </Pressable>
-          </WalkthroughView>
-        </CopilotStep>
-      ) : (
-        <Pressable
-          style={({ pressed }) => [
-            styles.iconBtn,
-            editMode ? styles.editBtnActive : styles.editBtn,
-            pressed && (editMode ? styles.editBtnActivePressed : styles.editBtnPressed),
-          ]}
-          onPress={onEditToggle}
-        >
-          <Feather
-            name={editMode ? 'check' : 'edit-2'}
-            size={SIZE.iconMd}
-            color={COLORS.white}
-          />
-        </Pressable>
-      )}
+      {/* Edit mode toggle — pencil (normal) / checkmark (active) */}
+      <Pressable
+        style={({ pressed }) => [
+          styles.iconBtn,
+          editMode ? styles.editBtnActive : styles.editBtn,
+          pressed && (editMode ? styles.editBtnActivePressed : styles.editBtnPressed),
+        ]}
+        onPress={onEditToggle}
+      >
+        <Feather
+          name={editMode ? 'check' : 'edit-2'}
+          size={SIZE.iconMd}
+          color={COLORS.white}
+        />
+      </Pressable>
     </View>
   );
 }
@@ -209,7 +185,7 @@ const styles = StyleSheet.create({
   resetBtn: { backgroundColor: COLORS.timerResetBg },
   resetBtnPressed: { backgroundColor: COLORS.timerResetPressedBg },
 
-  /** Edit button - normal mode (black) */
+  /** Edit button — normal mode (black) */
   editBtn: {
     backgroundColor: COLORS.black,
     borderRadius: RADIUS.sm,
@@ -217,7 +193,7 @@ const styles = StyleSheet.create({
   editBtnPressed: {
     backgroundColor: COLORS.btnDarkPressed,
   },
-  /** Edit button - active mode (blue) */
+  /** Edit button — active mode (blue) */
   editBtnActive: {
     backgroundColor: COLORS.viewCurrent,
     borderRadius: RADIUS.sm,
@@ -236,7 +212,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.timerResetBg,
   },
 
-  /** Timer text - semibold with fixed minimum width */
+  /** Timer text — semibold with fixed minimum width */
   timerText: {
     fontFamily: FONT_FAMILY.semibold,
     textAlign: 'center',

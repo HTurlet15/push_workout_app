@@ -1,11 +1,8 @@
 import { View, Pressable, TextInput, Animated, StyleSheet } from 'react-native';
 import { useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
-import { CopilotStep, walkthroughable } from 'react-native-copilot';
 import Text from '../common/Text';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
-
-const WalkthroughView = walkthroughable(View);
 
 /**
  * Individual program card with:
@@ -74,6 +71,7 @@ export default function ProgramCard({
     outputRange: ['0deg', '180deg'],
   });
 
+
   const cardContent = (
     <View style={[styles.card, isSelected && styles.cardActive]}>
       <View style={styles.cardMain}>
@@ -92,23 +90,11 @@ export default function ProgramCard({
 
         {/* Normal mode: radio button */}
         {!editMode && (
-          isFirst ? (
-            <CopilotStep text="" name="program-radio" order={3}>
-              <WalkthroughView style={styles.radioZone}>
-                <Pressable style={styles.radioZone} onPress={onSelect}>
-                  <View style={[styles.radio, isSelected && styles.radioSelected]}>
-                    {isSelected && <View style={styles.radioInner} />}
-                  </View>
-                </Pressable>
-              </WalkthroughView>
-            </CopilotStep>
-          ) : (
-            <Pressable style={styles.radioZone} onPress={onSelect}>
-              <View style={[styles.radio, isSelected && styles.radioSelected]}>
-                {isSelected && <View style={styles.radioInner} />}
-              </View>
-            </Pressable>
-          )
+          <Pressable style={styles.radioZone} onPress={onSelect}>
+            <View style={[styles.radio, isSelected && styles.radioSelected]}>
+              {isSelected && <View style={styles.radioInner} />}
+            </View>
+          </Pressable>
         )}
 
         {/* Body */}
@@ -161,35 +147,17 @@ export default function ProgramCard({
 
         {/* Chevron — hidden in edit mode */}
         {!editMode && (
-          isFirst ? (
-            <CopilotStep text="" name="program-chevron" order={2}>
-              <WalkthroughView>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.chevronHitArea,
-                    pressed && styles.chevronPressed,
-                  ]}
-                  onPress={onToggleExpand}
-                >
-                  <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
-                    <Feather name="chevron-down" size={SIZE.iconChevron} color={COLORS.textMuted} />
-                  </Animated.View>
-                </Pressable>
-              </WalkthroughView>
-            </CopilotStep>
-          ) : (
-            <Pressable
-              style={({ pressed }) => [
-                styles.chevronHitArea,
-                pressed && styles.chevronPressed,
-              ]}
-              onPress={onToggleExpand}
-            >
-              <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
-                <Feather name="chevron-down" size={SIZE.iconChevron} color={COLORS.textMuted} />
-              </Animated.View>
-            </Pressable>
-          )
+          <Pressable
+            style={({ pressed }) => [
+              styles.chevronHitArea,
+              pressed && styles.chevronPressed,
+            ]}
+            onPress={onToggleExpand}
+          >
+            <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
+              <Feather name="chevron-down" size={SIZE.iconChevron} color={COLORS.textMuted} />
+            </Animated.View>
+          </Pressable>
         )}
       </View>
 
@@ -230,16 +198,6 @@ export default function ProgramCard({
       )}
     </View>
   );
-
-  if (isFirst) {
-    return (
-      <CopilotStep text="" name="program-card" order={1}>
-        <WalkthroughView>
-          {cardContent}
-        </WalkthroughView>
-      </CopilotStep>
-    );
-  }
 
   return cardContent;
 }

@@ -8,10 +8,8 @@ import {
   DMSans_700Bold,
 } from '@expo-google-fonts/dm-sans';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { CopilotProvider } from 'react-native-copilot';
 import { ActivityIndicator, View } from 'react-native';
 import SplashScreen from './src/components/common/SplashScreen';
-import TutorialTooltip from './src/components/common/TutorialTooltip';
 import MainScreen from './src/screens/MainScreen';
 
 export default function App() {
@@ -38,18 +36,8 @@ export default function App() {
   }
 
   return (
-    <CopilotProvider
-      tooltipComponent={TutorialTooltip}
-      stepNumberComponent={() => null}
-      animated
-      overlay="svg"
-      backdropColor="rgba(0, 0, 0, 0.65)"
-      verticalOffset={0}
-      margin={8}
-    >
-      <SafeAreaProvider>
-        <MainScreen />
-      </SafeAreaProvider>
-    </CopilotProvider>
+    <SafeAreaProvider>
+      <MainScreen />
+    </SafeAreaProvider>
   );
 }

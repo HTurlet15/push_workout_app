@@ -1,11 +1,8 @@
 import { View, Animated, Pressable, TextInput, StyleSheet, useWindowDimensions } from 'react-native';
 import { useState, useRef, useCallback } from 'react';
 import { Feather } from '@expo/vector-icons';
-import { CopilotStep, walkthroughable } from 'react-native-copilot';
 import Text from '../common/Text';
 import ViewSelector from './ViewSelector';
-
-const WalkthroughView = walkthroughable(View);
 import SetHeader from './SetHeader';
 import NextSetHeader from './NextSetHeader';
 import PreviousSetHeader from './PreviousSetHeader';
@@ -14,8 +11,8 @@ import SetRow from './SetRow';
 import PreviousSetRow from './PreviousSetRow';
 import NextSetRow from './NextSetRow';
 import ExerciseNote from './ExerciseNote';
-import useSlideTransition from '../hooks/useSlideTransition';
-import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../theme/theme';
+import useSlideTransition from '../../hooks/useSlideTransition';
+import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
 
 /** Conversion factor — all data is stored in kg */
 const KG_TO_LBS = 2.20462;
@@ -230,7 +227,7 @@ export default function ExerciseCard({
   // ── Footer ────────────────────────────────────────────────
 
   const renderFooter = () => {
-    const footer = (
+    return (
       <SetFooter
         restSeconds={restTimerSeconds}
         unit={unit}
@@ -242,18 +239,6 @@ export default function ExerciseCard({
         editMode={editMode}
       />
     );
-
-    if (isFirst) {
-      return (
-        <CopilotStep text="" name="exercise-footer" order={7}>
-          <WalkthroughView>
-            {footer}
-          </WalkthroughView>
-        </CopilotStep>
-      );
-    }
-
-    return footer;
   };
 
   // ── Render a set row with optional delete animation ───────
@@ -439,15 +424,7 @@ export default function ExerciseCard({
 
         {renderExerciseName()}
 
-        {isFirst ? (
-          <CopilotStep text="" name="view-selector" order={6}>
-            <WalkthroughView>
-              <ViewSelector activeView={displayedView} onChangeView={transitionTo} />
-            </WalkthroughView>
-          </CopilotStep>
-        ) : (
-          <ViewSelector activeView={displayedView} onChangeView={transitionTo} />
-        )}
+        <ViewSelector activeView={displayedView} onChangeView={transitionTo} />
       </View>
 
       <View style={[
@@ -472,16 +449,6 @@ export default function ExerciseCard({
       )}
     </View>
   );
-
-  if (isFirst) {
-    return (
-      <CopilotStep text="" name="exercise-card" order={5}>
-        <WalkthroughView>
-          {cardContent}
-        </WalkthroughView>
-      </CopilotStep>
-    );
-  }
 
   return cardContent;
 }
