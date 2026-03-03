@@ -139,6 +139,19 @@ export default function ProgramsList({
 
       {programs.map((program, index) => renderCard(program, index))}
 
+      {programs.length === 0 && !editMode && (
+        <Pressable
+          style={({ pressed }) => [
+            styles.emptyAddBtn,
+            pressed && styles.addBtnPressed,
+          ]}
+          onPress={handleAdd}
+        >
+          <Feather name="plus" size={SIZE.iconChevron} color={COLORS.viewCurrent} />
+          <Text style={[styles.addBtnText, { color: COLORS.viewCurrent }]}>Add Program</Text>
+        </Pressable>
+      )}
+
       {editMode && (
         <Pressable
           style={({ pressed }) => [
@@ -202,6 +215,18 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderRadius: RADIUS.md,
     marginTop: SPACING.xs,
+  },
+  emptyAddBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.sm,
+    paddingVertical: SPACING.xl,
+    borderWidth: SIZE.borderAccent,
+    borderColor: COLORS.viewCurrent,
+    borderStyle: 'dashed',
+    borderRadius: RADIUS.md,
+    marginTop: SPACING.lg,
   },
   addBtnPressed: {
     backgroundColor: COLORS.lightGray,

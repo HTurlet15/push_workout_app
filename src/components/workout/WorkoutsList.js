@@ -13,10 +13,12 @@ import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '.
  */
 export default function WorkoutsList({
   sessions,
+  selectedProgramId,
   editMode,
   onSelectWorkout,
   onAddWorkout,
   onDeleteWorkout,
+  onUpdateWorkoutName,
 }) {
   const [expandedId, setExpandedId] = useState(null);
   const [newIndices, setNewIndices] = useState(new Set());
@@ -91,6 +93,7 @@ export default function WorkoutsList({
         }
         onPress={() => onSelectWorkout(index)}
         onDelete={() => handleDelete(index)}
+        onUpdateName={(text) => onUpdateWorkoutName?.(index, text)}
         isFirst={index === 0}
       />
     );
@@ -131,7 +134,30 @@ export default function WorkoutsList({
         <Text variant="screenTitle">WORKOUTS</Text>
       </View>
 
+      {/* Empty state: no program selected */}
+      {!selectedProgramId && sessions.length === 0 && (
+        <View style={styles.emptyState}>
+          <Feather name="layers" size={32} color={COLORS.mediumGray} />
+          <Text style={styles.emptyTitle}>No program selected</Text>
+          <Text style={styles.emptySubtitle}>Create and select a program to start adding workouts.</Text>
+        </View>
+      )}
+
       {sessions.map((session, index) => renderCard(session, index))}
+
+      {/* Empty state: program selected but no workouts */}
+      {selectedProgramId && sessions.length === 0 && !editMode && (
+        <Pressable
+          style={({ pressed }) => [
+            styles.emptyAddBtn,
+            pressed && styles.addBtnPressed,
+          ]}
+          onPress={handleAdd}
+        >
+          <Feather name="plus" size={SIZE.iconChevron} color={COLORS.viewCurrent} />
+          <Text style={[styles.addBtnText, { color: COLORS.viewCurrent }]}>Add Workout</Text>
+        </Pressable>
+      )}
 
       {editMode && (
         <Pressable
@@ -196,6 +222,36 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderRadius: RADIUS.md,
     marginTop: SPACING.xs,
+  },
+  emptyAddBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.sm,
+    paddingVertical: SPACING.xl,
+    borderWidth: SIZE.borderAccent,
+    borderColor: COLORS.viewCurrent,
+    borderStyle: 'dashed',
+    borderRadius: RADIUS.md,
+    marginTop: SPACING.lg,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: SPACING.xxl,
+    gap: SPACING.sm,
+  },
+  emptyTitle: {
+    fontSize: FONT_SIZE.md,
+    fontFamily: FONT_FAMILY.bold,
+    color: COLORS.textSecondary,
+    marginTop: SPACING.sm,
+  },
+  emptySubtitle: {
+    fontSize: FONT_SIZE.sm,
+    fontFamily: FONT_FAMILY.medium,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+    paddingHorizontal: SPACING.xl,
   },
   addBtnPressed: {
     backgroundColor: COLORS.lightGray,

@@ -1,4 +1,4 @@
-import { View, Pressable, Animated, StyleSheet } from 'react-native';
+import { View, Pressable, Animated, StyleSheet, TextInput } from 'react-native';
 import { useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from '../common/Text';
@@ -22,6 +22,7 @@ export default function WorkoutCard({
   onToggleExpand,
   onPress,
   onDelete,
+  onUpdateName,
   isFirst = false,
 }) {
   const expandAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
@@ -110,7 +111,16 @@ export default function WorkoutCard({
           </Animated.View>
 
           <View style={styles.cardBody}>
-            <Text style={styles.cardName}>{name}</Text>
+            {editMode ? (
+              <TextInput
+                style={styles.cardNameInput}
+                value={name}
+                onChangeText={onUpdateName}
+                selectTextOnFocus
+              />
+            ) : (
+              <Text style={styles.cardName}>{name}</Text>
+            )}
             <View style={styles.cardMeta}>
               <Text style={[styles.cardMetaText, { color: timeColor }]}>
                 {timeBadge.label}
@@ -219,6 +229,15 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.bold,
     color: COLORS.textPrimary,
     marginBottom: SPACING.xxs,
+  },
+  cardNameInput: {
+    fontSize: FONT_SIZE.md,
+    fontFamily: FONT_FAMILY.bold,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.xxs,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.viewCurrent,
+    paddingVertical: 0,
   },
   cardMeta: {
     flexDirection: 'row',

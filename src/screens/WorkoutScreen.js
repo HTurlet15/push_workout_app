@@ -1,4 +1,4 @@
-import { View, Pressable, Animated, StyleSheet } from 'react-native';
+import { View, Pressable, Animated, StyleSheet, TextInput } from 'react-native';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Feather } from '@expo/vector-icons';
@@ -412,7 +412,16 @@ export default function WorkoutScreen({
       scrollEventThrottle={16}
     >
       <View style={styles.header}>
-        <Text variant="screenTitle">{workout.name}</Text>
+        {editMode ? (
+          <TextInput
+            style={styles.nameInput}
+            value={workout.name}
+            onChangeText={(text) => setWorkout((prev) => ({ ...prev, name: text }))}
+            selectTextOnFocus
+          />
+        ) : (
+          <Text variant="screenTitle">{workout.name}</Text>
+        )}
         <View style={styles.headerMeta}>
           <View style={styles.progressBadge}>
             <Text variant="caption" style={styles.progressText}>
@@ -427,21 +436,17 @@ export default function WorkoutScreen({
 
       {workout.exercises.map((exercise, index) => renderExercise(exercise, index))}
 
-      {/* Add exercise button — visible when empty OR in edit mode */}
-      {(workout.exercises.length === 0 || editMode) && (
+      {/* Add exercise button — only visible when workout is empty */}
+      {workout.exercises.length === 0 && (
         <Pressable
           style={({ pressed }) => [
             styles.addExerciseBtn,
             pressed && styles.addExerciseBtnPressed,
           ]}
-          onPress={() => handleAddExercise(
-            workout.exercises.length > 0
-              ? workout.exercises[workout.exercises.length - 1].id
-              : undefined
-          )}
+          onPress={() => handleAddExercise(undefined)}
         >
-          <Feather name="plus" size={SIZE.iconChevron} color={COLORS.textSecondary} />
-          <Text style={styles.addExerciseBtnText}>Add Exercise</Text>
+          <Feather name="plus" size={SIZE.iconChevron} color={COLORS.viewCurrent} />
+          <Text style={[styles.addExerciseBtnText, { color: COLORS.viewCurrent }]}>Add Exercise</Text>
         </Pressable>
       )}
     </KeyboardAwareScrollView>
@@ -486,6 +491,16 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     paddingVertical: SPACING.lg,
+  },
+  nameInput: {
+    fontSize: FONT_SIZE.xl,
+    fontFamily: FONT_FAMILY.bold,
+    color: COLORS.textPrimary,
+    textAlign: 'center',
+    borderBottomWidth: 1.5,
+    borderBottomColor: COLORS.viewCurrent,
+    paddingVertical: SPACING.xs,
+    minWidth: 120,
   },
   headerMeta: {
     flexDirection: 'row',

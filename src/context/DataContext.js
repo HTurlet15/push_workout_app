@@ -247,7 +247,11 @@ export function DataProvider({ children }) {
         exercises: [],
       },
       previous: null,
-      next: null,
+      next: {
+        id: `wk-${ts}-next`,
+        name: 'New Workout',
+        exercises: [],
+      },
     };
 
     updateSelectedSessions((prev) => [...prev, newSession]);

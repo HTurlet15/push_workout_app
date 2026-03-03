@@ -162,6 +162,17 @@ export default function MainScreen() {
     dataDeleteWorkout(index);
   }, [dataDeleteWorkout]);
 
+  const handleUpdateWorkoutName = useCallback((index, name) => {
+    updateSelectedSessions((prev) => {
+      const next = [...prev];
+      next[index] = {
+        ...next[index],
+        current: { ...next[index].current, name },
+      };
+      return next;
+    });
+  }, [updateSelectedSessions]);
+
   // ── Zoom-through transitions ──────────────────────────────
 
   const navigateToWorkout = (sessionIndex) => {
@@ -291,10 +302,12 @@ export default function MainScreen() {
       ) : item.key === 'workouts' ? (
         <WorkoutsList
           sessions={sessions}
+          selectedProgramId={selectedProgramId}
           editMode={editMode}
           onSelectWorkout={navigateToWorkout}
           onAddWorkout={handleAddWorkout}
           onDeleteWorkout={handleDeleteWorkout}
+          onUpdateWorkoutName={handleUpdateWorkoutName}
         />
       ) : (
         <GraphsList

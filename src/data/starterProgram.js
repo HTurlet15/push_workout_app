@@ -76,7 +76,14 @@ const STARTER_PROGRAM = {
           { id: 'po1', weight: 42.5, reps: 10, rir: 2 }, { id: 'po2', weight: 42.5, reps: 9, rir: 1 }, { id: 'po3', weight: 42.5, reps: 8, rir: 0 },
         ]},
       ]},
-      next: null,
+      next: { id: 'wk-push-next', name: 'Push', exercises: [
+        { id: 'ex-bench', name: 'Bench Press', sets: [
+          { id: 'nb1', weight: null, reps: null }, { id: 'nb2', weight: null, reps: null }, { id: 'nb3', weight: null, reps: null },
+        ]},
+        { id: 'ex-ohp', name: 'Overhead Press', sets: [
+          { id: 'no1', weight: null, reps: null }, { id: 'no2', weight: null, reps: null }, { id: 'no3', weight: null, reps: null },
+        ]},
+      ]},
     },
     {
       history: generateHistory([
@@ -106,7 +113,14 @@ const STARTER_PROGRAM = {
           { id: 'pr1', weight: 67.5, reps: 10, rir: 2 }, { id: 'pr2', weight: 67.5, reps: 9, rir: 1 }, { id: 'pr3', weight: 67.5, reps: 8, rir: 0 },
         ]},
       ]},
-      next: null,
+      next: { id: 'wk-pull-next', name: 'Pull', exercises: [
+        { id: 'ex-dl', name: 'Deadlift', sets: [
+          { id: 'nd1', weight: null, reps: null }, { id: 'nd2', weight: null, reps: null }, { id: 'nd3', weight: null, reps: null },
+        ]},
+        { id: 'ex-row', name: 'Barbell Row', sets: [
+          { id: 'nr1', weight: null, reps: null }, { id: 'nr2', weight: null, reps: null }, { id: 'nr3', weight: null, reps: null },
+        ]},
+      ]},
     },
     {
       history: generateHistory([
@@ -136,7 +150,14 @@ const STARTER_PROGRAM = {
           { id: 'prdl1', weight: 77.5, reps: 10, rir: 2 }, { id: 'prdl2', weight: 77.5, reps: 9, rir: 1 }, { id: 'prdl3', weight: 77.5, reps: 8, rir: 0 },
         ]},
       ]},
-      next: null,
+      next: { id: 'wk-legs-next', name: 'Legs', exercises: [
+        { id: 'ex-sq', name: 'Squat', sets: [
+          { id: 'nsq1', weight: null, reps: null }, { id: 'nsq2', weight: null, reps: null }, { id: 'nsq3', weight: null, reps: null },
+        ]},
+        { id: 'ex-rdl', name: 'Romanian Deadlift', sets: [
+          { id: 'nrdl1', weight: null, reps: null }, { id: 'nrdl2', weight: null, reps: null }, { id: 'nrdl3', weight: null, reps: null },
+        ]},
+      ]},
     },
   ],
 };
