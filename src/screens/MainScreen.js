@@ -1,6 +1,7 @@
 import { View, FlatList, Animated, StyleSheet, useWindowDimensions, BackHandler } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { getLocales } from 'expo-localization';
 import ProgramsList from '../components/program/ProgramsList';
 import WorkoutsList from '../components/workout/WorkoutsList';
 import WorkoutPager from '../components/workout/WorkoutPager';
@@ -298,7 +299,7 @@ export default function MainScreen() {
   // ── Help modal ─────────────────────────────────────────
 
   const [helpVisible, setHelpVisible] = useState(false);
-  const [helpLang, setHelpLang] = useState('en');
+  const [helpLang, setHelpLang] = useState(getLocales()?.[0]?.languageCode === 'fr' ? 'fr' : 'en');
 
   const getHelpScreen = () => {
     if (graphDetailVisible) return 'graphDetail';

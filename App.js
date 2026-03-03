@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   useFonts,
   DMSans_400Regular,
@@ -9,11 +9,17 @@ import {
 } from '@expo-google-fonts/dm-sans';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ActivityIndicator, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import SplashScreen from './src/components/common/SplashScreen';
+import OnboardingScreen from './src/screens/OnboardingScreen';
 import MainScreen from './src/screens/MainScreen';
+
+const ONBOARDING_KEY = '@push_onboarding_done';
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
+  const [onboardingDone, setOnboardingDone] = useState(null);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
 
   const [fontsLoaded] = useFonts({
     'DMSans-Regular': DMSans_400Regular,
@@ -23,7 +29,28 @@ export default function App() {
     'DMSans-Bold': DMSans_700Bold,
   });
 
-  if (!fontsLoaded) {
+  // Check if onboarding was already completed
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const value = await AsyncStorage.getItem(ONBOARDING_KEY);
+        setOnboardingDone(value === 'true');
+      } catch {
+        setOnboardingDone(false);
+      }
+      setOnboardingChecked(true);
+    };
+    check();
+  }, []);
+
+  const handleOnboardingFinish = async () => {
+    try {
+      await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+    } catch {}
+    setOnboardingDone(true);
+  };
+
+  if (!fontsLoaded || !onboardingChecked) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" />
@@ -33,6 +60,10 @@ export default function App() {
 
   if (!splashDone) {
     return <SplashScreen onFinish={() => setSplashDone(true)} />;
+  }
+
+  if (!onboardingDone) {
+    return <OnboardingScreen onFinish={handleOnboardingFinish} />;
   }
 
   return (
