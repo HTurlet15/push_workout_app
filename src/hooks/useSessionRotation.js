@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LAST_ACTIVITY_KEY = 'push_last_activity';
-// const ROTATION_DELAY_MS = 12 * 60 * 60 * 1000;
-const ROTATION_DELAY_MS = 5 * 1000; // 5s for testing
+const ROTATION_DELAY_MS = 12 * 60 * 60 * 1000;
+// const ROTATION_DELAY_MS = 5 * 1000; // 5s for testing
 
 /**
  * Hook that checks if enough time has passed since last activity.
