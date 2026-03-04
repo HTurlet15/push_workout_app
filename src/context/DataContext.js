@@ -46,6 +46,14 @@ function rotateAllSessions(program) {
       const { current, previous, next, history } = session;
       if (!current || !current.exercises) return session;
 
+      // Check if user actually trained this session (at least one set filled)
+      const hasActivity = current.exercises.some((ex) =>
+        ex.sets.some((set) => set.weight?.state === 'filled' || set.reps?.state === 'filled')
+      );
+
+      // Skip rotation for untouched sessions
+      if (!hasActivity) return session;
+
       // Build history entry from current
       const exercises = current.exercises.map((ex) => {
         const tonnage = ex.sets.reduce((sum, set) => {
