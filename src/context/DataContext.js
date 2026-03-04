@@ -86,17 +86,18 @@ function rotateAllSessions(program) {
       };
 
       // Next → Current (resolve fields with priority)
+      // Fallback uses newPrevious (= the session we just completed), not the old previous
       const newCurrent = {
         ...current,
         completedAt: null,
         exercises: current.exercises.map((ex) => {
           const nextEx = next?.exercises?.find((e) => e.id === ex.id);
-          const prevEx = previous?.exercises?.find((e) => e.id === ex.id);
+          const newPrevEx = newPrevious.exercises.find((e) => e.id === ex.id);
           return {
             ...ex,
             sets: ex.sets.map((set, i) => {
               const nextSet = nextEx?.sets?.[i];
-              const prevSet = prevEx?.sets?.[i];
+              const prevSet = newPrevEx?.sets?.[i];
               return {
                 id: set.id,
                 weight: resolveField(nextSet?.weight, prevSet?.weight),
