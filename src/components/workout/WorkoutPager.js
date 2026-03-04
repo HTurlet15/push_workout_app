@@ -7,14 +7,6 @@ import WorkoutScreen from '../../screens/WorkoutScreen';
  *
  * Extracted from MainScreen for clarity.
  * Parent controls: initialIndex, sessions, setSessions, editMode, timer.
- *
- * @param {Array} sessions            - Session data array.
- * @param {Function} makeSetWorkout   - Factory for per-session workout setters.
- * @param {Function} makeSetNextWorkout - Factory for per-session next setters.
- * @param {boolean} editMode          - Edit mode state.
- * @param {Function} startWithDuration - Timer start callback.
- * @param {Function} updateDuration   - Timer update callback.
- * @param {Function} onPageChange     - Called with new index when page changes.
  */
 const WorkoutPager = forwardRef(({
   sessions,

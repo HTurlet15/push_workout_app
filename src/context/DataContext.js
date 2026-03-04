@@ -13,6 +13,118 @@ const KEYS = {
   settings: '@push_settings',
 };
 
+// ── Rotation helpers ───────────────────────────────────────
+
+/**
+ * Resolves a single field for the new current workout.
+ * Priority: next edited (planned) > next pre-filled (previous) > prev > empty.
+ */
+function resolveField(nextValue, prevValue) {
+  if (nextValue !== null && nextValue !== undefined) {
+    if (typeof nextValue === 'object' && nextValue.edited) {
+      return { value: nextValue.value, state: 'planned' };
+    }
+    const rawValue = typeof nextValue === 'object' ? nextValue.value : nextValue;
+    if (rawValue !== null) {
+      return { value: rawValue, state: 'previous' };
+    }
+  }
+  if (prevValue !== null && prevValue !== undefined) {
+    return { value: prevValue, state: 'previous' };
+  }
+  return { value: null, state: 'empty' };
+}
+
+/**
+ * Rotates all sessions in a program: current→previous, next→current, new empty next.
+ * Also pushes tonnage to history.
+ */
+function rotateAllSessions(program) {
+  return {
+    ...program,
+    sessions: program.sessions.map((session) => {
+      const { current, previous, next, history } = session;
+      if (!current || !current.exercises) return session;
+
+      // Build history entry from current
+      const exercises = current.exercises.map((ex) => {
+        const tonnage = ex.sets.reduce((sum, set) => {
+          const w = set.weight?.value ?? 0;
+          const r = set.reps?.value ?? 0;
+          return sum + (w * r);
+        }, 0);
+        return { name: ex.name, tonnage: Math.round(tonnage) };
+      });
+      const totalTonnage = exercises.reduce((sum, e) => sum + e.tonnage, 0);
+      const historyEntry = totalTonnage > 0 ? {
+        date: new Date().toISOString(),
+        exercises,
+        totalTonnage,
+      } : null;
+
+      // Current → Previous (flatten to raw values)
+      const newPrevious = {
+        ...current,
+        completedAt: current.completedAt || new Date().toISOString(),
+        exercises: current.exercises.map((ex) => ({
+          ...ex,
+          sets: ex.sets.map((set) => ({
+            id: set.id,
+            weight: set.weight?.value ?? null,
+            reps: set.reps?.value ?? null,
+            rir: set.rir?.value ?? null,
+          })),
+        })),
+      };
+
+      // Next → Current (resolve fields with priority)
+      const newCurrent = {
+        ...current,
+        completedAt: null,
+        exercises: current.exercises.map((ex) => {
+          const nextEx = next?.exercises?.find((e) => e.id === ex.id);
+          const prevEx = previous?.exercises?.find((e) => e.id === ex.id);
+          return {
+            ...ex,
+            sets: ex.sets.map((set, i) => {
+              const nextSet = nextEx?.sets?.[i];
+              const prevSet = prevEx?.sets?.[i];
+              return {
+                id: set.id,
+                weight: resolveField(nextSet?.weight, prevSet?.weight),
+                reps: resolveField(nextSet?.reps, prevSet?.reps),
+                rir: { value: null, state: 'empty' },
+              };
+            }),
+          };
+        }),
+      };
+
+      // New empty Next
+      const newNext = {
+        id: next?.id || `${current.id}-next`,
+        name: current.name,
+        exercises: current.exercises.map((ex) => ({
+          id: ex.id,
+          name: ex.name,
+          sets: ex.sets.map((set) => ({
+            id: set.id,
+            weight: null,
+            reps: null,
+          })),
+        })),
+      };
+
+      return {
+        history: historyEntry ? [...(history || []), historyEntry] : (history || []),
+        current: newCurrent,
+        previous: newPrevious,
+        next: newNext,
+      };
+    }),
+  };
+}
+
 // ── Default settings ───────────────────────────────────────
 
 const DEFAULT_SETTINGS = {
@@ -65,8 +177,28 @@ export function DataProvider({ children }) {
 
       const loadedPrograms = (await Promise.all(programPromises)).filter(Boolean);
 
-      setPrograms(loadedPrograms);
-      setSelectedProgramId(selectedId || loadedPrograms[0]?.id || null);
+      // Check session rotation before setting state
+      const lastActivity = await AsyncStorage.getItem('push_last_activity');
+      const now = Date.now();
+      // const ROTATION_DELAY_MS = 12 * 60 * 60 * 1000;
+      const ROTATION_DELAY_MS = 5 * 1000; // 5s for testing
+      const shouldRotate = lastActivity && (now - parseInt(lastActivity, 10)) >= ROTATION_DELAY_MS;
+
+      const finalPrograms = shouldRotate
+        ? loadedPrograms.map((prog) => rotateAllSessions(prog))
+        : loadedPrograms;
+
+      if (shouldRotate) {
+        // Save rotated programs
+        for (const prog of finalPrograms) {
+          await AsyncStorage.setItem(KEYS.program(prog.id), JSON.stringify(prog));
+        }
+      }
+
+      await AsyncStorage.setItem('push_last_activity', String(now));
+
+      setPrograms(finalPrograms);
+      setSelectedProgramId(selectedId || finalPrograms[0]?.id || null);
 
       if (settingsJson) {
         setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(settingsJson) });
@@ -87,6 +219,7 @@ export function DataProvider({ children }) {
       await AsyncStorage.setItem(KEYS.selectedProgramId, prog.id);
       await AsyncStorage.setItem(KEYS.program(prog.id), JSON.stringify(prog));
       await AsyncStorage.setItem(KEYS.settings, JSON.stringify(DEFAULT_SETTINGS));
+      await AsyncStorage.setItem('push_last_activity', String(Date.now()));
 
       loadedProgramsRef.current.add(prog.id);
       setPrograms([prog]);
