@@ -15,10 +15,7 @@ Push is the middle ground: a clean, fast interface that adapts to any program st
 ## Screenshots
 
 
-<img src="docs/screenshots/workouts.jpg" alt="Workout selection" style="width:20%; height:auto;">
-<img src="docs/screenshots/graphs.jpg" alt="Graphs visualisation" style="width:20%; height:auto;">
-<img src="docs/screenshots/workout-current-view.jpg" alt="Workout view : Current session" style="width:20%; height:auto;">
-<img src="docs/screenshots/workout-next-view.jpg" alt="Workout view : Next session in planification" style="width:20%; height:auto;">
+<img src="docs/screenshots/workouts.jpg" alt="Workout selection" style="width:20%; height:auto;"> <img src="docs/screenshots/graphs.jpg" alt="Graphs visualisation" style="width:20%; height:auto;"> <img src="docs/screenshots/workout-current-view.jpg" alt="Workout view : Current session" style="width:20%; height:auto;"> <img src="docs/screenshots/workout-next-view.jpg" alt="Workout view : Next session in planification" style="width:20%; height:auto;">
 
 
 ## Features
