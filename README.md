@@ -1,4 +1,4 @@
-# Push — Workout Tracker
+# Push - Workout Tracker
 
 ![React Native](https://img.shields.io/badge/React%20Native-0.76-blue)
 ![Expo](https://img.shields.io/badge/Expo-SDK%2054-black)
@@ -8,7 +8,7 @@ A minimalist workout tracking app. Spreadsheet flexibility, clean mobile UI.
 
 ## Why
 
-Every workout app I've tried falls into one of two categories: over-engineered with features I don't need, or too rigid to match how I actually train. I always end up back on spreadsheets — flexible but painful on a phone.
+Every workout app I've tried falls into one of two categories: over-engineered with features I don't need, or too rigid to match how I actually train. I always end up back on spreadsheets - flexible but painful on a phone.
 
 Push is the middle ground: a clean, fast interface that adapts to any program structure without getting in the way.
 
@@ -20,22 +20,22 @@ Push is the middle ground: a clean, fast interface that adapts to any program st
 
 ## Features
 
-- **Programs → Workouts → Exercises** hierarchy — supports any training structure
+- **Programs → Workouts → Exercises** hierarchy - supports any training structure
 - **Previous / Current / Next** views per exercise with swipe navigation
 - **Pre-filled sets** from your last session (gray) or planned values (calendar icon)
-- **Session rotation** — complete a workout, and data shifts automatically on next launch
-- **Tonnage graphs** — track volume progression over time per exercise
-- **Rest timer** — integrated countdown, starts automatically on set completion
-- **Edit mode** — add/remove/rename exercises, sets, workouts, programs inline
-- **Onboarding carousel** — first-launch walkthrough with skip option
-- **Persistent storage** — AsyncStorage with per-program JSON, survives app restarts
+- **Session rotation** - complete a workout, and data shifts automatically on next launch
+- **Tonnage graphs** - track volume progression over time per exercise
+- **Rest timer** - integrated countdown, starts automatically on set completion
+- **Edit mode** - add/remove/rename exercises, sets, workouts, programs inline
+- **Onboarding carousel** - first-launch walkthrough with skip option
+- **Persistent storage** - AsyncStorage with per-program JSON, survives app restarts
 
 ## Architecture
 
 ```
 src/
 ├── components/       # UI components (exercise, workout, graph, common)
-├── context/          # DataContext — centralized state + AsyncStorage persistence
+├── context/          # DataContext - centralized state + AsyncStorage persistence
 ├── data/             # Starter program, mock data
 ├── hooks/            # Rest timer, slide transitions, persisted state
 ├── screens/          # MainScreen, WorkoutScreen
@@ -44,9 +44,9 @@ src/
 
 Key design decisions:
 - **DataContext** owns all state and persistence. Components are pure presentation.
-- **Per-program JSON** in AsyncStorage — programs load/save independently.
+- **Per-program JSON** in AsyncStorage - programs load/save independently.
 - **Session rotation** runs atomically at app launch across all programs.
-- **No UI library** — custom design system built from scratch for full control.
+- **No UI library** - custom design system built from scratch for full control.
 
 ## Tech Stack
 
@@ -68,7 +68,7 @@ Scan the QR code with Expo Go (iOS/Android) or press `a` for Android emulator.
 
 ## Build & Install
 
-### Android — Standalone APK
+### Android - Standalone APK
 
 Push can be built as a standalone APK and installed on any Android device.
 
@@ -89,7 +89,7 @@ Once the build finishes, you get a download link. Open it on your Android phone,
 
 To update after a code change, run the same `eas build` command again and reinstall.
 
-### iOS — Via Expo Go
+### iOS - Via Expo Go
 
 Building a standalone iOS app requires an Apple Developer account ($99/year). For free testing, use Expo Go:
 
@@ -98,7 +98,7 @@ Building a standalone iOS app requires an Apple Developer account ($99/year). Fo
    ```bash
    npx expo start --tunnel
    ```
-3. Scan the QR code with the iPhone camera — the app opens in Expo Go
+3. Scan the QR code with the iPhone camera - the app opens in Expo Go
 
 This gives access to all features. The only limitation is that the app runs inside Expo Go rather than as a standalone icon on the home screen.
 
@@ -106,19 +106,19 @@ This gives access to all features. The only limitation is that the app runs insi
 
 ## Design
 
-The full design process is documented in [`/docs/design/`](docs/design/README.md) — from paper sketches to Figma iterations to final implementation. Design inspiration: Wealthsimple (minimalism), Strong (functionality), Notion (flexibility).
+The full design process is documented in [`/docs/design/`](docs/design/README.md) - from paper sketches to Figma iterations to final implementation. Design inspiration: Wealthsimple (minimalism), Strong (functionality), Notion (flexibility).
 
 ## Roadmap
 
-**MVP (current)** — Core tracking, persistence, rotation, graphs, edit mode.
+**MVP (current)** - Core tracking, persistence, rotation, graphs, edit mode.
 
-**Next** — App Store et Play Store release, data export, settings screen.
+**Next** - App Store et Play Store release, data export, settings screen.
 
-**Future** — LLM-powered natural language input. Type or speak "bench 80x8 80x7 80x6" and it parses into structured data.
+**Future** - LLM-powered natural language input. Type or speak "bench 80x8 80x7 80x6" and it parses into structured data.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).
 
 ---
 
