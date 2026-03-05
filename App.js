@@ -14,6 +14,7 @@ import { DataProvider } from './src/context/DataContext';
 import SplashScreen from './src/components/common/SplashScreen';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import MainScreen from './src/screens/MainScreen';
+import { StatusBar } from 'expo-status-bar';
 
 const ONBOARDING_KEY = '@push_onboarding_done';
 
@@ -71,6 +72,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
+      <StatusBar style="dark" />
       <DataProvider>
         <MainScreen />
       </DataProvider>
