@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.smd,
     borderRadius: RADIUS.md,
     alignItems: 'center',
-    marginTop: SPACING.sm,
+    marginVertical: SPACING.sm,
   },
   doneBtnPressed: {
     opacity: 0.85,
@@ -451,5 +451,5 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZE.md,
     fontFamily: FONT_FAMILY.bold,
     color: COLORS.white,
-  },
+  },  
 });
