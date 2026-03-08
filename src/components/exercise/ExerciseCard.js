@@ -86,15 +86,25 @@ export default function ExerciseCard({
 
   // ── Unit helpers ──────────────────────────────────────────
 
-  const displayWeight = useCallback((kgValue) => {
-    if (kgValue == null) return null;
-    if (unit === 'lbs') return Math.round(kgValue * KG_TO_LBS * 10) / 10;
-    return kgValue;
+  /**
+   * Affiche la valeur de poids selon l'unité courante.
+   * Accepte un objet { kg, lbs } (format actuel) ou un nombre brut en kg (ancien format).
+   */
+  const displayWeight = useCallback((value) => {
+    if (value == null) return null;
+    if (typeof value === 'object') return unit === 'lbs' ? value.lbs : value.kg;
+    // Compat backward : nombre brut kg (anciennes données)
+    if (unit === 'lbs') return Math.round(value * KG_TO_LBS * 10) / 10;
+    return Math.round(value * 10) / 10;
   }, [unit]);
 
+  /**
+   * Convertit la saisie utilisateur en paire { kg, lbs } pré-calculée.
+   * Stocké tel quel — aucune conversion supplémentaire à l'affichage.
+   */
   const toKg = useCallback((inputValue) => {
-    if (unit === 'lbs') return Math.round((inputValue / KG_TO_LBS) * 10) / 10;
-    return inputValue;
+    if (unit === 'lbs') return { kg: Math.round(inputValue / KG_TO_LBS * 10) / 10, lbs: inputValue };
+    return { kg: inputValue, lbs: Math.round(inputValue * KG_TO_LBS * 10) / 10 };
   }, [unit]);
 
   /** Animated unit toggle with requestAnimationFrame for reliable fade-in */

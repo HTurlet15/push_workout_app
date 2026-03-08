@@ -50,10 +50,11 @@ export default function NextSetRow({ index, currentSet, nextSet, unit = 'kg', di
   const nextWeight = resolveNextField(nextSet.weight, currentSet.weight);
   const nextReps = resolveNextField(nextSet.reps, currentSet.reps);
 
-  const weightDelta = getDelta(nextWeight.value, currentSet.weight.value);
+  const weightDelta = getDelta(displayWeightValue, displayCurrentWeightValue);
   const repsDelta = getDelta(nextReps.value, currentSet.reps.value);
 
   const displayWeightValue = displayWeight ? displayWeight(nextWeight.value) : nextWeight.value;
+  const displayCurrentWeightValue = displayWeight ? displayWeight(currentSet.weight.value) : currentSet.weight.value;
 
   return (
     <View style={styles.container}>

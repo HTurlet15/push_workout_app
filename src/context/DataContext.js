@@ -43,7 +43,7 @@ function rotateAllSessions(program) {
   return {
     ...program,
     sessions: program.sessions.map((session) => {
-      const { current, previous, next, history } = session;
+      const { current, next, history } = session;
       if (!current || !current.exercises) return session;
 
       // Check if user actually trained this session (at least one set filled)
@@ -57,7 +57,8 @@ function rotateAllSessions(program) {
       // Build history entry from current
       const exercises = current.exercises.map((ex) => {
         const tonnage = ex.sets.reduce((sum, set) => {
-          const w = set.weight?.value ?? 0;
+          const rawW = set.weight?.value ?? 0;
+          const w = typeof rawW === 'object' ? (rawW.kg ?? 0) : rawW;
           const r = set.reps?.value ?? 0;
           return sum + (w * r);
         }, 0);
