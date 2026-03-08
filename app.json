@@ -27,7 +27,14 @@
     },
     "plugins": [
       "expo-font",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#1A1A1A"
+        }
+      ]
     ],
     "extra": {
       "eas": {
