@@ -2,7 +2,7 @@
 
 ![React Native](https://img.shields.io/badge/React%20Native-0.76-blue)
 ![Expo](https://img.shields.io/badge/Expo-SDK%2054-black)
-![License](https://img.shields.io/badge/License-MIT-green)
+![License](https://img.shields.io/badge/License-Source%20Available-yellow)
 
 A minimalist workout tracking app. Spreadsheet flexibility, clean mobile UI.
 
@@ -118,7 +118,7 @@ The full design process is documented in [`/docs/design/`](docs/design/README.md
 
 ## License
 
-MIT - see [LICENSE](LICENSE).
+Source available — not open source. Code is publicly visible for educational and portfolio purposes. Commercial use is not permitted. See [LICENSE](LICENSE) for details.
 
 ---
 
