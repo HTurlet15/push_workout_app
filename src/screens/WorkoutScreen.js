@@ -332,8 +332,9 @@ export default function WorkoutScreen({
   );
 
   const lastSessionLabel = (() => {
-    if (!previousWorkout?.completedAt) return null;
-    const diff = Date.now() - new Date(previousWorkout.completedAt).getTime();
+    const completedAt = previousWorkout?.completedAt ?? workout?.completedAt;
+    if (!completedAt) return null;
+    const diff = Date.now() - new Date(completedAt).getTime();
     const mins = Math.floor(diff / 60000);
     const hours = Math.floor(mins / 60);
     const days = Math.floor(hours / 24);

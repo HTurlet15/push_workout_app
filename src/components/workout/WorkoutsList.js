@@ -85,7 +85,7 @@ export default function WorkoutsList({
         index={index}
         name={session.current.name}
         exercises={session.current.exercises}
-        timeBadge={getTimeBadge(session.previous?.completedAt)}
+        timeBadge={getTimeBadge(session.previous?.completedAt ?? session.current?.completedAt)}
         isExpanded={expandedId === index}
         editMode={editMode}
         onToggleExpand={() =>
