@@ -204,3 +204,6 @@ ios/build/
 # Temporary files
 *.tmp
 *.temp
+
+#Claude file markdown
+CLAUDE.md
