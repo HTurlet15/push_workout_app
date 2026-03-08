@@ -405,7 +405,10 @@ export default function ExerciseCard({
               unit={unit}
               displayWeight={displayWeight}
               weightFadeAnim={weightFadeAnim}
-              onUpdateNextSet={(field, value) => onUpdateNextSet?.(exercise.id, nextSet.id, field, value)}
+              onUpdateNextSet={(field, value) => {
+                const converted = field === 'weight' && value != null ? toKg(value) : value;
+                onUpdateNextSet?.(exercise.id, nextSet.id, field, converted);
+              }}
             />
           );
         })}
