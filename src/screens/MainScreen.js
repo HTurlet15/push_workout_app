@@ -2,6 +2,7 @@ import { View, FlatList, Animated, StyleSheet, useWindowDimensions, BackHandler 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { getLocales } from 'expo-localization';
+import { useKeepAwake } from 'expo-keep-awake';
 import ProgramsList from '../components/program/ProgramsList';
 import WorkoutsList from '../components/workout/WorkoutsList';
 import WorkoutPager from '../components/workout/WorkoutPager';
@@ -33,6 +34,7 @@ import { COLORS } from '../theme/theme';
  * - WorkoutPager (layer 1 overlay via zoom-through)
  */
 export default function MainScreen() {
+  useKeepAwake();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
 
