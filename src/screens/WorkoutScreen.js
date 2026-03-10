@@ -158,6 +158,19 @@ export default function WorkoutScreen({
         };
       }),
     }));
+    setNextWorkout((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        exercises: prev.exercises.map((exercise) => {
+          if (exercise.id !== exerciseId) return exercise;
+          return {
+            ...exercise,
+            sets: exercise.sets.filter((set) => set.id !== setId),
+          };
+        }),
+      };
+    });
   };
 
   const handleAddSet = (exerciseId, newId) => {
@@ -180,6 +193,19 @@ export default function WorkoutScreen({
         };
       }),
     }));
+    setNextWorkout((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        exercises: prev.exercises.map((exercise) => {
+          if (exercise.id !== exerciseId) return exercise;
+          return {
+            ...exercise,
+            sets: [...exercise.sets, { id, weight: null, reps: null }],
+          };
+        }),
+      };
+    });
   };
 
   const handleUpdateNote = (exerciseId, note) => {
