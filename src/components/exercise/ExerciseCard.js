@@ -1,5 +1,5 @@
 import { View, Animated, Pressable, TextInput, StyleSheet, useWindowDimensions } from 'react-native';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from '../common/Text';
 import ViewSelector from './ViewSelector';
@@ -58,6 +58,13 @@ export default function ExerciseCard({
 
   const [editingName, setEditingName] = useState(false);
   const nameInputRef = useRef(null);
+
+  useEffect(() => {
+    if (editingName) {
+      const t = setTimeout(() => nameInputRef.current?.focus(), 50);
+      return () => clearTimeout(t);
+    }
+  }, [editingName]);
   const [unit, setUnit] = useState(exercise.unit ?? 'kg');
 
   /** Animated opacity for weight values only */
@@ -199,7 +206,6 @@ export default function ExerciseCard({
             placeholder="Tap to name..."
             placeholderTextColor={COLORS.textMuted}
             returnKeyType="done"
-            autoFocus
             onSubmitEditing={() => setEditingName(false)}
             onBlur={() => setEditingName(false)}
           />
