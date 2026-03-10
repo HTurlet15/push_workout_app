@@ -51,13 +51,14 @@ export default function ExerciseCard({
   justCompletedSetId,
   editMode = false,
   isFirst = false,
+  onUpdateUnit,
 }) {
   const { width } = useWindowDimensions();
   const { displayedView, slideAnim, transitionTo } = useSlideTransition('current');
 
   const [editingName, setEditingName] = useState(false);
   const nameInputRef = useRef(null);
-  const [unit, setUnit] = useState('kg');
+  const [unit, setUnit] = useState(exercise.unit ?? 'kg');
 
   /** Animated opacity for weight values only */
   const weightFadeAnim = useRef(new Animated.Value(1)).current;
@@ -119,6 +120,7 @@ export default function ExerciseCard({
       useNativeDriver: true,
     }).start(() => {
       setUnit(pendingUnit.current);
+      onUpdateUnit?.(exercise.id, pendingUnit.current);
       requestAnimationFrame(() => {
         Animated.timing(weightFadeAnim, {
           toValue: 1,

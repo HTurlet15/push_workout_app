@@ -238,6 +238,16 @@ export default function WorkoutScreen({
     }));
   };
 
+  const handleUpdateUnit = (exerciseId, unit) => {
+    setWorkout((prev) => ({
+      ...prev,
+      exercises: prev.exercises.map((exercise) => {
+        if (exercise.id !== exerciseId) return exercise;
+        return { ...exercise, unit };
+      }),
+    }));
+  };
+
   const handleUpdateRepRange = (exerciseId, repRange) => {
     setWorkout((prev) => ({
       ...prev,
@@ -415,6 +425,7 @@ export default function WorkoutScreen({
             onRestPress={handleRestPress}
             onUpdateRest={handleUpdateRest}
             onUpdateRepRange={handleUpdateRepRange}
+            onUpdateUnit={handleUpdateUnit}
             justCompletedSetId={justCompletedSetId}
             editMode={editMode}
             isFirst={exerciseIndex === 0}
