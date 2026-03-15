@@ -78,7 +78,7 @@ export default function GraphDetail({ session }) {
         <View style={styles.headerSection}>
           <Text variant="screenTitle">{name.toUpperCase()}</Text>
         </View>
-        <Text style={styles.emptyText}>Aucune donnée.</Text>
+        <Text style={styles.emptyText}>No data.</Text>
       </ScrollView>
     );
   }

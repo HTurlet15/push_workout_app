@@ -195,8 +195,8 @@ export function DataProvider({ children }) {
       // Check session rotation before setting state
       const lastActivity = await AsyncStorage.getItem('push_last_activity');
       const now = Date.now();
-      //const ROTATION_DELAY_MS = 12 * 60 * 60 * 1000;
-      const ROTATION_DELAY_MS = 5 * 1000; // 5s for testing
+      const ROTATION_DELAY_MS = 12 * 60 * 60 * 1000;
+      //const ROTATION_DELAY_MS = 5 * 1000; // 5s for testing
       const shouldRotate = lastActivity && (now - parseInt(lastActivity, 10)) >= ROTATION_DELAY_MS;
 
       const finalPrograms = shouldRotate

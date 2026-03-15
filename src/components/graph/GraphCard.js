@@ -61,7 +61,7 @@ export default function GraphCard({ session, onPress, isFirst = false }) {
       <View style={styles.card}>
         <View style={styles.header}>
           <Text style={styles.title}>{name}</Text>
-          <Text style={styles.subtitle}>Aucune donnée</Text>
+          <Text style={styles.subtitle}>No data</Text>
         </View>
       </View>
     );
