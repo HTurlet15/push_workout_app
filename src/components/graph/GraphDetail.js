@@ -109,7 +109,7 @@ export default function GraphDetail({ session }) {
     : PAD_T + plotH / 2;
 
   // Grid
-  const gridValues = [minT, minT + range / 3, minT + (range * 2) / 3, maxT];
+  const gridValues = hasMultiple ? [minT, minT + range / 3, minT + (range * 2) / 3, maxT] : [minT];
   const gridYs = gridValues.map((v) => toY(v));
 
   // X labels

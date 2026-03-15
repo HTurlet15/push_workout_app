@@ -101,7 +101,7 @@ export default function GraphCard({ session, onPress, isFirst = false }) {
     ? `${solidPath} L${solidPoints[solidPoints.length - 1].x},${CHART_H - PAD_B} L${solidPoints[0].x},${CHART_H - PAD_B} Z`
     : null;
 
-  const gridValues = [minT, minT + range / 2, maxT];
+  const gridValues = hasMultiple ? [minT, minT + range / 2, maxT] : [minT];
   const gridYs = gridValues.map((v) => toY(v));
   const labelIndices = hasMultiple
     ? [...new Set([0, Math.floor(allData.length / 2), allData.length - 1])]
