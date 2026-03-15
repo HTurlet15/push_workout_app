@@ -10,6 +10,12 @@
     "splash": {
       "backgroundColor": "#FAFAFA"
     },
+    "updates": {
+      "url": "https://u.expo.dev/bbd11b59-343b-4d08-b563-319673e95b14"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.hturlet.push"
