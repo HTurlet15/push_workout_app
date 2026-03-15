@@ -46,17 +46,39 @@ const formatDateShort = (iso) => {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
+const computeLiveEntry = (current) => {
+  if (!current?.exercises?.length) return null;
+  let hasAnyFilled = false;
+  const exercises = current.exercises.map((ex) => {
+    const tonnage = ex.sets.reduce((sum, set) => {
+      const wDone = set.weight?.state === 'filled' || set.weight?.state === 'plannedFilled';
+      const rDone = set.reps?.state === 'filled' || set.reps?.state === 'plannedFilled';
+      if (!wDone || !rDone) return sum;
+      hasAnyFilled = true;
+      const w = typeof set.weight.value === 'object' ? (set.weight.value.kg ?? 0) : (set.weight.value ?? 0);
+      const r = set.reps.value ?? 0;
+      return sum + (w * r);
+    }, 0);
+    return { name: ex.name, tonnage: Math.round(tonnage) };
+  });
+  if (!hasAnyFilled) return null;
+  const totalTonnage = exercises.reduce((sum, e) => sum + e.tonnage, 0);
+  return { date: new Date().toISOString(), exercises, totalTonnage, isLive: true };
+};
+
 export default function GraphDetail({ session }) {
   const history = session.history || [];
   const name = session.current?.name || 'Workout';
+  const liveEntry = computeLiveEntry(session.current);
+  const allData = liveEntry ? [...history, liveEntry] : history;
 
-  if (history.length < 2) {
+  if (allData.length === 0) {
     return (
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         <View style={styles.headerSection}>
           <Text variant="screenTitle">{name.toUpperCase()}</Text>
         </View>
-        <Text style={styles.emptyText}>Not enough history data for charts.</Text>
+        <Text style={styles.emptyText}>Aucune donnée.</Text>
       </ScrollView>
     );
   }
@@ -66,37 +88,43 @@ export default function GraphDetail({ session }) {
   const exerciseNames = currentExercises.map((e) => e.name);
 
   // Also include any exercises that exist in history but were removed from current
-  const historyExerciseNames = new Set(history.flatMap((h) => h.exercises.map((e) => e.name)));
+  const historyExerciseNames = new Set(allData.flatMap((h) => h.exercises.map((e) => e.name)));
   const allExerciseNames = [...new Set([...exerciseNames, ...historyExerciseNames])];
 
-  // Compute min/max across all exercises (current + historical)
-  const allTonnages = history.flatMap((h) => h.exercises.map((e) => e.tonnage));
+  // Compute min/max across all data points
+  const allTonnages = allData.flatMap((h) => h.exercises.map((e) => e.tonnage));
   const minT = Math.min(...allTonnages);
   const maxT = Math.max(...allTonnages);
   const range = maxT - minT || 1;
 
   const plotW = CHART_W - PAD_L - PAD_R;
   const plotH = CHART_H - PAD_T - PAD_B;
-  const xStep = plotW / (history.length - 1);
+  const hasMultiple = allData.length >= 2;
 
-  const toX = (i) => PAD_L + i * xStep;
-  const toY = (v) => PAD_T + plotH - ((v - minT) / range) * plotH;
+  const toX = (i) => hasMultiple
+    ? PAD_L + i * (plotW / (allData.length - 1))
+    : PAD_L + plotW / 2;
+  const toY = (v) => hasMultiple
+    ? PAD_T + plotH - ((v - minT) / range) * plotH
+    : PAD_T + plotH / 2;
 
   // Grid
   const gridValues = [minT, minT + range / 3, minT + (range * 2) / 3, maxT];
   const gridYs = gridValues.map((v) => toY(v));
 
   // X labels
-  const labelIndices = [0, Math.floor(history.length / 2), history.length - 1];
+  const labelIndices = hasMultiple
+    ? [...new Set([0, Math.floor(allData.length / 2), allData.length - 1])]
+    : [0];
 
   // Overall change
-  const latestTotal = history[history.length - 1].totalTonnage;
-  const firstTotal = history[0].totalTonnage;
+  const latestTotal = allData[allData.length - 1].totalTonnage;
+  const firstTotal = allData[0].totalTonnage;
   const pctChange = ((latestTotal - firstTotal) / firstTotal * 100).toFixed(1);
   const isUp = latestTotal >= firstTotal;
 
   // Session cards (newest first)
-  const reversedHistory = [...history].reverse();
+  const reversedAllData = [...allData].reverse();
 
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -109,13 +137,17 @@ export default function GraphDetail({ session }) {
         <View style={styles.chartHeader}>
           <View>
             <Text style={styles.chartTitle}>Tonnage by Exercise</Text>
-            <Text style={styles.chartSub}>Last {history.length} sessions</Text>
-          </View>
-          <View style={[styles.badge, isUp ? styles.badgeUp : styles.badgeDown]}>
-            <Text style={[styles.badgeText, isUp ? styles.badgeTextUp : styles.badgeTextDown]}>
-              {isUp ? '↑' : '↓'} {isUp ? '+' : ''}{pctChange}%
+            <Text style={styles.chartSub}>
+              {history.length} session{history.length !== 1 ? 's' : ''}{liveEntry ? ' · En cours' : ''}
             </Text>
           </View>
+          {hasMultiple && (
+            <View style={[styles.badge, isUp ? styles.badgeUp : styles.badgeDown]}>
+              <Text style={[styles.badgeText, isUp ? styles.badgeTextUp : styles.badgeTextDown]}>
+                {isUp ? '↑' : '↓'} {isUp ? '+' : ''}{pctChange}%
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Legend */}
@@ -142,28 +174,47 @@ export default function GraphDetail({ session }) {
 
             {allExerciseNames.map((exName, exIdx) => {
               const color = LINE_COLORS[exIdx % LINE_COLORS.length];
-              // Only plot points where this exercise exists in history
-              const pts = history
+              const pts = allData
                 .map((h, i) => {
                   const ex = h.exercises.find((e) => e.name === exName);
-                  return ex ? { x: toX(i), y: toY(ex.tonnage), has: true } : null;
+                  return ex ? { x: toX(i), y: toY(ex.tonnage), isLive: !!h.isLive } : null;
                 })
                 .filter(Boolean);
-              if (pts.length < 2) return null; // Not enough data for a line
-              const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+              if (pts.length === 0) return null;
+
+              // Split solid path (all but last if live) from dashed live segment
+              const solidPts = liveEntry ? pts.slice(0, -1) : pts;
+              const solidPath = solidPts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+              const livePt = liveEntry ? pts[pts.length - 1] : null;
+              const livePath = livePt && solidPts.length >= 1
+                ? `M${solidPts[solidPts.length - 1].x},${solidPts[solidPts.length - 1].y} L${livePt.x},${livePt.y}`
+                : null;
+
               return (
                 <View key={exName}>
-                  <Path d={path} stroke={color} strokeWidth={2.5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                  {solidPts.length >= 2 && (
+                    <Path d={solidPath} stroke={color} strokeWidth={2.5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                  )}
+                  {livePath && (
+                    <Path d={livePath} stroke={color} strokeWidth={2} fill="none" strokeLinecap="round" strokeDasharray="5,4" opacity={0.7} />
+                  )}
                   {pts.map((p, i) => (
-                    <Circle key={`${exName}-${i}`} cx={p.x} cy={p.y} r={i === pts.length - 1 ? 4 : 2.5} fill={color} stroke={COLORS.white} strokeWidth={1.5} />
+                    <Circle
+                      key={`${exName}-${i}`}
+                      cx={p.x} cy={p.y}
+                      r={i === pts.length - 1 ? 4 : 2.5}
+                      fill={p.isLive ? COLORS.viewNext : color}
+                      stroke={COLORS.white}
+                      strokeWidth={1.5}
+                    />
                   ))}
                 </View>
               );
             })}
 
             {labelIndices.map((idx) => (
-              <SvgText key={`xl${idx}`} x={toX(idx)} y={CHART_H - 2} fontSize={9} fill={COLORS.textMuted} textAnchor="middle" fontFamily="DM Sans">
-                {formatDateShort(history[idx].date)}
+              <SvgText key={`xl${idx}`} x={toX(idx)} y={CHART_H - 2} fontSize={9} fill={liveEntry && idx === allData.length - 1 ? COLORS.viewNext : COLORS.textMuted} textAnchor="middle" fontFamily="DM Sans">
+                {liveEntry && idx === allData.length - 1 ? 'Now' : formatDateShort(allData[idx].date)}
               </SvgText>
             ))}
           </Svg>
@@ -171,15 +222,14 @@ export default function GraphDetail({ session }) {
       </View>
 
       {/* Session history cards */}
-      {reversedHistory.map((entry, idx) => {
-        const prevEntry = idx < reversedHistory.length - 1 ? reversedHistory[idx + 1] : null;
-        const opacity = Math.max(0.4, 1 - idx * 0.15);
-        const isLatest = idx === 0;
+      {reversedAllData.map((entry, idx) => {
+        const prevEntry = idx < reversedAllData.length - 1 ? reversedAllData[idx + 1] : null;
+        const opacity = entry.isLive ? 1 : Math.max(0.4, 1 - idx * 0.15);
 
         return (
-          <View key={entry.date} style={[styles.sessionCard, { opacity }]}>
-            <Text style={styles.sessionDate}>
-              {formatDate(entry.date)}{isLatest ? ' — Latest' : ''}
+          <View key={entry.isLive ? 'live' : entry.date} style={[styles.sessionCard, { opacity }]}>
+            <Text style={[styles.sessionDate, entry.isLive && { color: COLORS.viewNext }]}>
+              {entry.isLive ? 'En cours' : formatDate(entry.date)}{idx === 0 && !entry.isLive ? ' — Latest' : ''}
             </Text>
 
             {entry.exercises.map((ex) => {

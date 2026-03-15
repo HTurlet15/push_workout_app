@@ -30,22 +30,44 @@ const formatDate = (iso) => {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
+const computeLiveEntry = (current) => {
+  if (!current?.exercises?.length) return null;
+  let hasAnyFilled = false;
+  const exercises = current.exercises.map((ex) => {
+    const tonnage = ex.sets.reduce((sum, set) => {
+      const wDone = set.weight?.state === 'filled' || set.weight?.state === 'plannedFilled';
+      const rDone = set.reps?.state === 'filled' || set.reps?.state === 'plannedFilled';
+      if (!wDone || !rDone) return sum;
+      hasAnyFilled = true;
+      const w = typeof set.weight.value === 'object' ? (set.weight.value.kg ?? 0) : (set.weight.value ?? 0);
+      const r = set.reps.value ?? 0;
+      return sum + (w * r);
+    }, 0);
+    return { name: ex.name, tonnage: Math.round(tonnage) };
+  });
+  if (!hasAnyFilled) return null;
+  const totalTonnage = exercises.reduce((sum, e) => sum + e.tonnage, 0);
+  return { date: new Date().toISOString(), exercises, totalTonnage, isLive: true };
+};
+
 export default function GraphCard({ session, onPress, isFirst = false }) {
   const history = session.history || [];
   const name = session.current?.name || 'Workout';
+  const liveEntry = computeLiveEntry(session.current);
+  const allData = liveEntry ? [...history, liveEntry] : history;
 
-  if (history.length < 2) {
+  if (allData.length === 0) {
     return (
       <View style={styles.card}>
         <View style={styles.header}>
           <Text style={styles.title}>{name}</Text>
-          <Text style={styles.subtitle}>Not enough data</Text>
+          <Text style={styles.subtitle}>Aucune donnée</Text>
         </View>
       </View>
     );
   }
 
-  const tonnages = history.map((h) => h.totalTonnage);
+  const tonnages = allData.map((h) => h.totalTonnage);
   const minT = Math.min(...tonnages);
   const maxT = Math.max(...tonnages);
   const range = maxT - minT || 1;
@@ -54,29 +76,38 @@ export default function GraphCard({ session, onPress, isFirst = false }) {
   const first = tonnages[0];
   const pctChange = ((latest - first) / first * 100).toFixed(1);
   const isUp = latest >= first;
+  const hasMultiple = allData.length >= 2;
 
-  // Build SVG path
   const plotW = CHART_W - PAD_L - PAD_R;
   const plotH = CHART_H - PAD_T - PAD_B;
-  const xStep = plotW / (tonnages.length - 1);
 
-  const toX = (i) => PAD_L + i * xStep;
-  const toY = (v) => PAD_T + plotH - ((v - minT) / range) * plotH;
+  const toX = (i) => hasMultiple
+    ? PAD_L + i * (plotW / (allData.length - 1))
+    : PAD_L + plotW / 2;
+  const toY = (v) => hasMultiple
+    ? PAD_T + plotH - ((v - minT) / range) * plotH
+    : PAD_T + plotH / 2;
 
   const points = tonnages.map((v, i) => ({ x: toX(i), y: toY(v) }));
-  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
-  const areaPath = `${linePath} L${points[points.length - 1].x},${CHART_H - PAD_B} L${points[0].x},${CHART_H - PAD_B} Z`;
 
-  // Y-axis grid (3 lines)
+  const solidPoints = liveEntry ? points.slice(0, -1) : points;
+  const solidPath = solidPoints.length >= 2
+    ? solidPoints.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ')
+    : null;
+  const livePath = liveEntry && points.length >= 2
+    ? `M${points[points.length - 2].x},${points[points.length - 2].y} L${points[points.length - 1].x},${points[points.length - 1].y}`
+    : null;
+  const areaPath = solidPath
+    ? `${solidPath} L${solidPoints[solidPoints.length - 1].x},${CHART_H - PAD_B} L${solidPoints[0].x},${CHART_H - PAD_B} Z`
+    : null;
+
   const gridValues = [minT, minT + range / 2, maxT];
   const gridYs = gridValues.map((v) => toY(v));
+  const labelIndices = hasMultiple
+    ? [...new Set([0, Math.floor(allData.length / 2), allData.length - 1])]
+    : [0];
 
-  // X-axis labels (first, mid, last)
-  const labelIndices = [0, Math.floor(history.length / 2), history.length - 1];
-
-  const lastPoint = points[points.length - 1];
-
-  const card = (
+  return (
     <Pressable
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
       onPress={onPress}
@@ -85,53 +116,63 @@ export default function GraphCard({ session, onPress, isFirst = false }) {
         <View>
           <Text style={styles.title}>{name}</Text>
           <Text style={styles.subtitle}>
-            Last: {formatTonnage(latest)} kg · {history.length} sessions
+            {liveEntry ? `En cours · ${formatTonnage(liveEntry.totalTonnage)} kg` : `Last: ${formatTonnage(latest)} kg`}
+            {' · '}{history.length} session{history.length !== 1 ? 's' : ''}
           </Text>
         </View>
-        <View style={[styles.badge, isUp ? styles.badgeUp : styles.badgeDown]}>
-          <Text style={[styles.badgeText, isUp ? styles.badgeTextUp : styles.badgeTextDown]}>
-            {isUp ? '↑' : '↓'} {isUp ? '+' : ''}{pctChange}%
-          </Text>
-        </View>
+        {hasMultiple && (
+          <View style={[styles.badge, isUp ? styles.badgeUp : styles.badgeDown]}>
+            <Text style={[styles.badgeText, isUp ? styles.badgeTextUp : styles.badgeTextDown]}>
+              {isUp ? '↑' : '↓'} {isUp ? '+' : ''}{pctChange}%
+            </Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.chartContainer}>
         <Svg width="100%" height="100%" viewBox={`0 0 ${CHART_W} ${CHART_H}`}>
-          {/* Grid lines */}
           {gridYs.map((y, i) => (
             <Line key={`g${i}`} x1={PAD_L} y1={y} x2={CHART_W - PAD_R} y2={y} stroke={COLORS.lightGray} strokeWidth={1} />
           ))}
-
-          {/* Y labels */}
           {gridValues.map((v, i) => (
             <SvgText key={`yl${i}`} x={PAD_L - 4} y={gridYs[i] + 3} fontSize={9} fill={COLORS.textMuted} textAnchor="end" fontFamily="DM Sans">
               {formatTonnage(v)}
             </SvgText>
           ))}
 
-          {/* Area fill */}
-          <Path d={areaPath} fill={COLORS.textPrimary} opacity={0.06} />
+          {areaPath && (
+            <Path d={areaPath} fill={COLORS.textPrimary} opacity={0.06} />
+          )}
+          {solidPath && (
+            <Path d={solidPath} stroke={COLORS.textPrimary} strokeWidth={2.5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          )}
+          {livePath && (
+            <Path d={livePath} stroke={COLORS.viewNext} strokeWidth={2.5} fill="none" strokeLinecap="round" strokeDasharray="5,4" />
+          )}
 
-          {/* Line */}
-          <Path d={linePath} stroke={COLORS.textPrimary} strokeWidth={2.5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          {points.map((p, i) => {
+            const isLiveDot = liveEntry && i === points.length - 1;
+            return (
+              <Circle
+                key={`d${i}`}
+                cx={p.x} cy={p.y}
+                r={i === points.length - 1 ? 4.5 : 3}
+                fill={isLiveDot ? COLORS.viewNext : COLORS.textPrimary}
+                stroke={COLORS.white}
+                strokeWidth={2}
+              />
+            );
+          })}
 
-          {/* Dots on every point */}
-          {points.map((p, i) => (
-            <Circle key={`d${i}`} cx={p.x} cy={p.y} r={i === points.length - 1 ? 4.5 : 3} fill={COLORS.textPrimary} stroke={COLORS.white} strokeWidth={2} />
-          ))}
-
-          {/* X labels */}
           {labelIndices.map((idx) => (
-            <SvgText key={`xl${idx}`} x={toX(idx)} y={CHART_H - 2} fontSize={9} fill={COLORS.textMuted} textAnchor="middle" fontFamily="DM Sans">
-              {formatDate(history[idx].date)}
+            <SvgText key={`xl${idx}`} x={toX(idx)} y={CHART_H - 2} fontSize={9} fill={liveEntry && idx === allData.length - 1 ? COLORS.viewNext : COLORS.textMuted} textAnchor="middle" fontFamily="DM Sans">
+              {liveEntry && idx === allData.length - 1 ? 'Now' : formatDate(allData[idx].date)}
             </SvgText>
           ))}
         </Svg>
       </View>
     </Pressable>
   );
-
-  return card;
 }
 
 const styles = StyleSheet.create({

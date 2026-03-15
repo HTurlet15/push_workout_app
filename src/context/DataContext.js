@@ -54,9 +54,14 @@ function rotateAllSessions(program) {
       // Skip rotation for untouched sessions
       if (!hasActivity) return session;
 
-      // Build history entry from current
+      // Build history entry from current — only count sets the user actually did (filled)
       const exercises = current.exercises.map((ex) => {
         const tonnage = ex.sets.reduce((sum, set) => {
+          const wState = set.weight?.state;
+          const rState = set.reps?.state;
+          const isDone = (wState === 'filled' || wState === 'plannedFilled') &&
+                         (rState === 'filled' || rState === 'plannedFilled');
+          if (!isDone) return sum;
           const rawW = set.weight?.value ?? 0;
           const w = typeof rawW === 'object' ? (rawW.kg ?? 0) : rawW;
           const r = set.reps?.value ?? 0;
@@ -190,8 +195,8 @@ export function DataProvider({ children }) {
       // Check session rotation before setting state
       const lastActivity = await AsyncStorage.getItem('push_last_activity');
       const now = Date.now();
-      const ROTATION_DELAY_MS = 12 * 60 * 60 * 1000;
-      //const ROTATION_DELAY_MS = 5 * 1000; // 5s for testing
+      //const ROTATION_DELAY_MS = 12 * 60 * 60 * 1000;
+      const ROTATION_DELAY_MS = 5 * 1000; // 5s for testing
       const shouldRotate = lastActivity && (now - parseInt(lastActivity, 10)) >= ROTATION_DELAY_MS;
 
       const finalPrograms = shouldRotate
