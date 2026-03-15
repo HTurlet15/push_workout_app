@@ -30,12 +30,14 @@ export default function WorkoutsList({
 
   const getTimeBadge = (completedAt) => {
     if (!completedAt) return { label: 'Never', tier: 'moderate' };
-    const diff = Date.now() - new Date(completedAt).getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const now = new Date();
+    const completed = new Date(completedAt);
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const completedStart = new Date(completed.getFullYear(), completed.getMonth(), completed.getDate());
+    const days = Math.round((todayStart - completedStart) / (1000 * 60 * 60 * 24));
 
     let label;
-    if (days === 0 && hours < 24) label = 'Today';
+    if (days === 0) label = 'Today';
     else if (days === 1) label = 'Yesterday';
     else label = `${days}d ago`;
 
