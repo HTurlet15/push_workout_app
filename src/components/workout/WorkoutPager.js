@@ -57,7 +57,7 @@ const WorkoutPager = forwardRef(({
       ref={flatListRef}
       data={sessions}
       renderItem={renderWorkout}
-      keyExtractor={(_, index) => `workout-${index}`}
+      keyExtractor={(item, index) => item.current?.id || `workout-${index}`}
       horizontal
       pagingEnabled
       showsHorizontalScrollIndicator={false}

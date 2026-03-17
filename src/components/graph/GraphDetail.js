@@ -1,7 +1,8 @@
 import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import Svg, { Path, Circle, Line, Text as SvgText } from 'react-native-svg';
 import Text from '../common/Text';
-import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW, GRAPH_LINE_COLORS } from '../../theme/theme';
+import { computeLiveEntry } from './graphUtils';
 
 /**
  * GraphDetail — drill-down view for a single workout.
@@ -20,17 +21,6 @@ const PAD_R = 10;
 const PAD_T = 10;
 const PAD_B = 20;
 
-const LINE_COLORS = [
-  '#1A1A1A', // black
-  '#007AFF', // blue
-  '#2E7D32', // green
-  '#E65100', // orange
-  '#C62828', // red
-  '#7B1FA2', // purple
-  '#00838F', // teal
-  '#F9A825', // amber
-];
-
 const formatTonnage = (v) => {
   if (v >= 1000) return `${(v / 1000).toFixed(v % 1000 === 0 ? 0 : 1)}k`;
   return `${v}`;
@@ -44,26 +34,6 @@ const formatDate = (iso) => {
 const formatDateShort = (iso) => {
   const d = new Date(iso);
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-};
-
-const computeLiveEntry = (current) => {
-  if (!current?.exercises?.length) return null;
-  let hasAnyFilled = false;
-  const exercises = current.exercises.map((ex) => {
-    const tonnage = ex.sets.reduce((sum, set) => {
-      const wDone = set.weight?.state === 'filled' || set.weight?.state === 'plannedFilled';
-      const rDone = set.reps?.state === 'filled' || set.reps?.state === 'plannedFilled';
-      if (!wDone || !rDone) return sum;
-      hasAnyFilled = true;
-      const w = typeof set.weight.value === 'object' ? (set.weight.value.kg ?? 0) : (set.weight.value ?? 0);
-      const r = set.reps.value ?? 0;
-      return sum + (w * r);
-    }, 0);
-    return { name: ex.name, tonnage: Math.round(tonnage) };
-  });
-  if (!hasAnyFilled) return null;
-  const totalTonnage = exercises.reduce((sum, e) => sum + e.tonnage, 0);
-  return { date: new Date().toISOString(), exercises, totalTonnage, isLive: true };
 };
 
 export default function GraphDetail({ session }) {
@@ -120,7 +90,7 @@ export default function GraphDetail({ session }) {
   // Overall change
   const latestTotal = allData[allData.length - 1].totalTonnage;
   const firstTotal = allData[0].totalTonnage;
-  const pctChange = ((latestTotal - firstTotal) / firstTotal * 100).toFixed(1);
+  const pctChange = firstTotal !== 0 ? ((latestTotal - firstTotal) / firstTotal * 100).toFixed(1) : null;
   const isUp = latestTotal >= firstTotal;
 
   // Session cards (newest first)
@@ -141,7 +111,7 @@ export default function GraphDetail({ session }) {
               {history.length} session{history.length !== 1 ? 's' : ''}{liveEntry ? ' · En cours' : ''}
             </Text>
           </View>
-          {hasMultiple && (
+          {hasMultiple && pctChange !== null && (
             <View style={[styles.badge, isUp ? styles.badgeUp : styles.badgeDown]}>
               <Text style={[styles.badgeText, isUp ? styles.badgeTextUp : styles.badgeTextDown]}>
                 {isUp ? '↑' : '↓'} {isUp ? '+' : ''}{pctChange}%
@@ -154,7 +124,7 @@ export default function GraphDetail({ session }) {
         <View style={styles.legend}>
           {allExerciseNames.map((exName, idx) => (
             <View key={exName} style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: LINE_COLORS[idx % LINE_COLORS.length] }]} />
+              <View style={[styles.legendDot, { backgroundColor: GRAPH_LINE_COLORS[idx % GRAPH_LINE_COLORS.length] }]} />
               <Text style={styles.legendText}>{exName}</Text>
             </View>
           ))}
@@ -173,7 +143,7 @@ export default function GraphDetail({ session }) {
             ))}
 
             {allExerciseNames.map((exName, exIdx) => {
-              const color = LINE_COLORS[exIdx % LINE_COLORS.length];
+              const color = GRAPH_LINE_COLORS[exIdx % GRAPH_LINE_COLORS.length];
               const pts = allData
                 .map((h, i) => {
                   const ex = h.exercises.find((e) => e.name === exName);

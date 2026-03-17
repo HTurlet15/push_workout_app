@@ -2,6 +2,7 @@ import { View, Pressable, StyleSheet } from 'react-native';
 import Svg, { Path, Circle, Line, Text as SvgText } from 'react-native-svg';
 import Text from '../common/Text';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
+import { computeLiveEntry } from './graphUtils';
 
 /**
  * GraphCard — displays a single workout's tonnage progression.
@@ -30,27 +31,7 @@ const formatDate = (iso) => {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
-const computeLiveEntry = (current) => {
-  if (!current?.exercises?.length) return null;
-  let hasAnyFilled = false;
-  const exercises = current.exercises.map((ex) => {
-    const tonnage = ex.sets.reduce((sum, set) => {
-      const wDone = set.weight?.state === 'filled' || set.weight?.state === 'plannedFilled';
-      const rDone = set.reps?.state === 'filled' || set.reps?.state === 'plannedFilled';
-      if (!wDone || !rDone) return sum;
-      hasAnyFilled = true;
-      const w = typeof set.weight.value === 'object' ? (set.weight.value.kg ?? 0) : (set.weight.value ?? 0);
-      const r = set.reps.value ?? 0;
-      return sum + (w * r);
-    }, 0);
-    return { name: ex.name, tonnage: Math.round(tonnage) };
-  });
-  if (!hasAnyFilled) return null;
-  const totalTonnage = exercises.reduce((sum, e) => sum + e.tonnage, 0);
-  return { date: new Date().toISOString(), exercises, totalTonnage, isLive: true };
-};
-
-export default function GraphCard({ session, onPress, isFirst = false }) {
+export default function GraphCard({ session, onPress }) {
   const history = session.history || [];
   const name = session.current?.name || 'Workout';
   const liveEntry = computeLiveEntry(session.current);
@@ -74,7 +55,7 @@ export default function GraphCard({ session, onPress, isFirst = false }) {
 
   const latest = tonnages[tonnages.length - 1];
   const first = tonnages[0];
-  const pctChange = ((latest - first) / first * 100).toFixed(1);
+  const pctChange = first !== 0 ? ((latest - first) / first * 100).toFixed(1) : null;
   const isUp = latest >= first;
   const hasMultiple = allData.length >= 2;
 
@@ -120,7 +101,7 @@ export default function GraphCard({ session, onPress, isFirst = false }) {
             {' · '}{history.length} session{history.length !== 1 ? 's' : ''}
           </Text>
         </View>
-        {hasMultiple && (
+        {hasMultiple && pctChange !== null && (
           <View style={[styles.badge, isUp ? styles.badgeUp : styles.badgeDown]}>
             <Text style={[styles.badgeText, isUp ? styles.badgeTextUp : styles.badgeTextDown]}>
               {isUp ? '↑' : '↓'} {isUp ? '+' : ''}{pctChange}%

@@ -131,7 +131,7 @@ export default function SplashScreen({ onFinish }) {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: COLORS.screenBackground,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 100,
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     fontFamily: FONT_FAMILY.regular,
     fontSize: 12,
     letterSpacing: 4,
-    color: '#B0B0B0',
+    color: COLORS.textMuted,
     marginTop: 12,
   },
 });

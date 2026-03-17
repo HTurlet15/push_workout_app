@@ -98,6 +98,21 @@ export const COLORS = {
   shadow: '#000000',
 };
 
+// ─── GRAPH LINE COLORS ─────────────────────────────────────
+// One color per exercise line in multi-exercise charts (GraphDetail).
+// Order is intentional: starts with core neutrals, then accents.
+
+export const GRAPH_LINE_COLORS = [
+  '#1A1A1A', // black
+  '#007AFF', // blue
+  '#2E7D32', // green
+  '#E65100', // orange
+  '#C62828', // red
+  '#7B1FA2', // purple
+  '#00838F', // teal
+  '#F9A825', // amber
+];
+
 // ─── SPACING ───────────────────────────────────────────────
 // 4px base unit. Use multiples for consistent rhythm.
 
@@ -127,7 +142,7 @@ export const FONT_SIZE = {
   lg: 17,       // Exercise names in card headers
   title: 20,    // Timer display, section titles
   xl: 34,       // Screen title (workout name)
-  hero: 40,     // Reserved for future large display use
+  hero: 42,     // SplashScreen logo size
 };
 
 // ─── FONT WEIGHTS ──────────────────────────────────────────

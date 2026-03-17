@@ -15,6 +15,7 @@ import SplashScreen from './src/components/common/SplashScreen';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import MainScreen from './src/screens/MainScreen';
 import { StatusBar } from 'expo-status-bar';
+import { COLORS } from './src/theme/theme';
 
 const ONBOARDING_KEY = '@push_onboarding_done';
 
@@ -30,9 +31,6 @@ export default function App() {
     'DMSans-SemiBold': DMSans_600SemiBold,
     'DMSans-Bold': DMSans_700Bold,
   });
-
-  // AsyncStorage.removeItem('@push_onboarding_done'); // Remove comment to run tutorial on each launch of the app
-  // AsyncStorage.clear();
 
   useEffect(() => {
     const check = async () => {
@@ -57,7 +55,7 @@ export default function App() {
   if (!fontsLoaded || !onboardingChecked) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={COLORS.viewCurrent} />
       </View>
     );
   }

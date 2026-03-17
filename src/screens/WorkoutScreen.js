@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import Text from '../components/common/Text';
 import ExerciseCard from '../components/exercise/ExerciseCard';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE } from '../theme/theme';
+import { useData } from '../context/DataContext';
 
 /**
  * Single workout session screen.
@@ -23,6 +24,8 @@ export default function WorkoutScreen({
   updateDuration,
   onScroll,
 }) {
+  const { settings } = useData();
+
   const [newExerciseId, setNewExerciseId] = useState(null);
   const [justCompletedSetId, setJustCompletedSetId] = useState(null);
   const [newExerciseIds, setNewExerciseIds] = useState(new Set());
@@ -289,7 +292,7 @@ export default function WorkoutScreen({
         id,
         name: 'New Exercise',
         note: undefined,
-        restTimerSeconds: 90,
+        restTimerSeconds: settings.defaultRestSeconds,
         repRange: null,
         sets: currentSets,
       };

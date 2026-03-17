@@ -45,7 +45,8 @@ const ROTATION_DELAY_MS = 12 * 60 * 60 * 1000;
 
 function rotateAllSessions(program) {
   const now = Date.now();
-  return {
+  let rotated = false;
+  const rotatedProgram = {
     ...program,
     sessions: program.sessions.map((session) => {
       const { current, next, history } = session;
@@ -139,6 +140,7 @@ function rotateAllSessions(program) {
         })),
       };
 
+      rotated = true;
       return {
         history: historyEntry ? [...(history || []), historyEntry] : (history || []),
         current: newCurrent,
@@ -147,6 +149,7 @@ function rotateAllSessions(program) {
       };
     }),
   };
+  return { program: rotatedProgram, rotated };
 }
 
 // ── Default settings ───────────────────────────────────────
@@ -202,12 +205,13 @@ export function DataProvider({ children }) {
       const loadedPrograms = (await Promise.all(programPromises)).filter(Boolean);
 
       // Rotate sessions individually based on each session's lastSetAt
-      const finalPrograms = loadedPrograms.map((prog) => rotateAllSessions(prog));
+      const rotateResults = loadedPrograms.map((prog) => rotateAllSessions(prog));
+      const finalPrograms = rotateResults.map((r) => r.program);
 
       // Save any rotated programs
-      for (let i = 0; i < loadedPrograms.length; i++) {
-        if (JSON.stringify(loadedPrograms[i]) !== JSON.stringify(finalPrograms[i])) {
-          await AsyncStorage.setItem(KEYS.program(finalPrograms[i].id), JSON.stringify(finalPrograms[i]));
+      for (const { program, rotated } of rotateResults) {
+        if (rotated) {
+          await AsyncStorage.setItem(KEYS.program(program.id), JSON.stringify(program));
         }
       }
 

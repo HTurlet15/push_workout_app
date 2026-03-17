@@ -52,7 +52,11 @@ export default function WorkoutsList({
   const handleDelete = (index) => {
     const key = `delete-${index}`;
     deleteAnims.current[key] = new Animated.Value(1);
-    setNewIndices((prev) => new Set(prev));
+    setNewIndices((prev) => {
+      const next = new Set(prev);
+      next.delete(index);
+      return next;
+    });
 
     Animated.timing(deleteAnims.current[key], {
       toValue: 0,
