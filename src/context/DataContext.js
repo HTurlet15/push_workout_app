@@ -36,15 +36,24 @@ function resolveField(nextValue, prevValue) {
 }
 
 /**
- * Rotates all sessions in a program: current→previous, next→current, new empty next.
+ * Rotates sessions in a program that are due for rotation.
+ * A session rotates if its lastSetAt is 12h+ ago.
  * Also pushes tonnage to history.
  */
+const ROTATION_DELAY_MS = 12 * 60 * 60 * 1000;
+//const ROTATION_DELAY_MS = 5 * 1000; // 5s for testing
+
 function rotateAllSessions(program) {
+  const now = Date.now();
   return {
     ...program,
     sessions: program.sessions.map((session) => {
       const { current, next, history } = session;
       if (!current || !current.exercises) return session;
+
+      // Only rotate if lastSetAt exists and is 12h+ ago
+      const lastSetAt = current.lastSetAt;
+      if (!lastSetAt || (now - new Date(lastSetAt).getTime()) < ROTATION_DELAY_MS) return session;
 
       // Check if user actually trained this session (at least one set filled)
       const hasActivity = current.exercises.some((ex) =>
@@ -192,25 +201,15 @@ export function DataProvider({ children }) {
 
       const loadedPrograms = (await Promise.all(programPromises)).filter(Boolean);
 
-      // Check session rotation before setting state
-      const lastActivity = await AsyncStorage.getItem('push_last_activity');
-      const now = Date.now();
-      const ROTATION_DELAY_MS = 12 * 60 * 60 * 1000;
-      //const ROTATION_DELAY_MS = 5 * 1000; // 5s for testing
-      const shouldRotate = lastActivity && (now - parseInt(lastActivity, 10)) >= ROTATION_DELAY_MS;
+      // Rotate sessions individually based on each session's lastSetAt
+      const finalPrograms = loadedPrograms.map((prog) => rotateAllSessions(prog));
 
-      const finalPrograms = shouldRotate
-        ? loadedPrograms.map((prog) => rotateAllSessions(prog))
-        : loadedPrograms;
-
-      if (shouldRotate) {
-        // Save rotated programs
-        for (const prog of finalPrograms) {
-          await AsyncStorage.setItem(KEYS.program(prog.id), JSON.stringify(prog));
+      // Save any rotated programs
+      for (let i = 0; i < loadedPrograms.length; i++) {
+        if (JSON.stringify(loadedPrograms[i]) !== JSON.stringify(finalPrograms[i])) {
+          await AsyncStorage.setItem(KEYS.program(finalPrograms[i].id), JSON.stringify(finalPrograms[i]));
         }
       }
-
-      await AsyncStorage.setItem('push_last_activity', String(now));
 
       setPrograms(finalPrograms);
       setSelectedProgramId(selectedId || finalPrograms[0]?.id || null);
@@ -234,7 +233,6 @@ export function DataProvider({ children }) {
       await AsyncStorage.setItem(KEYS.selectedProgramId, prog.id);
       await AsyncStorage.setItem(KEYS.program(prog.id), JSON.stringify(prog));
       await AsyncStorage.setItem(KEYS.settings, JSON.stringify(DEFAULT_SETTINGS));
-      await AsyncStorage.setItem('push_last_activity', String(Date.now()));
 
       loadedProgramsRef.current.add(prog.id);
       setPrograms([prog]);

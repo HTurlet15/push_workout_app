@@ -83,6 +83,7 @@ export default function WorkoutScreen({
 
     setWorkout((prev) => ({
       ...prev,
+      lastSetAt: new Date().toISOString(),
       exercises: prev.exercises.map((ex) => {
         if (ex.id !== exerciseId) return ex;
         return {
@@ -368,7 +369,7 @@ export default function WorkoutScreen({
   );
 
   const lastSessionLabel = (() => {
-    const completedAt = previousWorkout?.completedAt ?? workout?.completedAt;
+    const completedAt = workout?.lastSetAt;
     if (!completedAt) return null;
     const diff = Date.now() - new Date(completedAt).getTime();
     const mins = Math.floor(diff / 60000);
