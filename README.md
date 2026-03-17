@@ -110,15 +110,16 @@ The full design process is documented in [`/docs/design/`](docs/design/README.md
 
 ## Roadmap
 
-**MVP (current)** - Core tracking, persistence, rotation, graphs, edit mode.
+**MVP (current - public repo)** - Core tracking, persistence, rotation, graphs, edit mode.
 
-**Next** - App Store et Play Store release, data export, settings screen.
+**Phase 2 (active development - private repo)** - AI coach with natural language input. 
+Type "bench 80x8 80x7 80x6" and it fills your sets. Full chat interface powered by AI, personalized to your training history. Premium subscription to unlock.
 
-**Future** - LLM-powered natural language input. Type or speak "bench 80x8 80x7 80x6" and it parses into structured data.
+**Later** - Play Store release, data export, settings screen.
 
 ## License
 
-Source available — not open source. Code is publicly visible for educational and portfolio purposes. Commercial use is not permitted. See [LICENSE](LICENSE) for details.
+Source available - not open source. Code is publicly visible for educational and portfolio purposes. Commercial use is not permitted. See [LICENSE](LICENSE) for details.
 
 ---
 
