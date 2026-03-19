@@ -52,11 +52,11 @@ const HELP_CONTENT = {
       sections: [
         { icon: 'grid', title: 'Fill in your sets', text: 'Tap any cell to enter weight, reps, or RIR. A completed set turns green.' },
         { icon: 'chevrons-right', title: 'Previous / Current / Next', text: 'Use the view selector to see your last session, fill in the current one, or plan your next.' },
+        { icon: 'calendar', title: 'Plan ahead', text: 'Enter values in the Next view to plan your next session. Those values will show up with a calendar icon during your next workout — confirm or adjust them on the fly.' },
         { icon: 'clock', title: 'Rest timer', text: 'Each exercise has a rest timer. Tap the timer icon at the bottom of an exercise to start the countdown.' },
         { icon: 'target', title: 'Rep range', text: 'The target rep range is shown at the bottom of each exercise. Edit it in edit mode.' },
         { icon: 'repeat', title: 'Units', text: 'Toggle between kg and lbs with the unit switch at the bottom of each exercise.' },
         { icon: 'edit-2', title: 'Edit mode', text: 'Tap the pencil to add/remove exercises and sets, rename exercises, and adjust rest timers.' },
-        { icon: 'calendar', title: 'Plan ahead', text: 'Enter values in the Next view to plan your next session. Those values will show up with a calendar icon during your next workout — confirm or adjust them on the fly.' },
       ],
     },
     fr: {
@@ -64,11 +64,11 @@ const HELP_CONTENT = {
       sections: [
         { icon: 'grid', title: 'Remplissez vos séries', text: "Appuyez sur une cellule pour entrer le poids, les reps ou le RIR. Une série complétée passe en vert." },
         { icon: 'chevrons-right', title: 'Précédent / Actuel / Suivant', text: "Utilisez le sélecteur de vue pour voir la dernière séance, remplir l'actuelle, ou planifier la suivante." },
+        { icon: 'calendar', title: 'Planifiez avec facilité', text: "Entrez des valeurs dans la vue Next pour préparer la prochaine séance. Ces valeurs apparaîtront avec une icône calendrier lors de votre prochain entraînement — confirmez-les ou ajustez-les à la volée." },
         { icon: 'clock', title: 'Timer de repos', text: "Chaque exercice a un timer de repos. Appuyez sur l'icône timer en bas d'un exercice pour lancer le décompte." },
         { icon: 'target', title: 'Fourchette de reps', text: "La fourchette cible est affichée en bas de chaque exercice. Modifiez-la en mode édition." },
         { icon: 'repeat', title: 'Unités', text: "Basculez entre kg et lbs avec le bouton en bas de chaque exercice." },
         { icon: 'edit-2', title: 'Mode édition', text: "Appuyez sur le crayon pour ajouter/supprimer des exercices et séries, renommer, et ajuster les timers." },
-        { icon: 'calendar', title: 'Planifiez avec facilité', text: "Entrez des valeurs dans la vue Next pour préparer la prochaine séance. Ces valeurs apparaîtront avec une icône calendrier lors de votre prochain entraînement — confirmez-les ou ajustez-les à la volée." },
       ],
     },
   },
