@@ -60,8 +60,9 @@ export default function SetInput({ value, unit, state = 'empty', onChangeValue, 
    * Blocks: 2+ decimal places, non-numeric characters.
    */
   const handleChangeText = (text) => {
-    if (text === '' || /^\d*\.?\d{0,1}$/.test(text)) {
-      setDraft(text);
+    const normalized = text.replace(',', '.');
+    if (normalized === '' || /^\d*\.?\d{0,1}$/.test(normalized)) {
+      setDraft(normalized);
     }
   };
 
