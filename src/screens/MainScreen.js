@@ -1,7 +1,7 @@
 import { View, FlatList, Animated, StyleSheet, useWindowDimensions, BackHandler } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { getLocales } from 'expo-localization';
+import { useTranslation } from 'react-i18next';
 import { useKeepAwake } from 'expo-keep-awake';
 import ProgramsList from '../components/program/ProgramsList';
 import WorkoutsList from '../components/workout/WorkoutsList';
@@ -12,6 +12,8 @@ import BottomBar from '../components/common/BottomBar';
 import TimerPicker from '../components/common/TimerPicker';
 import TabIndicator from '../components/common/TabIndicator';
 import HelpModal from '../components/common/HelpModal';
+import CoachBetaModal from '../components/common/CoachBetaModal';
+import SettingsScreen from './SettingsScreen';
 import useRestTimer from '../hooks/useRestTimer';
 import { useData } from '../context/DataContext';
 import { COLORS } from '../theme/theme';
@@ -37,12 +39,12 @@ export default function MainScreen() {
   useKeepAwake();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
+  const { t } = useTranslation();
 
   // ── Horizontal tab pager (Programs ↔ Workouts) ────────────
 
   const [activeTab, setActiveTab] = useState(1); // 0 = Programs, 1 = Workouts
   const tabPagerRef = useRef(null);
-  const TAB_LABELS = ['Programs', 'Workouts', 'Graphs'];
 
   const onTabViewableItemsChanged = useRef(({ viewableItems }) => {
     if (viewableItems.length > 0) {
@@ -273,7 +275,8 @@ export default function MainScreen() {
   // ── Help modal ─────────────────────────────────────────
 
   const [helpVisible, setHelpVisible] = useState(false);
-  const [helpLang, setHelpLang] = useState(getLocales()?.[0]?.languageCode === 'fr' ? 'fr' : 'en');
+  const [settingsVisible, setSettingsVisible] = useState(false);
+  const [coachModalVisible, setCoachModalVisible] = useState(false);
 
   const getHelpScreen = () => {
     if (graphDetailVisible) return 'graphDetail';
@@ -339,8 +342,9 @@ export default function MainScreen() {
         pointerEvents={workoutVisible || graphDetailVisible ? 'none' : 'auto'}
       >
         <TabIndicator
-          label={TAB_LABELS[activeTab]}
+          label={[t('tab.programs'), t('tab.workouts'), t('tab.graphs')][activeTab]}
           tabPosition={activeTab}
+          onSettings={() => setSettingsVisible(true)}
           onHelp={() => setHelpVisible(true)}
         />
 
@@ -373,7 +377,7 @@ export default function MainScreen() {
           onReset={reset}
           onTimerPress={() => setShowTimerPicker(true)}
           onEditToggle={() => setEditMode((prev) => !prev)}
-          onLLMPress={() => {}}
+          onLLMPress={() => setCoachModalVisible(true)}
           bottomInset={insets.bottom}
         />
       </Animated.View>
@@ -390,11 +394,11 @@ export default function MainScreen() {
           ]}
         >
           <TabIndicator
-            label="Workout"
+            label={t('tabIndicator.workout')}
             tabPosition={1}
             totalDots={sessions.length}
             activeIndex={activeWorkoutIndex}
-            backLabel="Workouts"
+            backLabel={t('tabIndicator.workouts')}
             onBack={navigateToList}
             onHelp={() => setHelpVisible(true)}
           />
@@ -418,7 +422,7 @@ export default function MainScreen() {
             onReset={reset}
             onTimerPress={() => setShowTimerPicker(true)}
             onEditToggle={() => setEditMode((prev) => !prev)}
-            onLLMPress={() => {}}
+            onLLMPress={() => setCoachModalVisible(true)}
             bottomInset={insets.bottom}
           />
         </Animated.View>
@@ -436,9 +440,9 @@ export default function MainScreen() {
           ]}
         >
           <TabIndicator
-            label="Detail"
+            label={t('tabIndicator.detail')}
             tabPosition={2}
-            backLabel="Graphs"
+            backLabel={t('tabIndicator.graphs')}
             onBack={navigateToGraphsList}
             onHelp={() => setHelpVisible(true)}
           />
@@ -453,7 +457,7 @@ export default function MainScreen() {
             onReset={reset}
             onTimerPress={() => setShowTimerPicker(true)}
             onEditToggle={() => setEditMode((prev) => !prev)}
-            onLLMPress={() => {}}
+            onLLMPress={() => setCoachModalVisible(true)}
             bottomInset={insets.bottom}
           />
         </Animated.View>
@@ -473,9 +477,19 @@ export default function MainScreen() {
         visible={helpVisible}
         onClose={() => setHelpVisible(false)}
         screen={getHelpScreen()}
-        lang={helpLang}
-        onToggleLang={() => setHelpLang((l) => l === 'en' ? 'fr' : 'en')}
       />
+
+      {/* ── Settings overlay ── */}
+      {settingsVisible && (
+        <View style={[styles.overlay, { paddingTop: insets.top }]}>
+          <SettingsScreen onClose={() => setSettingsVisible(false)} />
+        </View>
+      )}
+
+      {/* ── Coach IA beta modal ── */}
+      {coachModalVisible && (
+        <CoachBetaModal onClose={() => setCoachModalVisible(false)} />
+      )}
     </View>
   );
 }

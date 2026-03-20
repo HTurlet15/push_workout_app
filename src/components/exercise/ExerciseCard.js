@@ -1,6 +1,7 @@
 import { View, Animated, Pressable, TextInput, StyleSheet, useWindowDimensions } from 'react-native';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import Text from '../common/Text';
 import ViewSelector from './ViewSelector';
 import SetHeader from './SetHeader';
@@ -53,6 +54,7 @@ export default function ExerciseCard({
   isFirst = false,
   onUpdateUnit,
 }) {
+  const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const { displayedView, slideAnim, transitionTo } = useSlideTransition('current');
 
@@ -203,7 +205,7 @@ export default function ExerciseCard({
             style={styles.nameInput}
             value={isPlaceholderName ? '' : exercise.name}
             onChangeText={(text) => onUpdateName?.(exercise.id, text)}
-            placeholder="Tap to name..."
+            placeholder={t('exercise.tapToName')}
             placeholderTextColor={COLORS.textMuted}
             returnKeyType="done"
             onSubmitEditing={() => setEditingName(false)}
@@ -229,7 +231,7 @@ export default function ExerciseCard({
               isPlaceholderName && styles.exerciseNamePlaceholder,
             ]}
           >
-            {isPlaceholderName ? 'Tap to name...' : exercise.name}
+            {isPlaceholderName ? t('exercise.tapToName') : exercise.name}
           </Text>
         </Pressable>
       );
@@ -333,7 +335,7 @@ export default function ExerciseCard({
           onPress={handleAddSet}
         >
           <Feather name="plus" size={FONT_SIZE.caption} color={COLORS.textSecondary} />
-          <Text variant="caption" style={styles.addSetText}>Add set</Text>
+          <Text variant="caption" style={styles.addSetText}>{t('exercise.addSet')}</Text>
         </Pressable>
       )}
 
@@ -347,7 +349,7 @@ export default function ExerciseCard({
     if (!previousExercise) {
       return (
         <Text variant="caption" style={styles.emptyMessage}>
-          No previous data available
+          {t('exercise.noPrevious')}
         </Text>
       );
     }
@@ -385,7 +387,7 @@ export default function ExerciseCard({
     if (!nextExercise) {
       return (
         <Text variant="caption" style={styles.emptyMessage}>
-          No planned data available
+          {t('exercise.noPlanned')}
         </Text>
       );
     }
@@ -465,7 +467,7 @@ export default function ExerciseCard({
           onPress={handleAddExercise}
         >
           <Feather name="plus" size={FONT_SIZE.md} color={COLORS.viewCurrent} />
-          <Text variant="caption" style={styles.addExerciseText}>Add exercise</Text>
+          <Text variant="caption" style={styles.addExerciseText}>{t('exercise.addExercise')}</Text>
         </Pressable>
       )}
     </View>

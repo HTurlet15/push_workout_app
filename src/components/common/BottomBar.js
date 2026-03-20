@@ -1,26 +1,18 @@
-import { View, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet, Animated, Easing } from 'react-native';
+import { useEffect, useRef } from 'react';
 import { Feather } from '@expo/vector-icons';
 import Text from './Text';
-import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
+import { COLORS, SPACING, RADIUS, FONT_FAMILY, FONT_SIZE, SIZE, SHADOW } from '../../theme/theme';
 
 /**
  * Persistent bottom navigation bar for the workout session.
  *
- * Contains five interactive elements (left to right):
- * 1. LLM chat — opens AI assistant (future feature)
+ * Five buttons (left to right), each with a circular icon and a label beneath:
+ * 1. Coach IA — outlined circle with pulsing star
  * 2. Play/Pause/Check — controls the rest timer lifecycle
  * 3. Timer display — tappable to open duration picker
  * 4. Reset — resets timer to configured duration
  * 5. Edit toggle — switches between workout mode and edit mode
- *
- * Timer button appearance adapts to timer state:
- * - idle: green play icon on green background
- * - running: orange pause icon on orange background
- * - done: green check icon on green background
- *
- * Edit button toggles between:
- * - Normal: black background with pencil icon
- * - Active: blue background with checkmark icon
  *
  * @param {'idle'|'running'|'done'} timerState - Current timer lifecycle state.
  * @param {number} timeRemaining              - Seconds left on the timer.
@@ -29,7 +21,7 @@ import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE, SHADOW } from '../../theme/
  * @param {Function} onReset                  - Reset timer to configured duration.
  * @param {Function} onTimerPress             - Open timer duration picker.
  * @param {Function} onEditToggle             - Toggle edit mode on/off.
- * @param {Function} onLLMPress               - Open AI assistant panel.
+ * @param {Function} onLLMPress               - Open Coach IA panel.
  * @param {number} bottomInset                - Safe area bottom inset for notch devices.
  */
 export default function BottomBar({
@@ -43,6 +35,45 @@ export default function BottomBar({
   onLLMPress,
   bottomInset = 0,
 }) {
+  // ── Coach star pulse animation ─────────────────────────────
+  const pulseScale = useRef(new Animated.Value(1)).current;
+  const pulseOpacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.parallel([
+        Animated.sequence([
+          Animated.timing(pulseScale, {
+            toValue: 1.2,
+            duration: 1500,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseScale, {
+            toValue: 1,
+            duration: 1500,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.sequence([
+          Animated.timing(pulseOpacity, {
+            toValue: 0.75,
+            duration: 1500,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseOpacity, {
+            toValue: 1,
+            duration: 1500,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ]),
+      ])
+    ).start();
+  }, []);
+
   /** Format seconds into M:SS display string */
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -87,15 +118,18 @@ export default function BottomBar({
 
   return (
     <View style={[styles.container, { paddingBottom: bottomInset + SPACING.md }]}>
-      {/* LLM assistant button */}
+
+      {/* Coach IA — outlined circle with pulsing star */}
       <Pressable
-        style={({ pressed }) => [styles.iconBtn, pressed && styles.iconBtnPressed]}
+        style={({ pressed }) => [styles.outlinedCircle, pressed && styles.pressedOpacity]}
         onPress={onLLMPress}
       >
-        <Feather name="message-square" size={SIZE.iconLg} color={COLORS.textSecondary} />
+        <Animated.View style={{ transform: [{ scale: pulseScale }], opacity: pulseOpacity }}>
+          <Text style={styles.coachStar}>✦</Text>
+        </Animated.View>
       </Pressable>
 
-      {/* Play / Pause / Check button */}
+      {/* Play / Pause / Check */}
       <Pressable
         style={({ pressed }) => [styles.roundBtn, getPlayStyle(), pressed && getPlayPressedStyle()]}
         onPress={onPlayPause}
@@ -113,7 +147,7 @@ export default function BottomBar({
         </Text>
       </Pressable>
 
-      {/* Reset button */}
+      {/* Reset */}
       <Pressable
         style={({ pressed }) => [styles.roundBtn, styles.resetBtn, pressed && styles.resetBtnPressed]}
         onPress={onReset}
@@ -124,18 +158,19 @@ export default function BottomBar({
       {/* Edit mode toggle — pencil (normal) / checkmark (active) */}
       <Pressable
         style={({ pressed }) => [
-          styles.iconBtn,
-          editMode ? styles.editBtnActive : styles.editBtn,
-          pressed && (editMode ? styles.editBtnActivePressed : styles.editBtnPressed),
+          styles.outlinedCircle,
+          editMode ? styles.editBtnActive : null,
+          pressed && (editMode ? styles.editBtnActivePressed : styles.pressedOpacity),
         ]}
         onPress={onEditToggle}
       >
         <Feather
           name={editMode ? 'check' : 'edit-2'}
           size={SIZE.iconMd}
-          color={COLORS.white}
+          color={editMode ? COLORS.white : COLORS.black}
         />
       </Pressable>
+
     </View>
   );
 }
@@ -152,16 +187,28 @@ const styles = StyleSheet.create({
     ...SHADOW.bottomBar,
   },
 
-  /** Square touch target for icon buttons (LLM, edit) */
-  iconBtn: {
+  /** Outlined circle — used by Coach and Edit (normal mode) */
+  outlinedCircle: {
     width: SIZE.iconBtn,
     height: SIZE.iconBtn,
+    borderRadius: SIZE.iconBtn / 2,
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: COLORS.black,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: RADIUS.sm,
   },
-  iconBtnPressed: {
-    backgroundColor: COLORS.timerResetBg,
+
+  /** Shared pressed feedback for outlined buttons */
+  pressedOpacity: {
+    opacity: 0.7,
+  },
+
+  /** Black star character inside the Coach circle */
+  coachStar: {
+    fontSize: FONT_SIZE.md,
+    color: COLORS.black,
+    fontFamily: FONT_FAMILY.bold,
   },
 
   /** Circular button for play/reset */
@@ -185,21 +232,14 @@ const styles = StyleSheet.create({
   resetBtn: { backgroundColor: COLORS.timerResetBg },
   resetBtnPressed: { backgroundColor: COLORS.timerResetPressedBg },
 
-  /** Edit button — normal mode (black) */
-  editBtn: {
-    backgroundColor: COLORS.black,
-    borderRadius: RADIUS.sm,
-  },
-  editBtnPressed: {
-    backgroundColor: COLORS.btnDarkPressed,
-  },
-  /** Edit button — active mode (blue) */
+  /** Edit button — active mode (blue, fills the outlined circle) */
   editBtnActive: {
     backgroundColor: COLORS.viewCurrent,
-    borderRadius: RADIUS.sm,
+    borderColor: COLORS.viewCurrent,
   },
   editBtnActivePressed: {
     backgroundColor: COLORS.editBtnActivePressed,
+    borderColor: COLORS.editBtnActivePressed,
   },
 
   /** Timer display touch target */
@@ -218,7 +258,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     minWidth: SIZE.timerMinWidth,
   },
-  /** Timer text color states */
   timerIdle: { color: COLORS.timerIdle },
   timerActive: { color: COLORS.timerActive },
   timerDone: { color: COLORS.timerDone },

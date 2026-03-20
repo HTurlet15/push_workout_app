@@ -1,5 +1,6 @@
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import Text from '../common/Text';
 import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE } from '../../theme/theme';
 
@@ -19,12 +20,6 @@ import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE } from '../../theme/theme';
 
 const VIEWS = ['previous', 'current', 'next'];
 
-const VIEW_LABELS = {
-  previous: 'Previous',
-  current: 'Current',
-  next: 'Next',
-};
-
 const VIEW_COLORS = {
   previous: COLORS.viewPrevious,
   current: COLORS.viewCurrent,
@@ -32,6 +27,7 @@ const VIEW_COLORS = {
 };
 
 export default function ViewSelector({ activeView, onChangeView }) {
+  const { t } = useTranslation();
   const currentIndex = VIEWS.indexOf(activeView);
   const hasPrevious = currentIndex > 0;
   const hasNext = currentIndex < VIEWS.length - 1;
@@ -64,7 +60,7 @@ export default function ViewSelector({ activeView, onChangeView }) {
       {/* View label badge - colored by active view */}
       <View style={[styles.badge, { backgroundColor: accentColor }]}>
         <Text variant="caption" style={styles.badgeText}>
-          {VIEW_LABELS[activeView]}
+          {t(`exercise.views.${activeView}`)}
         </Text>
       </View>
 

@@ -1,3 +1,4 @@
+import './src/i18n/i18n';
 import { useState, useEffect } from 'react';
 import {
   useFonts,
@@ -45,9 +46,12 @@ export default function App() {
     check();
   }, []);
 
-  const handleOnboardingFinish = async () => {
+  const handleOnboardingFinish = async (lang) => {
     try {
-      await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+      await Promise.all([
+        AsyncStorage.setItem(ONBOARDING_KEY, 'true'),
+        lang ? AsyncStorage.setItem('@push_language', lang) : Promise.resolve(),
+      ]);
     } catch {}
     setOnboardingDone(true);
   };

@@ -1,0 +1,169 @@
+{
+  "tab": {
+    "programs": "Programs",
+    "workouts": "Workouts",
+    "graphs": "Graphs"
+  },
+  "tabIndicator": {
+    "workout": "Workout",
+    "workouts": "Workouts",
+    "detail": "Detail",
+    "graphs": "Graphs"
+  },
+  "workout": {
+    "setsDone": "{{completed}}/{{total}} sets done",
+    "timeAgo": {
+      "days": "{{count}}d ago",
+      "hours": "{{count}}h ago",
+      "mins": "{{count}}m ago",
+      "justNow": "just now"
+    },
+    "addExercise": "Add Exercise"
+  },
+  "exercise": {
+    "tapToName": "Tap to name...",
+    "addSet": "Add set",
+    "addExercise": "Add exercise",
+    "noPrevious": "No previous data available",
+    "noPlanned": "No planned data available",
+    "header": {
+      "set": "Set",
+      "weight": "Weight",
+      "reps": "Reps",
+      "rir": "RIR"
+    },
+    "views": {
+      "previous": "Previous",
+      "current": "Current",
+      "next": "Next"
+    },
+    "note": {
+      "add": "add note...",
+      "placeholder": "Write a note..."
+    },
+    "footer": {
+      "reps": "reps"
+    }
+  },
+  "timer": {
+    "title": "Rest Timer",
+    "min": "min",
+    "sec": "sec",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "programs": {
+    "title": "PROGRAMS",
+    "add": "Add Program",
+    "namePlaceholder": "Program name",
+    "frequencyPlaceholder": "e.g. 4d/week",
+    "notePlaceholder": "add note...",
+    "workoutCount_one": "{{count}} workout",
+    "workoutCount_other": "{{count}} workouts",
+    "exerciseCount_one": "{{count}} exercise",
+    "exerciseCount_other": "{{count}} exercises"
+  },
+  "workouts": {
+    "title": "WORKOUTS",
+    "add": "Add Workout",
+    "empty": {
+      "title": "No program selected",
+      "subtitle": "Create and select a program to start adding workouts."
+    },
+    "timeBadge": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "daysAgo": "{{count}}d ago",
+      "never": "Never"
+    },
+    "exerciseCount_one": "{{count}} exercise",
+    "exerciseCount_other": "{{count}} exercises",
+    "setsLabel": "sets"
+  },
+  "graphs": {
+    "title": "GRAPHS",
+    "noData": "No data",
+    "inProgress": "In progress · {{tonnage}} kg",
+    "lastTonnage": "Last: {{tonnage}} kg",
+    "sessionCount_one": "{{count}} session",
+    "sessionCount_other": "{{count}} sessions",
+    "now": "Now"
+  },
+  "help": {
+    "done": "Got it!",
+    "programs": {
+      "title": "Programs",
+      "s0_title": "What are programs?",
+      "s0_text": "Programs are collections of workouts. Create one for each training split (e.g. Push/Pull/Legs, Upper/Lower).",
+      "s1_title": "Select a program",
+      "s1_text": "Tap the radio button on the left to select a program. Its workouts will appear in the Workouts tab.",
+      "s2_title": "Preview workouts",
+      "s2_text": "Tap the chevron on the right to expand a program and see all its workouts at a glance.",
+      "s3_title": "Edit mode",
+      "s3_text": "Tap the pencil button at the bottom to add, delete, or rename programs. You can also add notes and set training frequency."
+    },
+    "workouts": {
+      "title": "Workouts",
+      "s0_title": "Start a session",
+      "s0_text": "Tap any workout card to open it and start filling in your sets.",
+      "s1_title": "Preview exercises",
+      "s1_text": "Tap the chevron to expand a card and see all exercises inside.",
+      "s2_title": "Time badges",
+      "s2_text": "The badge on each card shows when you last completed that workout — green for recent, orange for a while ago, red for overdue.",
+      "s3_title": "Edit mode",
+      "s3_text": "Use the pencil button to add new workouts or delete existing ones."
+    },
+    "workout": {
+      "title": "Inside a Workout",
+      "s0_title": "Fill in your sets",
+      "s0_text": "Tap any cell to enter weight, reps, or RIR. A completed set turns green.",
+      "s1_title": "Previous / Current / Next",
+      "s1_text": "Use the view selector to see your last session, fill in the current one, or plan your next.",
+      "s2_title": "Plan ahead",
+      "s2_text": "Enter values in the Next view to plan your next session. Those values will show up with a calendar icon during your next workout — confirm or adjust them on the fly.",
+      "s3_title": "Rest timer",
+      "s3_text": "Each exercise has a rest timer. Tap the timer icon at the bottom of an exercise to start the countdown.",
+      "s4_title": "Rep range",
+      "s4_text": "The target rep range is shown at the bottom of each exercise. Edit it in edit mode.",
+      "s5_title": "Units",
+      "s5_text": "Toggle between kg and lbs with the unit switch at the bottom of each exercise.",
+      "s6_title": "Edit mode",
+      "s6_text": "Tap the pencil to add/remove exercises and sets, rename exercises, and adjust rest timers."
+    },
+    "graphs": {
+      "title": "Graphs",
+      "s0_title": "Tonnage progression",
+      "s0_text": "Each card shows the total tonnage (weight × reps) trend for a workout over time.",
+      "s1_title": "Percentage badge",
+      "s1_text": "The green/red badge shows your overall progression between your first and most recent session.",
+      "s2_title": "Detailed breakdown",
+      "s2_text": "Tap a card to see the tonnage breakdown per exercise, with session-by-session trends."
+    },
+    "graphDetail": {
+      "title": "Graph Detail",
+      "s0_title": "Overall trend",
+      "s0_text": "The top chart shows your total tonnage progression across all exercises for this workout.",
+      "s1_title": "Per-exercise breakdown",
+      "s1_text": "Each exercise has its own mini chart showing how your tonnage evolved session by session.",
+      "s2_title": "Session-by-session badges",
+      "s2_text": "The percentage badges here compare each session to the previous one, so you can track your progress over time."
+    }
+  },
+  "coach": {
+    "betaTitle": "Coach IA — Coming Soon",
+    "bullet1": "Personalized programs generated from your training history",
+    "bullet2": "Progressive overload recommendations every session",
+    "bullet3": "Smart analysis of your strengths and weaknesses",
+    "bullet4": "Adaptive planning based on fatigue and recovery",
+    "emailPlaceholder": "your@email.com",
+    "notifyBtn": "Notify me",
+    "closeBtn": "Close",
+    "successMsg": "You're on the list! We'll reach out when Coach IA launches."
+  },
+  "settings": {
+    "title": "Settings",
+    "languageLabel": "Language",
+    "english": "English",
+    "french": "Français"
+  }
+}

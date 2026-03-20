@@ -3,6 +3,7 @@ import { Feather } from '@expo/vector-icons';
 import Text from './Text';
 import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, RADIUS, SIZE } from '../../theme/theme';
 
+
 /**
  * Tab indicator with a center-aligned pill, navigation dots, and optional back button.
  *
@@ -27,6 +28,7 @@ export default function TabIndicator({
   backLabel,
   onBack,
   onHelp,
+  onSettings,
 }) {
   // Dots based on position in 3-tab layout:
   // 0 (Programs):  PILL • •   (0 left, 2 right)
@@ -48,6 +50,13 @@ export default function TabIndicator({
         >
           <Feather name="chevron-up" size={SIZE.iconXs} color={COLORS.textSecondary} />
           <Text style={styles.backBtnText}>{backLabel}</Text>
+        </Pressable>
+      ) : onSettings ? (
+        <Pressable
+          style={({ pressed }) => [styles.settingsBtn, pressed && styles.settingsBtnPressed]}
+          onPress={onSettings}
+        >
+          <Feather name="settings" size={SIZE.iconMd} color={COLORS.textMuted} />
         </Pressable>
       ) : (
         <View style={styles.backPlaceholder} />
@@ -130,6 +139,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 10,
     marginLeft: 'auto',
+  },
+  settingsBtn: {
+    paddingHorizontal: SPACING.md,
+    height: SIZE.touchTarget,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  settingsBtnPressed: {
+    opacity: 0.5,
   },
   centerAbsolute: {
     ...StyleSheet.absoluteFillObject,

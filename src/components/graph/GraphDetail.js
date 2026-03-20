@@ -1,4 +1,5 @@
 import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { useState } from 'react';
 import Svg, { Path, Circle, Line, Text as SvgText } from 'react-native-svg';
 import Text from '../common/Text';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW, GRAPH_LINE_COLORS } from '../../theme/theme';
@@ -37,6 +38,29 @@ const formatDateShort = (iso) => {
 };
 
 export default function GraphDetail({ session }) {
+  const [selectedExercises, setSelectedExercises] = useState(new Set());
+
+  const toggleExercise = (exName) => {
+    setSelectedExercises((prev) => {
+      const next = new Set(prev);
+      if (next.has(exName)) {
+        next.delete(exName);
+      } else {
+        next.add(exName);
+      }
+      return next;
+    });
+  };
+
+  const isFiltered = selectedExercises.size > 0;
+  const isVisible = (exName) => !isFiltered || selectedExercises.has(exName);
+
+  // Compute total tonnage for an entry, restricted to visible exercises when filtered
+  const filteredTotal = (entry) =>
+    isFiltered
+      ? entry.exercises.filter((e) => isVisible(e.name)).reduce((sum, e) => sum + e.tonnage, 0)
+      : entry.totalTonnage;
+
   const history = session.history || [];
   const name = session.current?.name || 'Workout';
   const liveEntry = computeLiveEntry(session.current);
@@ -87,9 +111,9 @@ export default function GraphDetail({ session }) {
     ? [...new Set([0, Math.floor(allData.length / 2), allData.length - 1])]
     : [0];
 
-  // Overall change
-  const latestTotal = allData[allData.length - 1].totalTonnage;
-  const firstTotal = allData[0].totalTonnage;
+  // Overall change — recalculated against visible exercises when filtered
+  const latestTotal = filteredTotal(allData[allData.length - 1]);
+  const firstTotal = filteredTotal(allData[0]);
   const pctChange = firstTotal !== 0 ? ((latestTotal - firstTotal) / firstTotal * 100).toFixed(1) : null;
   const isUp = latestTotal >= firstTotal;
 
@@ -120,14 +144,18 @@ export default function GraphDetail({ session }) {
           )}
         </View>
 
-        {/* Legend */}
+        {/* Legend — tap to filter */}
         <View style={styles.legend}>
-          {allExerciseNames.map((exName, idx) => (
-            <View key={exName} style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: GRAPH_LINE_COLORS[idx % GRAPH_LINE_COLORS.length] }]} />
-              <Text style={styles.legendText}>{exName}</Text>
-            </View>
-          ))}
+          {allExerciseNames.map((exName, idx) => {
+            const color = GRAPH_LINE_COLORS[idx % GRAPH_LINE_COLORS.length];
+            const visible = isVisible(exName);
+            return (
+              <Pressable key={exName} style={({ pressed }) => [styles.legendItem, pressed && styles.legendItemPressed]} onPress={() => toggleExercise(exName)}>
+                <View style={[styles.legendDot, { backgroundColor: visible ? color : COLORS.mediumGray }]} />
+                <Text style={[styles.legendText, !visible && styles.legendTextFaded]}>{exName}</Text>
+              </Pressable>
+            );
+          })}
         </View>
 
         {/* Chart */}
@@ -144,6 +172,7 @@ export default function GraphDetail({ session }) {
 
             {allExerciseNames.map((exName, exIdx) => {
               const color = GRAPH_LINE_COLORS[exIdx % GRAPH_LINE_COLORS.length];
+              const visible = isVisible(exName);
               const pts = allData
                 .map((h, i) => {
                   const ex = h.exercises.find((e) => e.name === exName);
@@ -161,7 +190,7 @@ export default function GraphDetail({ session }) {
                 : null;
 
               return (
-                <View key={exName}>
+                <View key={exName} opacity={visible ? 1 : 0.1}>
                   {solidPts.length >= 2 && (
                     <Path d={solidPath} stroke={color} strokeWidth={2.5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
                   )}
@@ -195,6 +224,8 @@ export default function GraphDetail({ session }) {
       {reversedAllData.map((entry, idx) => {
         const prevEntry = idx < reversedAllData.length - 1 ? reversedAllData[idx + 1] : null;
         const opacity = entry.isLive ? 1 : Math.max(0.4, 1 - idx * 0.15);
+        const entryTotal = filteredTotal(entry);
+        const prevTotal = prevEntry ? filteredTotal(prevEntry) : null;
 
         return (
           <View key={entry.isLive ? 'live' : entry.date} style={[styles.sessionCard, { opacity }]}>
@@ -203,10 +234,11 @@ export default function GraphDetail({ session }) {
             </Text>
 
             {entry.exercises.map((ex) => {
+              const visible = isVisible(ex.name);
               const prevEx = prevEntry?.exercises.find((e) => e.name === ex.name);
               const delta = prevEx ? ex.tonnage - prevEx.tonnage : null;
               return (
-                <View key={ex.name} style={styles.sessionRow}>
+                <View key={ex.name} style={[styles.sessionRow, !visible && styles.sessionRowFaded]}>
                   <Text style={styles.sessionExo}>{ex.name}</Text>
                   <View style={styles.sessionRight}>
                     <Text style={styles.sessionTonnage}>{ex.tonnage.toLocaleString()} kg</Text>
@@ -223,13 +255,13 @@ export default function GraphDetail({ session }) {
             <View style={styles.sessionTotal}>
               <Text style={styles.totalLabel}>Total</Text>
               <View style={styles.sessionRight}>
-                <Text style={styles.totalValue}>{entry.totalTonnage.toLocaleString()} kg</Text>
-                {prevEntry && (
+                <Text style={styles.totalValue}>{entryTotal.toLocaleString()} kg</Text>
+                {prevTotal !== null && (
                   <Text style={[
                     styles.sessionDelta,
-                    entry.totalTonnage >= prevEntry.totalTonnage ? styles.deltaUp : styles.deltaDown,
+                    entryTotal >= prevTotal ? styles.deltaUp : styles.deltaDown,
                   ]}>
-                    {entry.totalTonnage >= prevEntry.totalTonnage ? '↑' : '↓'} {entry.totalTonnage >= prevEntry.totalTonnage ? '+' : ''}{entry.totalTonnage - prevEntry.totalTonnage}
+                    {entryTotal >= prevTotal ? '↑' : '↓'} {entryTotal >= prevTotal ? '+' : ''}{entryTotal - prevTotal}
                   </Text>
                 )}
               </View>
@@ -264,6 +296,10 @@ const styles = StyleSheet.create({
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: SPACING.xsm },
   legendDot: { width: SIZE.dotLg, height: SIZE.dotLg, borderRadius: SIZE.dotLg / 2 },
   legendText: { fontSize: FONT_SIZE.xs, fontFamily: FONT_FAMILY.semibold, color: COLORS.textSecondary },
+  legendTextFaded: { color: COLORS.mediumGray },
+  legendItemPressed: { opacity: 0.5 },
+
+  sessionRowFaded: { opacity: 0.2 },
 
   chartArea: { height: 170, paddingHorizontal: SPACING.md, paddingBottom: SPACING.md },
 

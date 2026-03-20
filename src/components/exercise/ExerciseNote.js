@@ -1,6 +1,7 @@
 import { View, Pressable, TextInput, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import { Feather } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import Text from '../common/Text';
 import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../../theme/theme';
 
@@ -21,6 +22,7 @@ import { COLORS, SPACING, FONT_SIZE, FONT_FAMILY, SIZE } from '../../theme/theme
  * @param {Function} onUpdateNote    - Callback with updated note text.
  */
 export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
 
   // ── No note, not editing: show add button only in edit mode ──
@@ -33,7 +35,7 @@ export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
         onPress={() => setEditing(true)}
       >
         <Feather name="edit-2" size={FONT_SIZE.caption} color={COLORS.notePlaceholder} />
-        <Text variant="caption" style={styles.addNoteText}>add note...</Text>
+        <Text variant="caption" style={styles.addNoteText}>{t('exercise.note.add')}</Text>
       </Pressable>
     );
   }
@@ -46,7 +48,7 @@ export default function ExerciseNote({ note, editMode = false, onUpdateNote }) {
           style={styles.noteInput}
           value={note || ''}
           onChangeText={onUpdateNote}
-          placeholder="Write a note..."
+          placeholder={t('exercise.note.placeholder')}
           placeholderTextColor={COLORS.mediumGray}
           multiline
           textAlignVertical="top"

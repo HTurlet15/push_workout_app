@@ -1,6 +1,7 @@
 import { View, Pressable, TextInput, Animated, StyleSheet } from 'react-native';
 import { useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import Text from '../common/Text';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
 
@@ -38,6 +39,7 @@ export default function ProgramCard({
   onUpdateName,
   isFirst = false,
 }) {
+  const { t } = useTranslation();
   const expandAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
   const chevronAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
 
@@ -104,13 +106,13 @@ export default function ProgramCard({
               style={styles.cardNameInput}
               value={program.name}
               onChangeText={(text) => onUpdateName?.(text)}
-              placeholder="Program name"
+              placeholder={t('programs.namePlaceholder')}
               placeholderTextColor={COLORS.textMuted}
               returnKeyType="done"
             />
             <View style={styles.cardMeta}>
               <Text style={styles.cardMetaText}>
-                {workouts.length} workout{workouts.length !== 1 ? 's' : ''}
+                {t('programs.workoutCount', { count: workouts.length })}
               </Text>
               <View style={styles.frequencyEditable}>
                 <Text style={styles.cardMetaText}> · </Text>
@@ -118,7 +120,7 @@ export default function ProgramCard({
                   style={styles.frequencyInput}
                   value={program.frequency || ''}
                   onChangeText={(text) => onUpdateFrequency?.(text || null)}
-                  placeholder="e.g. 4d/week"
+                  placeholder={t('programs.frequencyPlaceholder')}
                   placeholderTextColor={COLORS.textMuted}
                   returnKeyType="done"
                 />
@@ -136,7 +138,7 @@ export default function ProgramCard({
             <Text style={styles.cardName}>{program.name}</Text>
             <View style={styles.cardMeta}>
               <Text style={styles.cardMetaText}>
-                {workouts.length} workout{workouts.length !== 1 ? 's' : ''}
+                {t('programs.workoutCount', { count: workouts.length })}
               </Text>
               {program.frequency ? (
                 <Text style={styles.cardMetaText}> · {program.frequency}</Text>
@@ -169,7 +171,7 @@ export default function ProgramCard({
             style={styles.noteInput}
             value={program.note || ''}
             onChangeText={(text) => onUpdateNote?.(text || null)}
-            placeholder="add note..."
+            placeholder={t('programs.notePlaceholder')}
             placeholderTextColor={COLORS.notePlaceholder}
             multiline
           />
@@ -190,7 +192,7 @@ export default function ProgramCard({
               <View style={styles.workoutDot} />
               <Text style={styles.workoutName}>{session.current.name}</Text>
               <Text style={styles.workoutDetail}>
-                {session.current.exercises.length} exercise{session.current.exercises.length !== 1 ? 's' : ''}
+                {t('programs.exerciseCount', { count: session.current.exercises.length })}
               </Text>
             </View>
           ))}

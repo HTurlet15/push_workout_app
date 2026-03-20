@@ -1,6 +1,7 @@
 import { View, ScrollView, Pressable, Animated, StyleSheet } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import Text from '../common/Text';
 import WorkoutCard from './WorkoutCard';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
@@ -20,6 +21,7 @@ export default function WorkoutsList({
   onDeleteWorkout,
   onUpdateWorkoutName,
 }) {
+  const { t } = useTranslation();
   const [expandedId, setExpandedId] = useState(null);
   const [newIndices, setNewIndices] = useState(new Set());
   const deleteAnims = useRef({});
@@ -29,7 +31,7 @@ export default function WorkoutsList({
   }, [editMode]);
 
   const getTimeBadge = (completedAt) => {
-    if (!completedAt) return { label: 'Never', tier: 'moderate' };
+    if (!completedAt) return { label: t('workouts.timeBadge.never'), tier: 'moderate' };
     const now = new Date();
     const completed = new Date(completedAt);
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -37,9 +39,9 @@ export default function WorkoutsList({
     const days = Math.round((todayStart - completedStart) / (1000 * 60 * 60 * 24));
 
     let label;
-    if (days === 0) label = 'Today';
-    else if (days === 1) label = 'Yesterday';
-    else label = `${days}d ago`;
+    if (days === 0) label = t('workouts.timeBadge.today');
+    else if (days === 1) label = t('workouts.timeBadge.yesterday');
+    else label = t('workouts.timeBadge.daysAgo', { count: days });
 
     let tier;
     if (days <= 2) tier = 'recent';
@@ -137,15 +139,15 @@ export default function WorkoutsList({
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <Text variant="screenTitle">WORKOUTS</Text>
+        <Text variant="screenTitle">{t('workouts.title')}</Text>
       </View>
 
       {/* Empty state: no program selected */}
       {!selectedProgramId && sessions.length === 0 && (
         <View style={styles.emptyState}>
           <Feather name="layers" size={32} color={COLORS.mediumGray} />
-          <Text style={styles.emptyTitle}>No program selected</Text>
-          <Text style={styles.emptySubtitle}>Create and select a program to start adding workouts.</Text>
+          <Text style={styles.emptyTitle}>{t('workouts.empty.title')}</Text>
+          <Text style={styles.emptySubtitle}>{t('workouts.empty.subtitle')}</Text>
         </View>
       )}
 
@@ -161,7 +163,7 @@ export default function WorkoutsList({
           onPress={handleAdd}
         >
           <Feather name="plus" size={SIZE.iconChevron} color={COLORS.viewCurrent} />
-          <Text style={[styles.addBtnText, { color: COLORS.viewCurrent }]}>Add Workout</Text>
+          <Text style={[styles.addBtnText, { color: COLORS.viewCurrent }]}>{t('workouts.add')}</Text>
         </Pressable>
       )}
 
@@ -174,7 +176,7 @@ export default function WorkoutsList({
           onPress={handleAdd}
         >
           <Feather name="plus" size={SIZE.iconChevron} color={COLORS.textSecondary} />
-          <Text style={styles.addBtnText}>Add Workout</Text>
+          <Text style={styles.addBtnText}>{t('workouts.add')}</Text>
         </Pressable>
       )}
     </ScrollView>

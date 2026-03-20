@@ -1,4 +1,5 @@
 import { ScrollView, View, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Text from '../common/Text';
 import GraphCard from './GraphCard';
 import { SPACING } from '../../theme/theme';
@@ -10,6 +11,7 @@ import { SPACING } from '../../theme/theme';
  * @param {Function} onSelectGraph - Called with session index when a graph is tapped.
  */
 export default function GraphsList({ sessions, onSelectGraph }) {
+  const { t } = useTranslation();
   return (
     <ScrollView
       style={styles.scroll}
@@ -17,7 +19,7 @@ export default function GraphsList({ sessions, onSelectGraph }) {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <Text variant="screenTitle">GRAPHS</Text>
+        <Text variant="screenTitle">{t('graphs.title')}</Text>
       </View>
 
       {sessions.map((session, index) => (

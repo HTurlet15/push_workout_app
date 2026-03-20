@@ -1,6 +1,7 @@
 import { View, Pressable, Animated, StyleSheet, TextInput } from 'react-native';
 import { useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import Text from '../common/Text';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
 
@@ -25,6 +26,7 @@ export default function WorkoutCard({
   onUpdateName,
   isFirst = false,
 }) {
+  const { t } = useTranslation();
   const expandAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
   const chevronAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
   const numberColorAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
@@ -126,7 +128,7 @@ export default function WorkoutCard({
                 {timeBadge.label}
               </Text>
               <Text style={styles.cardMetaText}>
-                {' · '}{exercises.length} exercise{exercises.length !== 1 ? 's' : ''}
+                {' · '}{t('workouts.exerciseCount', { count: exercises.length })}
               </Text>
             </View>
           </View>
@@ -155,7 +157,7 @@ export default function WorkoutCard({
                 <View style={styles.exerciseDot} />
                 <Text style={styles.exerciseName}>{exercise.name}</Text>
                 <Text style={styles.exerciseDetail}>
-                  {exercise.sets.length} sets · {getRepRange(exercise)}
+                  {exercise.sets.length} {t('workouts.setsLabel')} · {getRepRange(exercise)}
                 </Text>
               </View>
             ))}

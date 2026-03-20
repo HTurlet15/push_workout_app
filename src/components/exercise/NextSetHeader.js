@@ -1,4 +1,5 @@
 import { View, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Text from '../common/Text';
 import { COLORS, SPACING, SIZE } from '../../theme/theme';
 
@@ -14,20 +15,21 @@ import { COLORS, SPACING, SIZE } from '../../theme/theme';
  * No RIR column - future performance can't be pre-rated.
  */
 export default function NextSetHeader() {
+  const { t } = useTranslation();
   return (
     <View style={styles.container}>
-      <Text variant="tableHeader" style={styles.setCell}>Set</Text>
+      <Text variant="tableHeader" style={styles.setCell}>{t('exercise.header.set')}</Text>
 
       <View style={styles.weightCell}>
         <View style={styles.badgeGroup}>
-          <Text variant="tableHeader" style={styles.badgeLabel}>Weight</Text>
+          <Text variant="tableHeader" style={styles.badgeLabel}>{t('exercise.header.weight')}</Text>
           <View style={styles.deltaCell} />
         </View>
       </View>
 
       <View style={styles.repsCell}>
         <View style={styles.badgeGroup}>
-          <Text variant="tableHeader" style={styles.badgeLabel}>Reps</Text>
+          <Text variant="tableHeader" style={styles.badgeLabel}>{t('exercise.header.reps')}</Text>
           <View style={styles.deltaCell} />
         </View>
       </View>

@@ -1,0 +1,169 @@
+{
+  "tab": {
+    "programs": "Programmes",
+    "workouts": "Séances",
+    "graphs": "Graphiques"
+  },
+  "tabIndicator": {
+    "workout": "Séance",
+    "workouts": "Séances",
+    "detail": "Détail",
+    "graphs": "Graphiques"
+  },
+  "workout": {
+    "setsDone": "{{completed}}/{{total}} séries complétées",
+    "timeAgo": {
+      "days": "il y a {{count}}j",
+      "hours": "il y a {{count}}h",
+      "mins": "il y a {{count}}m",
+      "justNow": "à l'instant"
+    },
+    "addExercise": "Ajouter un exercice"
+  },
+  "exercise": {
+    "tapToName": "Nommer...",
+    "addSet": "Ajouter une série",
+    "addExercise": "Ajouter un exercice",
+    "noPrevious": "Aucune donnée précédente",
+    "noPlanned": "Aucune donnée planifiée",
+    "header": {
+      "set": "Série",
+      "weight": "Poids",
+      "reps": "Reps",
+      "rir": "RIR"
+    },
+    "views": {
+      "previous": "Précédent",
+      "current": "Actuel",
+      "next": "Suivant"
+    },
+    "note": {
+      "add": "ajouter une note...",
+      "placeholder": "Écrire une note..."
+    },
+    "footer": {
+      "reps": "reps"
+    }
+  },
+  "timer": {
+    "title": "Timer de repos",
+    "min": "min",
+    "sec": "sec",
+    "cancel": "Annuler",
+    "confirm": "Confirmer"
+  },
+  "programs": {
+    "title": "PROGRAMMES",
+    "add": "Ajouter un programme",
+    "namePlaceholder": "Nom du programme",
+    "frequencyPlaceholder": "ex. 4j/sem",
+    "notePlaceholder": "ajouter une note...",
+    "workoutCount_one": "{{count}} séance",
+    "workoutCount_other": "{{count}} séances",
+    "exerciseCount_one": "{{count}} exercice",
+    "exerciseCount_other": "{{count}} exercices"
+  },
+  "workouts": {
+    "title": "SÉANCES",
+    "add": "Ajouter une séance",
+    "empty": {
+      "title": "Aucun programme sélectionné",
+      "subtitle": "Créez et sélectionnez un programme pour ajouter des séances."
+    },
+    "timeBadge": {
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "daysAgo": "il y a {{count}}j",
+      "never": "Jamais"
+    },
+    "exerciseCount_one": "{{count}} exercice",
+    "exerciseCount_other": "{{count}} exercices",
+    "setsLabel": "séries"
+  },
+  "graphs": {
+    "title": "GRAPHIQUES",
+    "noData": "Aucune donnée",
+    "inProgress": "En cours · {{tonnage}} kg",
+    "lastTonnage": "Dernier : {{tonnage}} kg",
+    "sessionCount_one": "{{count}} séance",
+    "sessionCount_other": "{{count}} séances",
+    "now": "Maintenant"
+  },
+  "help": {
+    "done": "Compris !",
+    "programs": {
+      "title": "Programmes",
+      "s0_title": "Qu'est-ce qu'un programme ?",
+      "s0_text": "Un programme regroupe vos séances. Créez-en un pour chaque split (ex. Push/Pull/Legs, Haut/Bas).",
+      "s1_title": "Sélectionner un programme",
+      "s1_text": "Appuyez sur le bouton radio à gauche pour sélectionner un programme. Ses séances apparaîtront dans l'onglet Séances.",
+      "s2_title": "Aperçu des séances",
+      "s2_text": "Appuyez sur le chevron à droite pour déplier un programme et voir toutes ses séances.",
+      "s3_title": "Mode édition",
+      "s3_text": "Appuyez sur le crayon en bas pour ajouter, supprimer ou renommer vos programmes. Vous pouvez aussi ajouter des notes et définir la fréquence."
+    },
+    "workouts": {
+      "title": "Séances",
+      "s0_title": "Lancer une séance",
+      "s0_text": "Appuyez sur une carte pour l'ouvrir et commencer à remplir vos séries.",
+      "s1_title": "Aperçu des exercices",
+      "s1_text": "Appuyez sur le chevron pour voir tous les exercices d'une séance.",
+      "s2_title": "Badges de temps",
+      "s2_text": "Le badge indique quand vous avez fait cette séance — vert si récent, orange si ça fait un moment, rouge si en retard.",
+      "s3_title": "Mode édition",
+      "s3_text": "Utilisez le crayon pour ajouter ou supprimer des séances."
+    },
+    "workout": {
+      "title": "Dans une séance",
+      "s0_title": "Remplissez vos séries",
+      "s0_text": "Appuyez sur une cellule pour entrer le poids, les reps ou le RIR. Une série complétée passe en vert.",
+      "s1_title": "Précédent / Actuel / Suivant",
+      "s1_text": "Utilisez le sélecteur de vue pour voir la dernière séance, remplir l'actuelle, ou planifier la suivante.",
+      "s2_title": "Planifiez avec facilité",
+      "s2_text": "Entrez des valeurs dans la vue Next pour préparer la prochaine séance. Ces valeurs apparaîtront avec une icône calendrier lors de votre prochain entraînement — confirmez-les ou ajustez-les à la volée.",
+      "s3_title": "Timer de repos",
+      "s3_text": "Chaque exercice a un timer de repos. Appuyez sur l'icône timer en bas d'un exercice pour lancer le décompte.",
+      "s4_title": "Fourchette de reps",
+      "s4_text": "La fourchette cible est affichée en bas de chaque exercice. Modifiez-la en mode édition.",
+      "s5_title": "Unités",
+      "s5_text": "Basculez entre kg et lbs avec le bouton en bas de chaque exercice.",
+      "s6_title": "Mode édition",
+      "s6_text": "Appuyez sur le crayon pour ajouter/supprimer des exercices et séries, renommer, et ajuster les timers."
+    },
+    "graphs": {
+      "title": "Graphiques",
+      "s0_title": "Progression du tonnage",
+      "s0_text": "Chaque carte montre l'évolution du tonnage total (poids × reps) par séance.",
+      "s1_title": "Badge de progression",
+      "s1_text": "Le badge vert/rouge montre votre progression globale entre votre première et votre dernière séance.",
+      "s2_title": "Détail par exercice",
+      "s2_text": "Appuyez sur une carte pour voir le tonnage détaillé par exercice, avec les tendances séance par séance."
+    },
+    "graphDetail": {
+      "title": "Détail du graphique",
+      "s0_title": "Tendance globale",
+      "s0_text": "Le graphique principal montre l'évolution de votre tonnage total pour cette séance.",
+      "s1_title": "Détail par exercice",
+      "s1_text": "Chaque exercice a son propre mini graphique montrant l'évolution du tonnage séance par séance.",
+      "s2_title": "Badges séance par séance",
+      "s2_text": "Les badges ici comparent chaque séance à la précédente, pour suivre votre progression dans le temps."
+    }
+  },
+  "coach": {
+    "betaTitle": "Coach IA — Bientôt disponible",
+    "bullet1": "Programmes personnalisés générés depuis ton historique",
+    "bullet2": "Recommandations de surcharge progressive à chaque séance",
+    "bullet3": "Analyse intelligente de tes forces et faiblesses",
+    "bullet4": "Planification adaptative selon ta fatigue et ta récupération",
+    "emailPlaceholder": "ton@email.com",
+    "notifyBtn": "Me notifier",
+    "closeBtn": "Fermer",
+    "successMsg": "Tu es sur la liste ! On te contactera au lancement du Coach IA."
+  },
+  "settings": {
+    "title": "Paramètres",
+    "languageLabel": "Langue",
+    "english": "English",
+    "french": "Français"
+  }
+}

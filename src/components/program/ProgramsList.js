@@ -1,6 +1,7 @@
 import { View, ScrollView, Pressable, Animated, StyleSheet } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import Text from '../common/Text';
 import ProgramCard from './ProgramCard';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE } from '../../theme/theme';
@@ -33,6 +34,7 @@ export default function ProgramsList({
   onUpdateProgramFrequency,
   onUpdateProgramName,
 }) {
+  const { t } = useTranslation();
   const [expandedId, setExpandedId] = useState(null);
   const [newIndices, setNewIndices] = useState(new Set());
   const deleteAnims = useRef({});
@@ -134,7 +136,7 @@ export default function ProgramsList({
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <Text variant="screenTitle">PROGRAMS</Text>
+        <Text variant="screenTitle">{t('programs.title')}</Text>
       </View>
 
       {programs.map((program, index) => renderCard(program, index))}
@@ -148,7 +150,7 @@ export default function ProgramsList({
           onPress={handleAdd}
         >
           <Feather name="plus" size={SIZE.iconChevron} color={COLORS.viewCurrent} />
-          <Text style={[styles.addBtnText, { color: COLORS.viewCurrent }]}>Add Program</Text>
+          <Text style={[styles.addBtnText, { color: COLORS.viewCurrent }]}>{t('programs.add')}</Text>
         </Pressable>
       )}
 
@@ -161,7 +163,7 @@ export default function ProgramsList({
           onPress={handleAdd}
         >
           <Feather name="plus" size={SIZE.iconChevron} color={COLORS.textSecondary} />
-          <Text style={styles.addBtnText}>Add Program</Text>
+          <Text style={styles.addBtnText}>{t('programs.add')}</Text>
         </Pressable>
       )}
     </ScrollView>

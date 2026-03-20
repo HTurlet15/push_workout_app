@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import STARTER_PROGRAM from '../data/starterProgram';
+import i18next from '../i18n/i18n';
 
 const DataContext = createContext(null);
 
@@ -11,6 +12,7 @@ const KEYS = {
   selectedProgramId: '@push_selected_program_id',
   program: (id) => `@push_program_${id}`,
   settings: '@push_settings',
+  language: '@push_language',
 };
 
 // ── Rotation helpers ───────────────────────────────────────
@@ -165,6 +167,7 @@ export function DataProvider({ children }) {
   const [programs, setPrograms] = useState([]);
   const [selectedProgramId, setSelectedProgramId] = useState(null);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [language, setLanguageState] = useState(i18next.language);
   const [loading, setLoading] = useState(true);
 
   // Track which programs are fully loaded (with sessions data)
@@ -178,11 +181,18 @@ export function DataProvider({ children }) {
 
   const loadAll = async () => {
     try {
-      const [idsJson, selectedId, settingsJson] = await Promise.all([
+      const [idsJson, selectedId, settingsJson, savedLang] = await Promise.all([
         AsyncStorage.getItem(KEYS.programIds),
         AsyncStorage.getItem(KEYS.selectedProgramId),
         AsyncStorage.getItem(KEYS.settings),
+        AsyncStorage.getItem(KEYS.language),
       ]);
+
+      // Apply saved language preference if it differs from the initialized default
+      if (savedLang && savedLang !== i18next.language) {
+        i18next.changeLanguage(savedLang);
+        setLanguageState(savedLang);
+      }
 
       let programIds = idsJson ? JSON.parse(idsJson) : null;
 
@@ -421,6 +431,14 @@ export function DataProvider({ children }) {
     });
   }, []);
 
+  // ── Language ─────────────────────────────────────────────
+
+  const setLanguage = useCallback((lang) => {
+    i18next.changeLanguage(lang);
+    setLanguageState(lang);
+    AsyncStorage.setItem(KEYS.language, lang);
+  }, []);
+
   // ── Context value ───────────────────────────────────────
 
   const value = {
@@ -431,6 +449,7 @@ export function DataProvider({ children }) {
     selectedProgram,
     sessions,
     settings,
+    language,
 
     // Program CRUD
     addProgram,
@@ -448,6 +467,9 @@ export function DataProvider({ children }) {
 
     // Settings
     updateSettings,
+
+    // Language
+    setLanguage,
   };
 
   return (

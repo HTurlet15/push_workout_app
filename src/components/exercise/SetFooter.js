@@ -1,5 +1,6 @@
 import { View, Pressable, TextInput, Animated, StyleSheet } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Text from '../common/Text';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE } from '../../theme/theme';
 
@@ -37,6 +38,7 @@ export default function SetFooter({
   onUpdateRepRange,
   editMode = false,
 }) {
+  const { t } = useTranslation();
   const [editingRest, setEditingRest] = useState(false);
   const [draft, setDraft] = useState('');
   const [editingRepRange, setEditingRepRange] = useState(false);
@@ -182,7 +184,7 @@ export default function SetFooter({
               placeholderTextColor={COLORS.textMuted}
             />
           </View>
-          <Text style={styles.restUnit}>reps</Text>
+          <Text style={styles.restUnit}>{t('exercise.footer.reps')}</Text>
         </View>
       );
     }
@@ -196,7 +198,7 @@ export default function SetFooter({
           <View style={styles.restEditable}>
             <Text style={styles.restText}>{repRange || '—'}</Text>
           </View>
-          <Text style={styles.restUnit}>reps</Text>
+          <Text style={styles.restUnit}>{t('exercise.footer.reps')}</Text>
         </Pressable>
       );
     }
@@ -205,7 +207,7 @@ export default function SetFooter({
 
     return (
       <View style={styles.repRangeRow}>
-        <Text style={styles.restText}>{repRange} reps</Text>
+        <Text style={styles.restText}>{repRange} {t('exercise.footer.reps')}</Text>
       </View>
     );
   };

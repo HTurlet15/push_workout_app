@@ -219,14 +219,14 @@ export default function OnboardingScreen({ onFinish }) {
 
   const handleNext = () => {
     if (isLast) {
-      onFinish();
+      onFinish(lang);
     } else {
       flatListRef.current?.scrollToIndex({ index: currentIndex + 1, animated: true });
     }
   };
 
   const handleSkip = () => {
-    onFinish();
+    onFinish(lang);
   };
 
   const renderSlide = ({ item, index }) => {

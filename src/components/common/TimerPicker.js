@@ -1,6 +1,7 @@
 import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import Text from './Text';
 import { COLORS, SPACING, RADIUS, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
 
@@ -33,6 +34,7 @@ const MINUTES = Array.from({ length: 11 }, (_, i) => i);         // 0–10
 const SECONDS = Array.from({ length: 12 }, (_, i) => i * 5);     // 0, 5, 10, ..., 55
 
 export default function TimerPicker({ visible, currentDuration, onConfirm, onClose }) {
+  const { t } = useTranslation();
   const minutesRef = useRef(null);
   const secondsRef = useRef(null);
   const selectedMins = useRef(0);
@@ -138,15 +140,15 @@ export default function TimerPicker({ visible, currentDuration, onConfirm, onClo
     <View style={styles.overlay}>
       <View style={styles.card}>
         {/* Modal title */}
-        <Text variant="subtitle" style={styles.title}>Rest Timer</Text>
+        <Text variant="subtitle" style={styles.title}>{t('timer.title')}</Text>
 
         {/* Dual wheel picker: minutes : seconds */}
         <View style={styles.wheelContainer}>
           {renderWheel(MINUTES, selectedMins, minutesRef, handleScrollEnd)}
-          <Text variant="caption" style={styles.label}>min</Text>
+          <Text variant="caption" style={styles.label}>{t('timer.min')}</Text>
           <Text variant="title" style={styles.colon}>:</Text>
           {renderWheel(SECONDS, selectedSecs, secondsRef, handleScrollEnd)}
-          <Text variant="caption" style={styles.label}>sec</Text>
+          <Text variant="caption" style={styles.label}>{t('timer.sec')}</Text>
         </View>
 
         {/* Action buttons */}
@@ -155,14 +157,14 @@ export default function TimerPicker({ visible, currentDuration, onConfirm, onClo
             style={({ pressed }) => [styles.btn, styles.btnCancel, pressed && styles.btnCancelPressed]}
             onPress={onClose}
           >
-            <Text variant="body" style={styles.btnCancelText}>Cancel</Text>
+            <Text variant="body" style={styles.btnCancelText}>{t('timer.cancel')}</Text>
           </Pressable>
 
           <Pressable
             style={({ pressed }) => [styles.btn, styles.btnConfirm, pressed && styles.btnConfirmPressed]}
             onPress={handleConfirm}
           >
-            <Text variant="body" style={styles.btnConfirmText}>Confirm</Text>
+            <Text variant="body" style={styles.btnConfirmText}>{t('timer.confirm')}</Text>
           </Pressable>
         </View>
       </View>

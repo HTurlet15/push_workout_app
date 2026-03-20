@@ -1,5 +1,6 @@
 import { View, Pressable, StyleSheet } from 'react-native';
 import Svg, { Path, Circle, Line, Text as SvgText } from 'react-native-svg';
+import { useTranslation } from 'react-i18next';
 import Text from '../common/Text';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE, SHADOW } from '../../theme/theme';
 import { computeLiveEntry } from './graphUtils';
@@ -32,8 +33,9 @@ const formatDate = (iso) => {
 };
 
 export default function GraphCard({ session, onPress }) {
+  const { t } = useTranslation();
   const history = session.history || [];
-  const name = session.current?.name || 'Workout';
+  const name = session.current?.name || t('graphs.title');
   const liveEntry = computeLiveEntry(session.current);
   const allData = liveEntry ? [...history, liveEntry] : history;
 
@@ -42,7 +44,7 @@ export default function GraphCard({ session, onPress }) {
       <View style={styles.card}>
         <View style={styles.header}>
           <Text style={styles.title}>{name}</Text>
-          <Text style={styles.subtitle}>No data</Text>
+          <Text style={styles.subtitle}>{t('graphs.noData')}</Text>
         </View>
       </View>
     );
@@ -97,8 +99,10 @@ export default function GraphCard({ session, onPress }) {
         <View>
           <Text style={styles.title}>{name}</Text>
           <Text style={styles.subtitle}>
-            {liveEntry ? `En cours · ${formatTonnage(liveEntry.totalTonnage)} kg` : `Last: ${formatTonnage(latest)} kg`}
-            {' · '}{history.length} session{history.length !== 1 ? 's' : ''}
+            {liveEntry
+              ? t('graphs.inProgress', { tonnage: formatTonnage(liveEntry.totalTonnage) })
+              : t('graphs.lastTonnage', { tonnage: formatTonnage(latest) })}
+            {' · '}{t('graphs.sessionCount', { count: history.length })}
           </Text>
         </View>
         {hasMultiple && pctChange !== null && (
@@ -147,7 +151,7 @@ export default function GraphCard({ session, onPress }) {
 
           {labelIndices.map((idx) => (
             <SvgText key={`xl${idx}`} x={toX(idx)} y={CHART_H - 2} fontSize={9} fill={liveEntry && idx === allData.length - 1 ? COLORS.viewNext : COLORS.textMuted} textAnchor="middle" fontFamily="DM Sans">
-              {liveEntry && idx === allData.length - 1 ? 'Now' : formatDate(allData[idx].date)}
+              {liveEntry && idx === allData.length - 1 ? t('graphs.now') : formatDate(allData[idx].date)}
             </SvgText>
           ))}
         </Svg>

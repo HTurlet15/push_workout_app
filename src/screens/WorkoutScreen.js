@@ -2,6 +2,7 @@ import { View, Pressable, Animated, StyleSheet, TextInput } from 'react-native';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Feather } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import Text from '../components/common/Text';
 import ExerciseCard from '../components/exercise/ExerciseCard';
 import { COLORS, SPACING, RADIUS, FONT_SIZE, FONT_FAMILY, SIZE } from '../theme/theme';
@@ -25,6 +26,7 @@ export default function WorkoutScreen({
   onScroll,
 }) {
   const { settings } = useData();
+  const { t } = useTranslation();
 
   const [newExerciseId, setNewExerciseId] = useState(null);
   const [justCompletedSetId, setJustCompletedSetId] = useState(null);
@@ -378,10 +380,10 @@ export default function WorkoutScreen({
     const mins = Math.floor(diff / 60000);
     const hours = Math.floor(mins / 60);
     const days = Math.floor(hours / 24);
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    if (mins > 0) return `${mins}m ago`;
-    return 'just now';
+    if (days > 0) return t('workout.timeAgo.days', { count: days });
+    if (hours > 0) return t('workout.timeAgo.hours', { count: hours });
+    if (mins > 0) return t('workout.timeAgo.mins', { count: mins });
+    return t('workout.timeAgo.justNow');
   })();
 
   // ── Render exercise ───────────────────────────────────────
@@ -467,7 +469,7 @@ export default function WorkoutScreen({
         <View style={styles.headerMeta}>
           <View style={styles.progressBadge}>
             <Text variant="caption" style={styles.progressText}>
-              {completedSets}/{totalSets} sets done
+              {t('workout.setsDone', { completed: completedSets, total: totalSets })}
             </Text>
           </View>
           {lastSessionLabel && (
@@ -488,7 +490,7 @@ export default function WorkoutScreen({
           onPress={() => handleAddExercise(undefined)}
         >
           <Feather name="plus" size={SIZE.iconChevron} color={COLORS.viewCurrent} />
-          <Text style={[styles.addExerciseBtnText, { color: COLORS.viewCurrent }]}>Add Exercise</Text>
+          <Text style={[styles.addExerciseBtnText, { color: COLORS.viewCurrent }]}>{t('workout.addExercise')}</Text>
         </Pressable>
       )}
     </KeyboardAwareScrollView>
